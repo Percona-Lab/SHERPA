@@ -1,0 +1,21 @@
+# Environment / secrets
+.env
+.env.*
+
+# SQLite database + temp files
+portal.db
+portal.db-shm
+portal.db-wal
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# macOS
+.DS_Store
+.fuse_hidden*
+
+# IDE / tooling
+.claude/

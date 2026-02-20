@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Admin</title>
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #2B5AE2; --orange: #F97316; --bg-root: #0B0E14; --bg-surface: #12161F;
+  --bg-card: #181D28; --border: rgba(255,255,255,0.06);
+  --text-primary: #E8ECF4; --text-secondary: #8B95A8; --text-muted: #5A6478;
+  --red: #EF4444; --green: #22C55E; --amber: #F59E0B;
+  --radius: 12px; --radius-sm: 8px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg-root); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 32px; }
+h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+
+.admin-auth { max-width: 400px; margin: 80px auto; text-align: center; }
+.admin-auth input {
+  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-card);
+  color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; margin: 16px 0; outline: none;
+}
+.admin-auth input:focus { border-color: var(--orange); }
+.admin-auth button {
+  padding: 10px 24px; border-radius: var(--radius-sm); border: none;
+  background: var(--orange); color: white; font-family: inherit;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+}
+
+.tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+.tab {
+  font-family: inherit; font-size: 13px; font-weight: 500; padding: 10px 18px;
+  border: none; background: transparent; color: var(--text-muted);
+  cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab:hover { color: var(--text-secondary); }
+.tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.truncate { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+.pill-critical { background: rgba(239,68,68,0.15); color: var(--red); }
+.pill-important { background: rgba(245,158,11,0.15); color: var(--amber); }
+.pill-nice_to_have { background: rgba(34,197,94,0.15); color: var(--green); }
+.pill-blocked { background: rgba(239,68,68,0.15); color: var(--red); }
+.pill-active { background: rgba(34,197,94,0.15); color: var(--green); }
+
+.action-btn {
+  font-family: inherit; font-size: 11px; padding: 4px 10px;
+  border-radius: 100px; border: 1px solid var(--border);
+  background: transparent; color: var(--text-muted); cursor: pointer;
+}
+.action-btn:hover { border-color: var(--red); color: var(--red); }
+.action-btn.unblock:hover { border-color: var(--green); color: var(--green); }
+
+.stats { display: flex; gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px 20px; flex: 1;
+}
+.stat-card .num { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: var(--orange); }
+.stat-card .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+.empty { text-align: center; padding: 40px; color: var(--text-muted); }
+.back-link { display: inline-block; margin-bottom: 16px; color: var(--orange); font-size: 13px; text-decoration: none; }
+.back-link:hover { text-decoration: underline; }
+
+/* Feature cards */
+.feature-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
+}
+.feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.feature-card .meta { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.feature-card .meta a { color: var(--accent); text-decoration: none; }
+.feature-card .meta a:hover { text-decoration: underline; }
+.feature-card .desc-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.feature-card textarea {
+  width: 100%; min-height: 70px; padding: 10px 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-root); color: var(--text-primary);
+  font-family: inherit; font-size: 13px; resize: vertical; outline: none;
+}
+.feature-card textarea:focus { border-color: var(--orange); }
+.feature-card .btn-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+.feature-card .btn-gen, .feature-card .btn-save {
+  font-family: inherit; font-size: 12px; font-weight: 500; padding: 6px 14px;
+  border-radius: 100px; cursor: pointer; transition: all 0.15s;
+}
+.feature-card .btn-gen {
+  border: 1px solid var(--border); background: transparent; color: var(--text-secondary);
+}
+.feature-card .btn-gen:hover { border-color: var(--accent); color: var(--accent); }
+.feature-card .btn-save {
+  border: 1px solid var(--orange); background: rgba(249,115,22,0.1); color: var(--orange);
+}
+.feature-card .btn-save:hover { background: rgba(249,115,22,0.2); }
+.feature-card .btn-save:disabled, .feature-card .btn-gen:disabled { opacity: 0.5; cursor: not-allowed; }
+.feature-card .status-msg { font-size: 12px; margin-left: 8px; display: none; align-items: center; }
+.feature-card .status-msg.ok { color: var(--green); }
+.feature-card .status-msg.err { color: var(--red); }
+.no-desc { color: var(--amber); font-size: 12px; padding: 2px 8px; background: rgba(245,158,11,0.1); border-radius: 100px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <a href="/" class="back-link">← Back to portal</a>
+
+  <div id="authScreen" class="admin-auth">
+    <h1>Admin Panel</h1>
+    <p class="subtitle">Enter admin key to continue</p>
+    <input type="password" id="adminKeyInput" placeholder="Admin key" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button onclick="adminLogin()">Sign in</button>
+    <p id="adminError" style="color:var(--red);font-size:13px;margin-top:8px;display:none"></p>
+  </div>
+
+  <div id="dashboard" style="display:none">
+    <h1>Admin Panel</h1>
+    <p class="subtitle">Manage votes, comments, and voters</p>
+    <div class="stats" id="stats"></div>
+    <div class="tabs">
+      <button class="tab active" data-tab="features" onclick="switchTab('features', this)">Features</button>
+      <button class="tab" data-tab="voters" onclick="switchTab('voters', this)">Voters</button>
+      <button class="tab" data-tab="votes" onclick="switchTab('votes', this)">Votes</button>
+      <button class="tab" data-tab="comments" onclick="switchTab('comments', this)">Comments</button>
+    </div>
+    <div id="tabContent"></div>
+  </div>
+</div>
+
+<script>
+let adminKey = '';
+function adminHeaders() { return { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey }; }
+
+async function adminLogin() {
+  adminKey = document.getElementById('adminKeyInput').value;
+  const err = document.getElementById('adminError');
+  try {
+    const resp = await fetch('/api/admin/voters', { headers: adminHeaders() });
+    if (resp.status === 401) { err.textContent = 'Invalid admin key'; err.style.display = ''; return; }
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = '';
+    sessionStorage.setItem('admin_key', adminKey);
+    loadDashboard();
+  } catch (e) { err.textContent = 'Connection error'; err.style.display = ''; }
+}
+
+const savedKey = sessionStorage.getItem('admin_key');
+if (savedKey) { adminKey = savedKey; adminLogin(); }
+
+async function loadDashboard() {
+  const [voters, votes, comments, features] = await Promise.all([
+    fetch('/api/admin/voters', { headers: adminHeaders() }).then(r => r.json()),
+    fetch('/api/admin/votes', { headers: adminHeaders() }).then(r => r.json()),
+    fetch('/api/admin/comments', { headers: adminHeaders() }).then(r => r.json()),
+    fetch('/api/admin/features', { headers: adminHeaders() }).then(r => r.json()),
+  ]);
+  window._voters = voters; window._votes = votes; window._comments = comments; window._features = features;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="num">${features.length}</div><div class="label">Features</div></div>
+    <div class="stat-card"><div class="num">${voters.length}</div><div class="label">Voters</div></div>
+    <div class="stat-card"><div class="num">${votes.length}</div><div class="label">Votes</div></div>
+    <div class="stat-card"><div class="num">${comments.length}</div><div class="label">Comments</div></div>`;
+  switchTab('features', document.querySelector('.tab.active'));
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const content = document.getElementById('tabContent');
+  if (tab === 'features') renderFeatures(content);
+  else if (tab === 'voters') renderVoters(content);
+  else if (tab === 'votes') renderVotes(content);
+  else if (tab === 'comments') renderComments(content);
+}
+
+function renderVoters(el) {
+  const data = window._voters || [];
+  if (!data.length) { el.innerHTML = '<div class="empty">No voters yet</div>'; return; }
+  el.innerHTML = `<table>
+    <tr><th>Email</th><th>Name</th><th>Votes</th><th>Comments</th><th>Status</th><th>Last Active</th><th></th></tr>
+    ${data.map(v => `<tr>
+      <td class="mono">${esc(v.email)}</td>
+      <td>${esc(v.display_name || '—')}</td>
+      <td>${v.vote_count}</td>
+      <td>${v.comment_count}</td>
+      <td>${v.is_blocked ? '<span class="pill pill-blocked">Blocked</span>' : '<span class="pill pill-active">Active</span>'}</td>
+      <td class="mono">${v.last_active_at ? new Date(v.last_active_at * 1000).toLocaleDateString() : '—'}</td>
+      <td>${v.is_blocked
+        ? `<button class="action-btn unblock" onclick="toggleBlock(${v.id}, false)">Unblock</button>`
+        : `<button class="action-btn" onclick="toggleBlock(${v.id}, true)">Block</button>`}</td>
+    </tr>`).join('')}</table>`;
+}
+
+function renderVotes(el) {
+  const data = window._votes || [];
+  if (!data.length) { el.innerHTML = '<div class="empty">No votes yet</div>'; return; }
+  el.innerHTML = `<table>
+    <tr><th>Email</th><th>Feature ID</th><th>Importance</th><th>Customer</th><th>Date</th><th></th></tr>
+    ${data.map(v => `<tr>
+      <td class="mono">${esc(v.email)}</td>
+      <td class="mono truncate" title="${v.feature_id}">${v.feature_id.slice(0, 8)}…</td>
+      <td><span class="pill pill-${v.importance}">${v.importance.replace('_', ' ')}</span></td>
+      <td>${esc(v.customer_name || '—')}</td>
+      <td class="mono">${new Date(v.created_at * 1000).toLocaleDateString()}</td>
+      <td><button class="action-btn" onclick="deleteVote(${v.vote_id})">Remove</button></td>
+    </tr>`).join('')}</table>`;
+}
+
+function renderComments(el) {
+  const data = window._comments || [];
+  if (!data.length) { el.innerHTML = '<div class="empty">No comments yet</div>'; return; }
+  el.innerHTML = `<table>
+    <tr><th>Email</th><th>Comment</th><th>Status</th><th>Date</th><th></th></tr>
+    ${data.map(c => `<tr>
+      <td class="mono">${esc(c.email)}</td>
+      <td style="max-width:400px">${esc(c.body)}</td>
+      <td>${c.is_removed ? '<span class="pill pill-blocked">Removed</span>' : '<span class="pill pill-active">Visible</span>'}</td>
+      <td class="mono">${new Date(c.created_at * 1000).toLocaleDateString()}</td>
+      <td>${!c.is_removed ? `<button class="action-btn" onclick="deleteComment(${c.id})">Remove</button>` : ''}</td>
+    </tr>`).join('')}</table>`;
+}
+
+async function deleteVote(id) {
+  if (!confirm('Remove this vote?')) return;
+  await fetch(`/api/admin/vote/${id}`, { method: 'DELETE', headers: adminHeaders() });
+  loadDashboard();
+}
+async function deleteComment(id) {
+  if (!confirm('Remove this comment?')) return;
+  await fetch(`/api/admin/comment/${id}`, { method: 'DELETE', headers: adminHeaders() });
+  loadDashboard();
+}
+async function toggleBlock(voterId, block) {
+  if (!confirm(block ? 'Block this voter? All votes & comments removed.' : 'Unblock this voter?')) return;
+  await fetch(`/api/admin/voter/${voterId}/block`, { method: 'POST', headers: adminHeaders(), body: JSON.stringify({ block }) });
+  loadDashboard();
+}
+
+function renderFeatures(el) {
+  const data = window._features || [];
+  if (!data.length) { el.innerHTML = '<div class="empty">No features found</div>'; return; }
+  el.innerHTML = data.map(f => {
+    const techBadges = f.db_tech.map(t => `<span style="color:var(--text-muted)">${esc(t)}</span>`).join(' · ');
+    const hasDesc = !!f.description;
+    return `
+    <div class="feature-card" id="fc-${f.id}">
+      <h3>${esc(f.name)}</h3>
+      <div class="meta">
+        ${techBadges ? `<span>${techBadges}</span>` : ''}
+        <span>${f.votes} vote${f.votes !== 1 ? 's' : ''}</span>
+        <span>${f.comment_count} comment${f.comment_count !== 1 ? 's' : ''}</span>
+        ${!hasDesc ? '<span class="no-desc">No description</span>' : ''}
+        <a href="${f.notion_url}" target="_blank" rel="noopener">View in Notion ↗</a>
+      </div>
+      <div class="desc-label">Portal Description</div>
+      <textarea id="desc-${f.id}" placeholder="Click Generate to create a description from the Notion page content…">${esc(f.description)}</textarea>
+      <div class="btn-row">
+        <button class="btn-gen" onclick="generateDesc('${f.id}')" id="gen-${f.id}">✨ Generate from Notion</button>
+        <button class="btn-save" onclick="saveDesc('${f.id}')" id="save-${f.id}">Save</button>
+        <span class="status-msg ok" id="msg-${f.id}">✓ Saved</span>
+        <span class="status-msg err" id="err-${f.id}"></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function generateDesc(featureId) {
+  const feature = (window._features || []).find(f => f.id === featureId);
+  if (!feature) return;
+  const btn = document.getElementById('gen-' + featureId);
+  const textarea = document.getElementById('desc-' + featureId);
+  const errMsg = document.getElementById('err-' + featureId);
+  errMsg.style.display = 'none';
+  btn.disabled = true; btn.textContent = '⏳ Reading Notion page…';
+  try {
+    const resp = await fetch('/api/admin/generate-description/' + featureId, {
+      method: 'POST', headers: adminHeaders(),
+      body: JSON.stringify({ name: feature.name }),
+    });
+    const data = await resp.json();
+    if (data.description) {
+      textarea.value = data.description;
+    } else if (data.error) {
+      errMsg.textContent = data.error; errMsg.style.display = 'inline-flex';
+    }
+  } catch (e) {
+    errMsg.textContent = 'Error: ' + e.message; errMsg.style.display = 'inline-flex';
+  }
+  btn.disabled = false; btn.textContent = '✨ Generate from Notion';
+}
+
+async function saveDesc(featureId) {
+  const textarea = document.getElementById('desc-' + featureId);
+  const btn = document.getElementById('save-' + featureId);
+  const msg = document.getElementById('msg-' + featureId);
+  const errMsg = document.getElementById('err-' + featureId);
+  const description = textarea.value.trim();
+  if (!description) { alert('Description cannot be empty'); return; }
+  btn.disabled = true; errMsg.style.display = 'none'; msg.style.display = 'none';
+  try {
+    const resp = await fetch('/api/admin/save-description/' + featureId, {
+      method: 'POST', headers: adminHeaders(),
+      body: JSON.stringify({ description }),
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      const f = (window._features || []).find(f => f.id === featureId);
+      if (f) f.description = description;
+      msg.style.display = 'inline-flex';
+      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    } else {
+      errMsg.textContent = data.error || 'Save failed'; errMsg.style.display = 'inline-flex';
+    }
+  } catch (e) {
+    errMsg.textContent = 'Error: ' + e.message; errMsg.style.display = 'inline-flex';
+  }
+  btn.disabled = false;
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+</script>
+</body>
+</html>

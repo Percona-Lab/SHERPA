@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Percona Feature Insights Hub</title>
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #2B5AE2;
+  --accent-light: #4B7BFF;
+  --accent-glow: rgba(43, 90, 226, 0.25);
+  --bg-root: #0B0E14;
+  --bg-surface: #12161F;
+  --bg-card: #181D28;
+  --bg-card-hover: #1E2433;
+  --bg-input: #0F1219;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(43, 90, 226, 0.3);
+  --text-primary: #E8ECF4;
+  --text-secondary: #8B95A8;
+  --text-muted: #5A6478;
+  --green: #22C55E;
+  --amber: #F59E0B;
+  --orange: #F97316;
+  --purple: #A855F7;
+  --red: #EF4444;
+  --cyan: #06B6D4;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --mysql-bg: rgba(139,92,246,0.14); --mysql-text: #A78BFA;
+  --pg-bg: rgba(59,130,246,0.14); --pg-text: #60A5FA;
+  --mongo-bg: rgba(34,197,94,0.14); --mongo-text: #4ADE80;
+  --valkey-bg: rgba(245,158,11,0.14); --valkey-text: #FBBF24;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg-root);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11,14,20,0.82);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 32px;
+  height: 68px; display: flex; align-items: center; justify-content: space-between;
+}
+.logo-area { display: flex; align-items: center; gap: 12px; }
+.logo-img { height: 32px; width: auto; }
+.logo-text { font-weight: 600; font-size: 17px; letter-spacing: -0.3px; }
+.logo-text span { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+
+/* Auth area */
+.auth-area { display: flex; align-items: center; gap: 12px; }
+.user-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 100px;
+  background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.2);
+  font-size: 13px; color: var(--orange);
+}
+.user-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
+.sign-in-btn, .sign-out-btn {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 16px; border-radius: 100px; cursor: pointer;
+  transition: all var(--transition); border: 1px solid var(--border);
+  background: transparent; color: var(--text-secondary);
+}
+.sign-in-btn { border-color: var(--orange); color: var(--orange); background: rgba(249,115,22,0.08); }
+.sign-in-btn:hover { background: rgba(249,115,22,0.16); }
+.sign-out-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* Toolbar */
+.toolbar { max-width: 1200px; margin: 0 auto; padding: 24px 32px 0; }
+.toolbar-top { margin-bottom: 24px; }
+.toolbar-top h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.6px; margin-bottom: 6px; }
+.toolbar-top p { font-size: 15px; color: var(--text-secondary); line-height: 1.5; max-width: 600px; }
+
+.filters {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding-bottom: 20px; border-bottom: 1px solid var(--border);
+}
+.filter-btn {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 14px; border-radius: 100px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-secondary); cursor: pointer;
+  transition: all var(--transition); white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--border-accent); color: var(--text-primary); background: rgba(43,90,226,0.06); }
+.filter-btn.active { border-color: var(--accent); background: rgba(43,90,226,0.12); color: var(--accent-light); }
+.filter-group { display: flex; align-items: center; gap: 6px; }
+.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-right: 4px; }
+.filter-sep { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
+
+/* Board */
+.board { max-width: 1200px; margin: 0 auto; padding: 28px 32px 80px; }
+.status-section { margin-bottom: 40px; animation: fade-up 0.5s ease both; }
+.status-section:nth-child(2) { animation-delay: 80ms; }
+.status-section:nth-child(3) { animation-delay: 160ms; }
+.status-section:nth-child(4) { animation-delay: 240ms; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.status-indicator.under-consideration { background: var(--amber); }
+.status-indicator.planned { background: var(--purple); }
+.status-indicator.in-progress { background: var(--accent-light); }
+.status-indicator.shipped { background: var(--green); }
+.status-label { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+.status-count { font-size: 12px; font-weight: 500; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 2px 8px; border-radius: 100px; }
+
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+
+/* Card */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  transition: all var(--transition); position: relative; overflow: hidden; cursor: pointer;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--orange), var(--amber));
+  opacity: 0; transition: opacity var(--transition);
+}
+.card:hover { border-color: var(--border-accent); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.card:hover::before { opacity: 1; }
+
+.card-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.4; margin-bottom: 10px; }
+.badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 100px; white-space: nowrap; }
+.badge-mysql { background: var(--mysql-bg); color: var(--mysql-text); }
+.badge-postgresql { background: var(--pg-bg); color: var(--pg-text); }
+.badge-mongodb { background: var(--mongo-bg); color: var(--mongo-text); }
+.badge-valkey { background: var(--valkey-bg); color: var(--valkey-text); }
+
+.card-desc {
+  font-size: 13.5px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 16px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.card-actions { display: flex; align-items: center; gap: 8px; }
+
+.vote-btn {
+  font-family: inherit; display: flex; align-items: center; gap: 6px;
+  padding: 7px 12px; border-radius: var(--radius-xs);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-secondary); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all var(--transition); user-select: none;
+}
+.vote-btn:hover { border-color: var(--orange); color: var(--orange); background: rgba(249,115,22,0.08); }
+.vote-btn.voted { border-color: var(--orange); background: rgba(249,115,22,0.14); color: var(--orange); }
+.vote-btn .arrow { font-size: 14px; line-height: 1; transition: transform var(--transition); }
+.vote-btn:hover .arrow, .vote-btn.voted .arrow { transform: translateY(-1px); }
+
+.vote-count {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  color: var(--text-primary); min-width: 24px; text-align: center;
+}
+
+.comment-btn {
+  font-family: inherit; display: flex; align-items: center; gap: 5px;
+  padding: 7px 10px; border-radius: var(--radius-xs);
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); font-size: 12px; cursor: pointer;
+  transition: all var(--transition);
+}
+.comment-btn:hover { border-color: var(--border-accent); color: var(--text-secondary); }
+
+.importance-bar {
+  display: flex; height: 4px; border-radius: 2px; overflow: hidden;
+  background: rgba(255,255,255,0.04); margin-top: 14px;
+}
+.importance-bar .seg-critical { background: var(--red); }
+.importance-bar .seg-important { background: var(--amber); }
+.importance-bar .seg-nice { background: var(--green); }
+.importance-legend { display: flex; gap: 12px; margin-top: 6px; }
+.importance-legend span { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.importance-legend .dot-critical { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+.importance-legend .dot-important { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+.importance-legend .dot-nice { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+/* ─── Modal ─── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+  justify-content: center; align-items: flex-start;
+  padding: 60px 16px; overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: 16px; width: 100%; max-width: 560px;
+  padding: 32px; position: relative;
+  animation: modal-in 0.25s ease;
+}
+@keyframes modal-in { from { opacity: 0; transform: translateY(20px) scale(0.97); } }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: none; border: none; color: var(--text-muted);
+  font-size: 20px; cursor: pointer; padding: 4px 8px;
+  border-radius: var(--radius-xs); transition: all var(--transition);
+}
+.modal-close:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
+.modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+.modal p.subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.form-input {
+  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-primary); font-family: inherit; font-size: 14px;
+  transition: all var(--transition); outline: none;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.form-input::placeholder { color: var(--text-muted); }
+textarea.form-input { resize: vertical; min-height: 80px; }
+
+.btn-primary {
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  padding: 10px 24px; border-radius: var(--radius-sm);
+  border: none; background: var(--orange); color: white;
+  cursor: pointer; transition: all var(--transition); width: 100%;
+}
+.btn-primary:hover { background: #EA6A0B; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.form-error { color: var(--red); font-size: 13px; margin-top: 8px; }
+
+/* Importance picker */
+.importance-picker { display: flex; gap: 8px; margin-bottom: 16px; }
+.imp-option {
+  flex: 1; padding: 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: transparent;
+  cursor: pointer; transition: all var(--transition); text-align: center;
+  font-family: inherit; color: var(--text-secondary); font-size: 12px; font-weight: 500;
+}
+.imp-option:hover { border-color: var(--border-accent); }
+.imp-option.selected { border-width: 2px; }
+.imp-option.sel-nice { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
+.imp-option.sel-important { border-color: var(--amber); color: var(--amber); background: rgba(245,158,11,0.08); }
+.imp-option.sel-critical { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.08); }
+.imp-option .imp-emoji { font-size: 20px; display: block; margin-bottom: 4px; }
+
+/* Comments */
+.comments-section { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px; }
+.comments-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.comment-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.comment-item:last-child { border-bottom: none; }
+.comment-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.comment-body { font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; }
+.comment-empty { font-size: 13px; color: var(--text-muted); padding: 16px 0; }
+.comment-form { display: flex; gap: 8px; margin-top: 12px; }
+.comment-form input { flex: 1; }
+.comment-form button {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--orange); background: rgba(249,115,22,0.1);
+  color: var(--orange); cursor: pointer; white-space: nowrap;
+  transition: all var(--transition);
+}
+.comment-form button:hover { background: rgba(249,115,22,0.2); }
+
+.notion-link {
+  font-size: 12px; color: var(--accent-light); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.notion-link:hover { text-decoration: underline; }
+
+.loading-state, .error-state, .empty-state { text-align: center; padding: 80px 32px; color: var(--text-muted); }
+.loading-spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-section-msg { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border); border-radius: var(--radius); }
+
+@media (max-width: 768px) {
+  .header-inner { padding: 0 16px; }
+  .toolbar { padding: 16px 16px 0; }
+  .board { padding: 20px 16px 60px; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .toolbar-top h1 { font-size: 22px; }
+  .importance-picker { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <img src="/static/logo-transparent.png" alt="Percona" class="logo-img">
+      <div class="logo-text">Percona <span>Feature Insights Hub</span></div>
+    </div>
+    <div class="auth-area" id="authArea">
+      <button class="sign-in-btn" onclick="openAuthModal()">Sign in to vote</button>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-top">
+    <h1>Feature Insights Hub</h1>
+    <p>Share what customers need most. Vote, comment, and help prioritize features based on real market demand and customer pain points.</p>
+  </div>
+  <div class="filters" id="filters">
+    <div class="filter-group">
+      <span class="filter-label">Database</span>
+      <button class="filter-btn active" data-filter="tech" data-value="all">All</button>
+      <button class="filter-btn" data-filter="tech" data-value="MySQL">MySQL</button>
+      <button class="filter-btn" data-filter="tech" data-value="PostgreSQL">PostgreSQL</button>
+      <button class="filter-btn" data-filter="tech" data-value="MongoDB">MongoDB</button>
+      <button class="filter-btn" data-filter="tech" data-value="Valkey">Valkey</button>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      <button class="filter-btn active" data-filter="status" data-value="all">All</button>
+      <button class="filter-btn" data-filter="status" data-value="In Progress">In Progress</button>
+      <button class="filter-btn" data-filter="status" data-value="Planned">Planned</button>
+      <button class="filter-btn" data-filter="status" data-value="Under Consideration">Under Consideration</button>
+      <button class="filter-btn" data-filter="status" data-value="Shipped">Shipped</button>
+    </div>
+  </div>
+</div>
+
+<main class="board" id="board">
+  <div class="loading-state" id="loading"><div class="loading-spinner"></div><p>Loading features…</p></div>
+</main>
+
+<!-- Sign In Modal -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+    <h2>Sign in to vote</h2>
+    <p class="subtitle">Use your Percona email to vote and comment on features.</p>
+    <div class="form-group">
+      <label>Your name</label>
+      <input class="form-input" type="text" id="authName" placeholder="Jane Smith" onkeydown="if(event.key==='Enter')document.getElementById('authEmail').focus()">
+    </div>
+    <div class="form-group">
+      <label>Percona email</label>
+      <input class="form-input" type="email" id="authEmail" placeholder="you@percona.com" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-primary" onclick="doLogin()" id="loginBtn">Sign in</button>
+    <div id="authError" class="form-error" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Feature Detail Modal -->
+<div class="modal-overlay" id="featureModal">
+  <div class="modal" style="max-width:620px">
+    <button class="modal-close" onclick="closeModal('featureModal')">&times;</button>
+    <div id="featureModalContent"></div>
+  </div>
+</div>
+
+<script>
+let allFeatures = [];
+let activeTech = 'all';
+let activeStatus = 'all';
+let currentUser = null;
+
+const STATUS_ORDER = ['In Progress', 'Planned', 'Under Consideration', 'Shipped'];
+
+function headers() {
+  const h = { 'Content-Type': 'application/json' };
+  if (currentUser) h['X-Voter-Token'] = String(currentUser.voter_id);
+  return h;
+}
+
+async function api(path, opts = {}) {
+  const resp = await fetch(path, { ...opts, headers: { ...headers(), ...(opts.headers || {}) } });
+  return resp.json();
+}
+
+// ─── Auth ───
+function loadSession() {
+  const saved = localStorage.getItem('percona_voter');
+  if (saved) { currentUser = JSON.parse(saved); updateAuthUI(); }
+}
+
+function updateAuthUI() {
+  const area = document.getElementById('authArea');
+  if (currentUser) {
+    const name = currentUser.display_name || currentUser.email;
+    area.innerHTML = `
+      <div class="user-pill"><div class="dot"></div>${esc(name)}</div>
+      <button class="sign-out-btn" onclick="signOut()">Sign out</button>`;
+  } else {
+    area.innerHTML = `<button class="sign-in-btn" onclick="openAuthModal()">Sign in to vote</button>`;
+  }
+}
+
+function signOut() {
+  currentUser = null;
+  localStorage.removeItem('percona_voter');
+  updateAuthUI();
+  loadFeatures();
+}
+
+function openAuthModal() {
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authModal').classList.add('open');
+  setTimeout(() => document.getElementById('authName').focus(), 100);
+}
+
+async function doLogin() {
+  const name = document.getElementById('authName').value.trim();
+  const email = document.getElementById('authEmail').value.trim();
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('authError');
+
+  if (!name || !email) { err.textContent = 'Name and email are required'; err.style.display = ''; return; }
+
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  err.style.display = 'none';
+
+  const data = await api('/api/auth/login', {
+    method: 'POST', body: JSON.stringify({ email, display_name: name })
+  });
+
+  btn.disabled = false; btn.textContent = 'Sign in';
+
+  if (data.error) { err.textContent = data.error; err.style.display = ''; return; }
+
+  currentUser = { voter_id: data.voter_id, email: data.email, display_name: data.display_name };
+  localStorage.setItem('percona_voter', JSON.stringify(currentUser));
+  updateAuthUI();
+  closeModal('authModal');
+  loadFeatures();
+}
+
+// ─── Modals ───
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', (e) => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ─── Features ───
+async function loadFeatures() {
+  const board = document.getElementById('board');
+  try {
+    const data = await api('/api/features');
+    if (data.error) throw new Error(data.error);
+    allFeatures = data;
+    render();
+  } catch (err) {
+    board.innerHTML = `<div class="error-state"><p>Failed to load features.</p><p style="margin-top:8px;font-size:13px;opacity:.6">${esc(err.message)}</p></div>`;
+  }
+}
+
+function render() {
+  const board = document.getElementById('board');
+  const filtered = allFeatures.filter(f => {
+    if (activeTech !== 'all' && !f.db_tech.includes(activeTech)) return false;
+    if (activeStatus !== 'all' && f.status !== activeStatus) return false;
+    return true;
+  });
+
+  const grouped = {};
+  STATUS_ORDER.forEach(s => grouped[s] = []);
+  filtered.forEach(f => { if (grouped[f.status]) grouped[f.status].push(f); });
+  Object.values(grouped).forEach(arr => arr.sort((a, b) => b.votes - a.votes));
+
+  let html = '';
+  STATUS_ORDER.forEach(status => {
+    const items = grouped[status];
+    if (activeStatus !== 'all' && status !== activeStatus) return;
+    const cssClass = status.toLowerCase().replace(/ /g, '-');
+    html += `
+      <section class="status-section">
+        <div class="status-header">
+          <div class="status-indicator ${cssClass}"></div>
+          <span class="status-label">${status}</span>
+          <span class="status-count">${items.length}</span>
+        </div>
+        <div class="cards-grid">
+          ${items.length ? items.map(cardHTML).join('') : `<div class="empty-section-msg">No features here${activeTech !== 'all' ? ` for ${activeTech}` : ''}.</div>`}
+        </div>
+      </section>`;
+  });
+
+  board.innerHTML = html || '<div class="empty-state"><p>No features match the current filters.</p></div>';
+}
+
+function cardHTML(f) {
+  const voted = !!f.my_vote;
+  const badges = f.db_tech.map(t => `<span class="badge badge-${t.toLowerCase()}">${t}</span>`).join('');
+  const total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
+  let impBar = '';
+  if (total > 0) {
+    const pc = v => (v / total * 100).toFixed(1);
+    impBar = `
+      <div class="importance-bar">
+        ${f.importance.critical ? `<div class="seg-critical" style="width:${pc(f.importance.critical)}%"></div>` : ''}
+        ${f.importance.important ? `<div class="seg-important" style="width:${pc(f.importance.important)}%"></div>` : ''}
+        ${f.importance.nice_to_have ? `<div class="seg-nice" style="width:${pc(f.importance.nice_to_have)}%"></div>` : ''}
+      </div>
+      <div class="importance-legend">
+        ${f.importance.critical ? `<span><span class="dot-critical"></span>${f.importance.critical} critical</span>` : ''}
+        ${f.importance.important ? `<span><span class="dot-important"></span>${f.importance.important} important</span>` : ''}
+        ${f.importance.nice_to_have ? `<span><span class="dot-nice"></span>${f.importance.nice_to_have} nice to have</span>` : ''}
+      </div>`;
+  }
+
+  return `
+    <article class="card" onclick="openFeatureModal('${f.id}')">
+      <h3 class="card-title">${esc(f.name)}</h3>
+      ${badges ? `<div class="badge-row">${badges}</div>` : ''}
+      ${f.description ? `<p class="card-desc">${esc(f.description)}</p>` : ''}
+      <div class="card-footer">
+        <div class="card-actions">
+          <button class="vote-btn ${voted ? 'voted' : ''}" onclick="handleVote('${f.id}', event)">
+            <span class="arrow">▲</span><span>${voted ? f.my_vote.replace(/_/g, ' ') : 'Vote'}</span>
+          </button>
+          <span class="vote-count">${f.votes}</span>
+        </div>
+        <button class="comment-btn" onclick="event.stopPropagation();openFeatureModal('${f.id}')">
+          💬 ${f.comment_count || ''}
+        </button>
+      </div>
+      ${impBar}
+    </article>`;
+}
+
+// ─── Voting ───
+function handleVote(featureId, event) {
+  event.stopPropagation();
+  if (!currentUser) { openAuthModal(); return; }
+  const feature = allFeatures.find(f => f.id === featureId);
+  if (feature.my_vote) {
+    removeVote(featureId);
+  } else {
+    openFeatureModal(featureId, true);
+  }
+}
+
+async function submitVote(featureId) {
+  const importance = document.getElementById('selImp').value;
+  const customer = document.getElementById('customerInput')?.value?.trim() || '';
+  const data = await api('/api/vote', {
+    method: 'POST', body: JSON.stringify({ feature_id: featureId, importance, customer_name: customer })
+  });
+  if (data.ok) { closeModal('featureModal'); loadFeatures(); }
+}
+
+async function removeVote(featureId) {
+  const data = await api('/api/vote', { method: 'POST', body: JSON.stringify({ feature_id: featureId, action: 'remove' }) });
+  if (data.ok) { closeModal('featureModal'); loadFeatures(); }
+}
+
+// ─── Feature Modal ───
+async function openFeatureModal(featureId) {
+  const feature = allFeatures.find(f => f.id === featureId);
+  if (!feature) return;
+
+  const badges = feature.db_tech.map(t => `<span class="badge badge-${t.toLowerCase()}">${t}</span>`).join('');
+  const voted = !!feature.my_vote;
+
+  let voteSection = '';
+  if (currentUser && !voted) {
+    voteSection = `
+      <div style="margin:20px 0">
+        <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">How important is this to you?</label>
+        <div class="importance-picker">
+          <button class="imp-option" onclick="pickImp(this,'nice_to_have','sel-nice')">
+            <span class="imp-emoji">👍</span>Nice to have
+          </button>
+          <button class="imp-option selected sel-important" onclick="pickImp(this,'important','sel-important')">
+            <span class="imp-emoji">⭐</span>Important
+          </button>
+          <button class="imp-option" onclick="pickImp(this,'critical','sel-critical')">
+            <span class="imp-emoji">🔥</span>Critical
+          </button>
+        </div>
+        <input type="hidden" id="selImp" value="important">
+        <div class="form-group">
+          <label>Customer impacted <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+          <input class="form-input" type="text" id="customerInput" placeholder="e.g. Acme Corp, internal request…">
+        </div>
+        <button class="btn-primary" onclick="submitVote('${feature.id}')">Submit vote</button>
+      </div>`;
+  } else if (currentUser && voted) {
+    voteSection = `
+      <div style="margin:20px 0;padding:14px;border-radius:var(--radius-sm);background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <span style="font-size:13px;color:var(--orange)">✓ You voted: <strong>${feature.my_vote.replace(/_/g, ' ')}</strong></span>
+          ${feature.my_customer ? `<span style="font-size:12px;color:var(--text-muted);margin-left:8px">for ${esc(feature.my_customer)}</span>` : ''}
+        </div>
+        <button style="font-family:inherit;font-size:12px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer"
+                onclick="removeVote('${feature.id}')">Remove vote</button>
+      </div>`;
+  } else {
+    voteSection = `
+      <div style="margin:20px 0">
+        <button class="btn-primary" onclick="openAuthModal()">Sign in to vote</button>
+      </div>`;
+  }
+
+  const total = feature.importance.critical + feature.importance.important + feature.importance.nice_to_have;
+  let impStats = '';
+  if (total > 0) {
+    const pc = v => (v / total * 100).toFixed(0);
+    impStats = `
+      <div style="margin-bottom:20px">
+        <div class="importance-bar" style="height:6px">
+          ${feature.importance.critical ? `<div class="seg-critical" style="width:${pc(feature.importance.critical)}%"></div>` : ''}
+          ${feature.importance.important ? `<div class="seg-important" style="width:${pc(feature.importance.important)}%"></div>` : ''}
+          ${feature.importance.nice_to_have ? `<div class="seg-nice" style="width:${pc(feature.importance.nice_to_have)}%"></div>` : ''}
+        </div>
+        <div class="importance-legend" style="margin-top:8px">
+          <span><span class="dot-critical"></span>${feature.importance.critical} critical</span>
+          <span><span class="dot-important"></span>${feature.importance.important} important</span>
+          <span><span class="dot-nice"></span>${feature.importance.nice_to_have} nice to have</span>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('featureModalContent').innerHTML = `
+    <h2>${esc(feature.name)}</h2>
+    ${badges ? `<div class="badge-row" style="margin-top:8px">${badges}</div>` : ''}
+    <p class="subtitle" style="margin-top:12px">${esc(feature.description)}</p>
+    <a href="${feature.notion_url}" target="_blank" rel="noopener" class="notion-link" onclick="event.stopPropagation()">View on Roadmap ↗</a>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span class="vote-count" style="font-size:24px">${feature.votes}</span>
+      <span style="font-size:13px;color:var(--text-muted)">vote${feature.votes !== 1 ? 's' : ''}</span>
+    </div>
+    ${impStats}
+    ${voteSection}
+    <div class="comments-section">
+      <h3>Comments</h3>
+      <div id="commentsList"><div class="comment-empty">Loading comments…</div></div>
+      ${currentUser ? `
+        <div class="comment-form">
+          <input class="form-input" id="commentInput" placeholder="Add a comment…" onkeydown="if(event.key==='Enter')postComment('${feature.id}')">
+          <button onclick="postComment('${feature.id}')">Post</button>
+        </div>` : `<p style="font-size:12px;color:var(--text-muted);margin-top:12px"><a href="#" onclick="openAuthModal();return false" style="color:var(--orange)">Sign in</a> to comment.</p>`}
+    </div>`;
+
+  document.getElementById('featureModal').classList.add('open');
+  loadComments(featureId);
+}
+
+function pickImp(btn, value, cls) {
+  btn.parentNode.querySelectorAll('.imp-option').forEach(b => b.className = 'imp-option');
+  btn.className = `imp-option selected ${cls}`;
+  document.getElementById('selImp').value = value;
+}
+
+// ─── Comments ───
+async function loadComments(featureId) {
+  const data = await api(`/api/comments/${featureId}`);
+  const container = document.getElementById('commentsList');
+  if (!data.length) {
+    container.innerHTML = '<div class="comment-empty">No comments yet. Be the first!</div>';
+    return;
+  }
+  container.innerHTML = data.map(c => `
+    <div class="comment-item">
+      <div class="comment-meta">
+        <span>${esc(c.display_name)}</span>
+        <span>${timeAgo(c.created_at)}</span>
+      </div>
+      <div class="comment-body">${esc(c.body)}</div>
+    </div>`).join('');
+}
+
+async function postComment(featureId) {
+  const input = document.getElementById('commentInput');
+  const body = input.value.trim();
+  if (!body) return;
+  const data = await api('/api/comments', { method: 'POST', body: JSON.stringify({ feature_id: featureId, body }) });
+  if (data.ok) {
+    input.value = '';
+    loadComments(featureId);
+    const f = allFeatures.find(f => f.id === featureId);
+    if (f) f.comment_count++;
+    render();
+  }
+}
+
+// ─── Filters ───
+document.getElementById('filters').addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  btn.closest('.filter-group').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (btn.dataset.filter === 'tech') activeTech = btn.dataset.value;
+  if (btn.dataset.filter === 'status') activeStatus = btn.dataset.value;
+  render();
+});
+
+// ─── Helpers ───
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function timeAgo(ts) {
+  const diff = Date.now() / 1000 - ts;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(ts * 1000).toLocaleDateString();
+}
+
+loadSession();
+loadFeatures();
+</script>
+</body>
+</html>
