@@ -90,8 +90,8 @@ body::before {
 /* Toolbar */
 .toolbar { max-width: 1200px; margin: 0 auto; padding: 24px 32px 0; }
 .toolbar-top { margin-bottom: 24px; }
-.toolbar-top h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.6px; margin-bottom: 6px; }
-.toolbar-top p { font-size: 15px; color: var(--text-secondary); line-height: 1.5; max-width: 600px; }
+.toolbar-top h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 4px; }
+.toolbar-top p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; font-style: italic; }
 
 .filters {
   display: flex; gap: 10px; flex-wrap: wrap;
@@ -109,6 +109,30 @@ body::before {
 .filter-group { display: flex; align-items: center; gap: 6px; }
 .filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-right: 4px; }
 .filter-sep { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
+.filter-select {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 30px 7px 14px; border-radius: 100px;
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-secondary); cursor: pointer;
+  transition: all var(--transition); outline: none;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+.filter-select:hover { border-color: var(--border-accent); color: var(--text-primary); }
+.filter-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.filter-select option { background: var(--bg-surface); color: var(--text-primary); }
+.search-input {
+  font-family: inherit; font-size: 13px; font-weight: 400;
+  padding: 7px 14px 7px 32px; border-radius: 100px;
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-primary); outline: none;
+  transition: all var(--transition); width: 220px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 12px center;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); width: 280px; }
 
 /* Board */
 .board { max-width: 1200px; margin: 0 auto; padding: 28px 32px 80px; }
@@ -291,13 +315,78 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .empty-section-msg { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border); border-radius: var(--radius); }
 
+/* View toggle */
+.view-toggle { display: flex; gap: 2px; background: rgba(255,255,255,0.04); border-radius: 100px; padding: 2px; }
+.view-toggle-btn {
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  padding: 6px 14px; border-radius: 100px; border: none;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  transition: all var(--transition); display: flex; align-items: center; gap: 5px;
+}
+.view-toggle-btn:hover { color: var(--text-secondary); }
+.view-toggle-btn.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.view-toggle-btn svg { width: 14px; height: 14px; }
+
+/* ─── Ranked Table ─── */
+.ranked-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.ranked-table th {
+  text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted);
+  border-bottom: 1px solid var(--border); position: sticky; top: 68px;
+  background: var(--bg-root); z-index: 10;
+}
+.ranked-table th.sortable { cursor: pointer; user-select: none; }
+.ranked-table th.sortable:hover { color: var(--text-secondary); }
+.ranked-table th .sort-arrow { margin-left: 4px; font-size: 10px; opacity: 0.4; }
+.ranked-table th.sort-active .sort-arrow { opacity: 1; color: var(--orange); }
+.ranked-table td {
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  color: var(--text-secondary); vertical-align: middle;
+}
+.ranked-table tbody tr { cursor: pointer; transition: background var(--transition); }
+.ranked-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+.ranked-row-rank {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+  color: var(--text-muted); width: 48px; text-align: center;
+}
+.ranked-row-name { font-size: 14px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.2px; }
+.ranked-row-desc {
+  font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px;
+}
+.ranked-row-votes {
+  font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700;
+  color: var(--orange); text-align: center; width: 80px;
+}
+.ranked-row-votes .votes-label { font-size: 10px; font-weight: 500; color: var(--text-muted); display: block; margin-top: 1px; }
+.ranked-row-demand { width: 140px; }
+.ranked-demand-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,0.04); }
+.ranked-demand-labels { display: flex; gap: 8px; margin-top: 4px; }
+.ranked-demand-labels span { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 3px; }
+.ranked-demand-labels .d-c { width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+.ranked-demand-labels .d-i { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); }
+.ranked-demand-labels .d-n { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.ranked-row-status { width: 140px; }
+.status-pill {
+  display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px;
+  border-radius: 100px; white-space: nowrap;
+}
+.status-pill.sp-in-progress { background: rgba(75,123,255,0.14); color: var(--accent-light); }
+.status-pill.sp-planned { background: rgba(168,85,247,0.14); color: var(--purple); }
+.status-pill.sp-under-consideration { background: rgba(245,158,11,0.14); color: var(--amber); }
+.status-pill.sp-shipped { background: rgba(34,197,94,0.14); color: var(--green); }
+.ranked-row-comments { font-size: 13px; color: var(--text-muted); text-align: center; width: 60px; }
+
 @media (max-width: 768px) {
   .header-inner { padding: 0 16px; }
   .toolbar { padding: 16px 16px 0; }
   .board { padding: 20px 16px 60px; }
   .cards-grid { grid-template-columns: 1fr; }
-  .toolbar-top h1 { font-size: 22px; }
+  .toolbar-top h2 { font-size: 18px; }
   .importance-picker { flex-direction: column; }
+  .ranked-row-desc { max-width: 180px; }
+  .ranked-row-demand, .ranked-row-status { display: none; }
+  th.col-demand, th.col-status { display: none; }
 }
 </style>
 </head>
@@ -317,17 +406,32 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 
 <div class="toolbar">
   <div class="toolbar-top">
-    <h1>SHERPA</h1>
-    <p>Stakeholder Hub for Enhancement Request Prioritization &amp; Action — vote, comment, and help prioritize features based on real market demand and customer pain points.</p>
+    <h2>Stakeholder Hub for Enhancement Request Prioritization &amp; Action</h2>
+    <p>Vote, comment, and help prioritize features based on real market demand and customer pain points.</p>
   </div>
   <div class="filters" id="filters">
+    <div class="view-toggle">
+      <button class="view-toggle-btn active" data-view="board" onclick="setView('board', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Board
+      </button>
+      <button class="view-toggle-btn" data-view="ranked" onclick="setView('ranked', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+        Ranked
+      </button>
+    </div>
+    <div class="filter-sep"></div>
+    <input type="text" class="search-input" id="searchInput" placeholder="Search features…" oninput="onSearch()">
+    <div class="filter-sep"></div>
     <div class="filter-group">
-      <span class="filter-label">Database</span>
-      <button class="filter-btn active" data-filter="tech" data-value="all">All</button>
-      <button class="filter-btn" data-filter="tech" data-value="MySQL">MySQL</button>
-      <button class="filter-btn" data-filter="tech" data-value="PostgreSQL">PostgreSQL</button>
-      <button class="filter-btn" data-filter="tech" data-value="MongoDB">MongoDB</button>
-      <button class="filter-btn" data-filter="tech" data-value="Valkey">Valkey</button>
+      <span class="filter-label">DB Tech</span>
+      <select class="filter-select" id="techFilter" onchange="activeTech = this.value; render()">
+        <option value="all">All</option>
+        <option value="MySQL">MySQL</option>
+        <option value="PostgreSQL">PostgreSQL</option>
+        <option value="MongoDB">MongoDB</option>
+        <option value="Valkey">Valkey</option>
+      </select>
     </div>
     <div class="filter-sep"></div>
     <div class="filter-group">
@@ -376,6 +480,10 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 let allFeatures = [];
 let activeTech = 'all';
 let activeStatus = 'all';
+let searchQuery = '';
+let activeView = 'board';
+let rankSort = 'votes';
+let rankSortDir = 'desc';
 let currentUser = null;
 
 const STATUS_ORDER = ['In Progress', 'Planned', 'Under Consideration', 'Shipped'];
@@ -467,13 +575,27 @@ async function loadFeatures() {
   }
 }
 
-function render() {
-  const board = document.getElementById('board');
-  const filtered = allFeatures.filter(f => {
+function getFiltered() {
+  return allFeatures.filter(f => {
     if (activeTech !== 'all' && !f.db_tech.includes(activeTech)) return false;
     if (activeStatus !== 'all' && f.status !== activeStatus) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const haystack = (f.name + ' ' + (f.description || '') + ' ' + f.db_tech.join(' ')).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
     return true;
   });
+}
+
+function render() {
+  if (activeView === 'ranked') renderRanked();
+  else renderBoard();
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  const filtered = getFiltered();
 
   const grouped = {};
   STATUS_ORDER.forEach(s => grouped[s] = []);
@@ -499,6 +621,90 @@ function render() {
   });
 
   board.innerHTML = html || '<div class="empty-state"><p>No features match the current filters.</p></div>';
+}
+
+function renderRanked() {
+  const board = document.getElementById('board');
+  const filtered = getFiltered();
+
+  // Sort
+  const sorted = [...filtered].sort((a, b) => {
+    let va, vb;
+    if (rankSort === 'votes') { va = a.votes; vb = b.votes; }
+    else if (rankSort === 'critical') { va = a.importance.critical; vb = b.importance.critical; }
+    else if (rankSort === 'name') { va = a.name.toLowerCase(); vb = b.name.toLowerCase(); return rankSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
+    else if (rankSort === 'comments') { va = a.comment_count || 0; vb = b.comment_count || 0; }
+    else { va = a.votes; vb = b.votes; }
+    return rankSortDir === 'desc' ? vb - va : va - vb;
+  });
+
+  const thSort = (col, label, extraClass) => {
+    const active = rankSort === col;
+    const arrow = active ? (rankSortDir === 'desc' ? '▼' : '▲') : '▼';
+    return `<th class="sortable ${active ? 'sort-active' : ''} ${extraClass || ''}" onclick="toggleRankSort('${col}')">${label}<span class="sort-arrow">${arrow}</span></th>`;
+  };
+
+  let html = `<table class="ranked-table">
+    <thead><tr>
+      <th style="width:48px">#</th>
+      ${thSort('name', 'Feature')}
+      ${thSort('votes', 'Votes')}
+      ${thSort('critical', 'Market Demand', 'col-demand')}
+      <th class="col-status">Status</th>
+      ${thSort('comments', '💬')}
+    </tr></thead><tbody>`;
+
+  if (!sorted.length) {
+    html += `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No features match the current filters.</td></tr>`;
+  }
+
+  sorted.forEach((f, i) => {
+    const badges = f.db_tech.map(t => `<span class="badge badge-${t.toLowerCase()}">${t}</span>`).join(' ');
+    const total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
+    const pc = v => total > 0 ? (v / total * 100).toFixed(1) : 0;
+    const statusCls = 'sp-' + f.status.toLowerCase().replace(/ /g, '-');
+
+    html += `<tr onclick="openFeatureModal('${f.id}')">
+      <td class="ranked-row-rank">${i + 1}</td>
+      <td>
+        <div class="ranked-row-name">${esc(f.name)}</div>
+        <div style="display:flex;gap:4px;margin-top:4px">${badges}</div>
+        ${f.description ? `<div class="ranked-row-desc">${esc(f.description)}</div>` : ''}
+      </td>
+      <td class="ranked-row-votes">${f.votes}<span class="votes-label">vote${f.votes !== 1 ? 's' : ''}</span></td>
+      <td class="ranked-row-demand col-demand">
+        ${total > 0 ? `
+          <div class="ranked-demand-bar">
+            ${f.importance.critical ? `<div class="seg-critical" style="width:${pc(f.importance.critical)}%"></div>` : ''}
+            ${f.importance.important ? `<div class="seg-important" style="width:${pc(f.importance.important)}%"></div>` : ''}
+            ${f.importance.nice_to_have ? `<div class="seg-nice" style="width:${pc(f.importance.nice_to_have)}%"></div>` : ''}
+          </div>
+          <div class="ranked-demand-labels">
+            ${f.importance.critical ? `<span><span class="d-c"></span>${f.importance.critical}</span>` : ''}
+            ${f.importance.important ? `<span><span class="d-i"></span>${f.importance.important}</span>` : ''}
+            ${f.importance.nice_to_have ? `<span><span class="d-n"></span>${f.importance.nice_to_have}</span>` : ''}
+          </div>` : '<span style="color:var(--text-muted);font-size:12px">—</span>'}
+      </td>
+      <td class="ranked-row-status col-status"><span class="status-pill ${statusCls}">${f.status}</span></td>
+      <td class="ranked-row-comments">${f.comment_count || '—'}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  board.innerHTML = html;
+}
+
+function setView(view, btn) {
+  activeView = view;
+  document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function toggleRankSort(col) {
+  if (rankSort === col) { rankSortDir = rankSortDir === 'desc' ? 'asc' : 'desc'; }
+  else { rankSort = col; rankSortDir = col === 'name' ? 'asc' : 'desc'; }
+  render();
 }
 
 function cardHTML(f) {
@@ -697,13 +903,18 @@ async function postComment(featureId) {
   }
 }
 
+// ─── Search ───
+function onSearch() {
+  searchQuery = document.getElementById('searchInput').value.trim();
+  render();
+}
+
 // ─── Filters ───
 document.getElementById('filters').addEventListener('click', (e) => {
   const btn = e.target.closest('.filter-btn');
   if (!btn) return;
   btn.closest('.filter-group').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (btn.dataset.filter === 'tech') activeTech = btn.dataset.value;
   if (btn.dataset.filter === 'status') activeStatus = btn.dataset.value;
   render();
 });
