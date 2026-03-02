@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal Admin</title>
+<title>SHERPA Admin</title>
 <link rel="icon" type="image/png" href="/static/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -121,10 +121,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 <body>
 
 <div class="container">
-  <a href="/" class="back-link">← Back to portal</a>
+  <a href="/" class="back-link">← Back to SHERPA</a>
 
   <div id="authScreen" class="admin-auth">
-    <h1>Admin Panel</h1>
+    <h1>SHERPA Admin</h1>
     <p class="subtitle">Enter admin key to continue</p>
     <input type="password" id="adminKeyInput" placeholder="Admin key" onkeydown="if(event.key==='Enter')adminLogin()">
     <button onclick="adminLogin()">Sign in</button>
@@ -132,7 +132,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
   </div>
 
   <div id="dashboard" style="display:none">
-    <h1>Admin Panel</h1>
+    <h1>SHERPA Admin</h1>
     <p class="subtitle">Manage votes, comments, and voters</p>
     <div class="stats" id="stats"></div>
     <div class="tabs">
@@ -271,7 +271,7 @@ function renderFeatures(el) {
         ${!hasDesc ? '<span class="no-desc">No description</span>' : ''}
         <a href="${f.notion_url}" target="_blank" rel="noopener">View in Notion ↗</a>
       </div>
-      <div class="desc-label">Portal Description</div>
+      <div class="desc-label">SHERPA Description</div>
       <textarea id="desc-${f.id}" placeholder="Click Generate to create a description from the Notion page content…">${esc(f.description)}</textarea>
       <div class="btn-row">
         <button class="btn-gen" onclick="generateDesc('${f.id}')" id="gen-${f.id}">✨ Generate from Notion</button>

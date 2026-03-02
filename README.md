@@ -1,6 +1,10 @@
-# Percona Feature Voting Portal
+# SHERPA
 
-A Productboard-style feature voting portal backed by Notion, with email-verified voting.
+**Stakeholder Hub for Enhancement Request Prioritization & Action**
+
+A feature voting portal backed by Notion, with email-verified voting. Percona employees vote on features based on customer and market needs, helping align product priorities with real demand.
+
+> 100% vibe coded with [Claude](https://claude.ai)
 
 ## Architecture
 
@@ -15,11 +19,6 @@ Browser ──► Flask (port 3000) ──► Notion API
 ## Quick Start
 
 ```bash
-cd ~/Portal
-mkdir -p static
-# Place index.html and admin.html in static/
-# Place server.py in Portal root
-
 python3 -m venv .venv
 source .venv/bin/activate
 pip install flask requests
@@ -30,15 +29,15 @@ export NOTION_API_KEY="ntn_xxxxxxxxx"
 # Optional: SMTP for email verification (without it, codes print to console)
 export SMTP_HOST="smtp.gmail.com"
 export SMTP_PORT="587"
-export SMTP_USER="portal@percona.com"
+export SMTP_USER="sherpa@percona.com"
 export SMTP_PASS="app-password-here"
-export SMTP_FROM="portal@percona.com"
+export SMTP_FROM="sherpa@percona.com"
 
 # Optional: custom admin key (default: changeme-admin-2025)
 export PORTAL_ADMIN_KEY="your-secret-admin-key"
 
 python server.py
-# → http://localhost:3000       (portal)
+# → http://localhost:3000       (SHERPA portal)
 # → http://localhost:3000/admin (admin panel)
 ```
 
@@ -49,7 +48,7 @@ Without SMTP env vars, verification codes print to the terminal. Perfect for loc
 
 ### Voting
 - **Email verified** — one vote per email address
-- **Importance levels** — Nice to have / Important / Critical (like Productboard)
+- **Importance levels** — Nice to have / Important / Critical
 - Importance breakdown shown as a colored bar on each card
 
 ### Comments
@@ -66,7 +65,7 @@ Without SMTP env vars, verification codes print to the terminal. Perfect for loc
 ## File Structure
 
 ```
-Portal/
+SHERPA/
 ├── server.py           # Flask backend
 ├── portal.db           # Auto-created SQLite database
 └── static/

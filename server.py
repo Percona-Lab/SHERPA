@@ -1,5 +1,5 @@
 """
-Percona Feature Insights Hub — Backend
+SHERPA — Stakeholder Hub for Enhancement Request Prioritization & Action
 Domain-based auth (internal), with optional email verification for customers later.
 """
 
@@ -532,7 +532,7 @@ def generate_description(feature_id):
         # Fallback: just use first ~300 chars of page content
         return jsonify({"ok": True, "description": page_content[:300].strip()})
 
-    prompt = f"""You are writing a short public-facing description for a feature on Percona's internal Feature Insights Hub. This portal lets Percona employees vote on features based on customer and market needs.
+    prompt = f"""You are writing a short public-facing description for a feature on Percona's internal SHERPA portal (Stakeholder Hub for Enhancement Request Prioritization & Action). This portal lets Percona employees vote on features based on customer and market needs.
 
 Write a concise 2-3 sentence description that:
 - Explains the customer/market problem this feature solves
