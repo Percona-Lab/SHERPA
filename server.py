@@ -20,10 +20,10 @@ app = Flask(__name__, static_folder="static")
 
 # ─── Configuration ───
 NOTION_API_KEY = os.environ.get("NOTION_API_KEY", "")
-DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "5193117585c8405b95d75da57904548e")
+DATABASE_ID = os.environ.get("NOTION_DATABASE_ID", "")
 NOTION_VERSION = "2022-06-28"
 
-ADMIN_KEY = os.environ.get("PORTAL_ADMIN_KEY", "changeme-admin-2025")
+ADMIN_KEY = os.environ.get("PORTAL_ADMIN_KEY", "")
 
 # Auth: comma-separated allowed domains. Empty = allow all (with email verification later)
 ALLOWED_DOMAINS = [d.strip().lower() for d in os.environ.get("ALLOWED_DOMAINS", "percona.com").split(",") if d.strip()]
@@ -628,8 +628,14 @@ def _fetch_notion_page_content(page_id):
 
 if __name__ == "__main__":
     init_db()
-    print(f"  Notion DB: {DATABASE_ID}")
+    if not DATABASE_ID:
+        print("  WARNING: NOTION_DATABASE_ID not set — features will not load")
+    else:
+        print(f"  Notion DB: {DATABASE_ID}")
     print(f"  SQLite: {DB_PATH}")
     print(f"  Allowed domains: {', '.join(ALLOWED_DOMAINS) or 'ALL (verification required)'}")
-    print(f"  Admin key: {ADMIN_KEY[:4]}{'*' * (len(ADMIN_KEY) - 4)}")
+    if not ADMIN_KEY:
+        print("  WARNING: PORTAL_ADMIN_KEY not set — admin endpoints disabled")
+    else:
+        print(f"  Admin key: {ADMIN_KEY[:4]}{'*' * (len(ADMIN_KEY) - 4)}")
     app.run(host="0.0.0.0", port=3000, debug=True)
