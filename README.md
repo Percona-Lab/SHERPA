@@ -33,7 +33,7 @@ export SMTP_USER="sherpa@percona.com"
 export SMTP_PASS="app-password-here"
 export SMTP_FROM="sherpa@percona.com"
 
-# Optional: custom admin key (default: changeme-admin-2025)
+# Required: admin key for /admin panel
 export PORTAL_ADMIN_KEY="your-secret-admin-key"
 
 python server.py
@@ -99,3 +99,25 @@ SHERPA/
 | `/api/admin/vote/{id}` | DELETE | Remove a vote |
 | `/api/admin/comment/{id}` | DELETE | Hide a comment |
 | `/api/admin/voter/{id}/block` | POST | `{ "block": true }` — block/unblock voter |
+
+## Roadmap
+
+Planned improvements, roughly in priority order. Items marked with **n8n** leverage the existing n8n automation infrastructure.
+
+### Phase 1 — Notifications & Visibility
+- [ ] **n8n** Slack alerts on votes/comments — webhook from SHERPA posts to a `#product-feedback` channel when someone votes or comments
+- [ ] **n8n** Weekly digest — scheduled workflow aggregates top-voted features, new comments, and trending items → posts summary to Slack or email
+- [ ] **n8n** Vote threshold alerts — notify product owners via Slack DM when a feature crosses a configurable vote threshold
+
+### Phase 2 — Feedback Loop
+- [ ] **n8n** Status change notifications — poll Notion for status updates (→ In Progress, → Shipped) and notify voters who cared about that feature
+- [ ] **n8n** Cache invalidation webhook — when Notion data changes, trigger SHERPA to refresh so the portal stays current
+- [ ] Add a `/api/webhook` endpoint in SHERPA for n8n to call (vote events, cache busting)
+
+### Phase 3 — Cross-system Integration
+- [ ] **n8n** Jira ticket creation — auto-create Jira epic/story when a feature hits enough traction (votes + comments), linked back to the Notion page
+- [ ] **n8n** CRM enrichment — pull customer context (ARR, segment) from Salesforce to give PMs a revenue-weighted demand view
+
+### Phase 4 — Analytics & Observability
+- [ ] **n8n** Activity logging to Elastic — ship SHERPA events (votes, comments, logins) to the existing Elastic stack for dashboards and trend analysis
+- [ ] Engagement metrics — track unique visitors, vote-to-visit ratio, comment activity over time
