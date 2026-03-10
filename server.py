@@ -10,6 +10,7 @@ import time
 from functools import wraps
 from pathlib import Path
 
+import logging
 from dotenv import load_dotenv
 import requests
 from flask import Flask, g, jsonify, request, send_from_directory
@@ -324,6 +325,33 @@ def vote():
     db.commit()
 
     count = db.execute("SELECT COUNT(*) as cnt FROM votes WHERE feature_id=?", (feature_id,)).fetchone()["cnt"]
+
+    # PDAA: fire demand signal ingestion (non-blocking, best-effort)
+    if action != "remove":
+        try:
+            from pdaa.sherpa_connector import handle_vote_event
+            tallies_rows = db.execute(
+                "SELECT importance, COUNT(*) as cnt FROM votes WHERE feature_id=? GROUP BY importance",
+                (feature_id,),
+            ).fetchall()
+            tallies = {
+                "total": count,
+                "critical": 0, "important": 0, "nice_to_have": 0,
+            }
+            for r in tallies_rows:
+                tallies[r["importance"]] = r["cnt"]
+            handle_vote_event(
+                feature_id=feature_id,
+                feature_title=body.get("feature_title", ""),
+                voter_email=voter["email"],
+                voter_display_name=voter.get("display_name"),
+                importance=importance,
+                tallies=tallies,
+                notion_url=f"https://www.notion.so/{feature_id.replace('-', '')}",
+            )
+        except Exception as e:
+            app.logger.warning(f"PDAA ingestion failed (non-blocking): {e}")
+
     return jsonify({"ok": True, "votes": count})
 
 
@@ -364,6 +392,33 @@ def post_comment():
     db.execute("INSERT INTO comments (voter_id, feature_id, body) VALUES (?,?,?)", (voter["id"], feature_id, text))
     db.execute("UPDATE voters SET last_active_at=? WHERE id=?", (time.time(), voter["id"]))
     db.commit()
+
+    # PDAA: fire demand signal ingestion for comment (non-blocking, best-effort)
+    try:
+        from pdaa.sherpa_connector import handle_comment_event
+        vote_count = db.execute("SELECT COUNT(*) as cnt FROM votes WHERE feature_id=?", (feature_id,)).fetchone()["cnt"]
+        tallies_rows = db.execute(
+            "SELECT importance, COUNT(*) as cnt FROM votes WHERE feature_id=? GROUP BY importance",
+            (feature_id,),
+        ).fetchall()
+        tallies = {
+            "total": vote_count,
+            "critical": 0, "important": 0, "nice_to_have": 0,
+        }
+        for r in tallies_rows:
+            tallies[r["importance"]] = r["cnt"]
+        handle_comment_event(
+            feature_id=feature_id,
+            feature_title=body.get("feature_title", ""),
+            voter_email=voter["email"],
+            voter_display_name=voter.get("display_name"),
+            comment_text=text,
+            tallies=tallies,
+            notion_url=f"https://www.notion.so/{feature_id.replace('-', '')}",
+        )
+    except Exception as e:
+        app.logger.warning(f"PDAA comment ingestion failed (non-blocking): {e}")
+
     return jsonify({"ok": True})
 
 
@@ -585,6 +640,53 @@ def save_description(feature_id):
     )
     db.commit()
     return jsonify({"ok": True})
+
+
+# ─── Routes: PDAA Demand Signal Agent ───
+@app.route("/api/pdaa/ingest", methods=["POST"])
+def pdaa_ingest():
+    """Ingest evidence from external sources (Slack, Jira, forums, etc.)"""
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"error": "No JSON body"}), 400
+    try:
+        from pdaa.ingestion import ingest_evidence
+        result = ingest_evidence(data)
+        return jsonify(result.to_dict()), 200
+    except Exception as e:
+        app.logger.error(f"PDAA ingest error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/pdaa/signals")
+def pdaa_signals():
+    """List all demand signals."""
+    try:
+        from pdaa.git_sync import GitSyncManager
+        manager = GitSyncManager()
+        signals = manager.load_all_signals()
+        return jsonify({
+            "count": len(signals),
+            "signals": [s.to_dict() for s in signals],
+        }), 200
+    except Exception as e:
+        app.logger.error(f"PDAA signals error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/pdaa/signals/<signal_id>")
+def pdaa_signal_detail(signal_id):
+    """Get a single demand signal with all evidence."""
+    try:
+        from pdaa.git_sync import GitSyncManager
+        manager = GitSyncManager()
+        signal = manager.load_signal(signal_id)
+        if not signal:
+            return jsonify({"error": "Signal not found"}), 404
+        return jsonify(signal.to_dict()), 200
+    except Exception as e:
+        app.logger.error(f"PDAA signal error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 def _fetch_notion_page_content(page_id):

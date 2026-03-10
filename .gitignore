@@ -13,6 +13,9 @@ __pycache__/
 *.pyo
 .venv/
 
+# PDAA local signal store (when PDAA_GIT_REPO_PATH not set)
+pdaa_data/
+
 # macOS
 .DS_Store
 .fuse_hidden*

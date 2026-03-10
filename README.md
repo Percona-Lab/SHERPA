@@ -11,9 +11,12 @@ A feature voting portal backed by Notion, with email-verified voting. Percona em
 ```
 Browser ──► Flask (port 3000) ──► Notion API
                 │
-                └── portal.db (SQLite: voters, votes, comments)
-                │
-                └── SMTP (verification emails)
+                ├── portal.db (SQLite: voters, votes, comments)
+                ├── SMTP (verification emails)
+                └── pdaa/ (Demand Signal Agent)
+                      ├── Git-backed signal store
+                      ├── LLM semantic matching (optional)
+                      └── Slack notifications (optional)
 ```
 
 ## Quick Start
@@ -35,6 +38,11 @@ export SMTP_FROM="sherpa@percona.com"
 
 # Required: admin key for /admin panel
 export PORTAL_ADMIN_KEY="your-secret-admin-key"
+
+# Optional: PDAA Demand Signal Agent
+export PDAA_GIT_REPO_PATH="/path/to/pdaa-signals-repo"    # Git-backed signal store
+export PDAA_SLACK_WEBHOOK_URL="https://hooks.slack.com/..." # Slack notifications
+export PDAA_LLM_ENDPOINT="https://..."                      # LLM for semantic matching
 
 python server.py
 # → http://localhost:3000       (SHERPA portal)
@@ -68,9 +76,18 @@ Without SMTP env vars, verification codes print to the terminal. Perfect for loc
 SHERPA/
 ├── server.py           # Flask backend
 ├── portal.db           # Auto-created SQLite database
-└── static/
-    ├── index.html      # Main portal
-    └── admin.html      # Admin panel
+├── static/
+│   ├── index.html      # Main portal
+│   └── admin.html      # Admin panel
+└── pdaa/               # Demand Signal Agent sub-package
+    ├── __init__.py
+    ├── models.py       # DemandSignal, CustomerEvidence dataclasses
+    ├── ingestion.py    # Extract → Classify → Match → Store pipeline
+    ├── matching.py     # LLM semantic match + keyword fallback
+    ├── scoring.py      # Weighted demand score formula
+    ├── git_sync.py     # Git-backed canonical store
+    ├── slack_notify.py # Slack Block Kit notifications
+    └── sherpa_connector.py  # Vote/comment → evidence conversion
 ```
 
 ## API Reference
@@ -99,6 +116,15 @@ SHERPA/
 | `/api/admin/vote/{id}` | DELETE | Remove a vote |
 | `/api/admin/comment/{id}` | DELETE | Hide a comment |
 | `/api/admin/voter/{id}/block` | POST | `{ "block": true }` — block/unblock voter |
+
+### PDAA Demand Signal Agent
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/pdaa/ingest` | POST | Ingest evidence from external sources (Slack, Jira, forums) |
+| `/api/pdaa/signals` | GET | List all demand signals with scores |
+| `/api/pdaa/signals/{id}` | GET | Get a single signal with all evidence |
+
+SHERPA votes and comments are automatically ingested into PDAA. External sources can POST evidence to `/api/pdaa/ingest`. Without `PDAA_GIT_REPO_PATH`, signals are stored locally in `pdaa_data/signals/`.
 
 ## Roadmap
 
