@@ -8,6 +8,7 @@ comments, Jira, Slack, and forums into a scored, Git-backed store.
 from .models import DemandSignal, CustomerEvidence
 from .ingestion import ingest_evidence
 from .sherpa_connector import handle_vote_event, handle_comment_event
+from . import notion_sync
 
 __all__ = [
     "DemandSignal",
@@ -15,4 +16,5 @@ __all__ = [
     "ingest_evidence",
     "handle_vote_event",
     "handle_comment_event",
+    "notion_sync",
 ]

@@ -41,7 +41,7 @@ def sherpa_vote_to_evidence(
 
     return CustomerEvidence(
         id=_evidence_id("vote", feature_id, voter_email),
-        source="sherpa_vote",
+        source="SHERPA",
         source_type="Internal",
         title=feature_title,
         description=f"Internal vote ({importance}) from {voter_email}",
@@ -55,6 +55,14 @@ def sherpa_vote_to_evidence(
             "tallies": tallies,
             "notion_url": f"https://www.notion.so/{feature_id.replace('-', '')}",
         },
+        # Notion-specific fields
+        summary=f"SHERPA vote: {feature_title} ({importance})",
+        evidence_type="Internal",
+        confidence_label="High",
+        ingested_by="Agent - Scheduled",
+        contact=voter_email,
+        verbatim=f"Voted '{importance}' on feature: {feature_title}",
+        sentiment="Positive",
     )
 
 
@@ -68,7 +76,7 @@ def sherpa_comment_to_evidence(
     """Convert a SHERPA comment into a CustomerEvidence object."""
     return CustomerEvidence(
         id=_evidence_id("comment", feature_id, voter_email),
-        source="sherpa_comment",
+        source="SHERPA",
         source_type="Internal",
         title=feature_title,
         description=comment_text,
@@ -82,6 +90,14 @@ def sherpa_comment_to_evidence(
             "tallies": tallies,
             "notion_url": f"https://www.notion.so/{feature_id.replace('-', '')}",
         },
+        # Notion-specific fields
+        summary=f"SHERPA comment: {feature_title}",
+        evidence_type="Internal",
+        confidence_label="High",
+        ingested_by="Agent - Scheduled",
+        contact=voter_email,
+        verbatim=comment_text[:2000],
+        sentiment="Positive",
     )
 
 
@@ -104,8 +120,10 @@ def handle_vote_event(
     )
     if notion_url:
         evidence.raw_data["notion_url"] = notion_url
+        evidence.source_url = notion_url
     if voter_display_name:
         evidence.customer_name = voter_display_name
+        evidence.contact = voter_display_name
 
     from .ingestion import ingest_evidence
     ingest_evidence(evidence)
@@ -130,8 +148,10 @@ def handle_comment_event(
     )
     if notion_url:
         evidence.raw_data["notion_url"] = notion_url
+        evidence.source_url = notion_url
     if voter_display_name:
         evidence.customer_name = voter_display_name
+        evidence.contact = voter_display_name
 
     from .ingestion import ingest_evidence
     ingest_evidence(evidence)

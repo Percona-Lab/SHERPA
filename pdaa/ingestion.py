@@ -55,6 +55,16 @@ def ingest_evidence(data: Union[dict, CustomerEvidence]) -> DemandSignal:
             log.info(f"Evidence added to '{matched_signal.title}' for review (confidence={confidence:.2f})")
 
         manager.save_signal(matched_signal)
+
+        # Notion sync (non-blocking)
+        try:
+            from .notion_sync import upsert_demand_signal, create_evidence
+            signal_page_id = upsert_demand_signal(matched_signal)
+            if signal_page_id:
+                create_evidence(evidence, signal_page_id=signal_page_id)
+        except Exception as e:
+            log.warning(f"Notion sync failed (non-blocking): {e}")
+
         notify_evidence_added(matched_signal, evidence)
         return matched_signal
     else:
@@ -73,5 +83,15 @@ def ingest_evidence(data: Union[dict, CustomerEvidence]) -> DemandSignal:
         log.info(f"Created new demand signal '{new_signal.title}' (score={new_signal.demand_score})")
 
         manager.save_signal(new_signal)
+
+        # Notion sync (non-blocking)
+        try:
+            from .notion_sync import upsert_demand_signal, create_evidence
+            signal_page_id = upsert_demand_signal(new_signal)
+            if signal_page_id:
+                create_evidence(evidence, signal_page_id=signal_page_id)
+        except Exception as e:
+            log.warning(f"Notion sync failed (non-blocking): {e}")
+
         notify_new_signal(new_signal, evidence)
         return new_signal

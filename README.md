@@ -14,6 +14,7 @@ Browser ──► Flask (port 3000) ──► Notion API
                 ├── portal.db (SQLite: voters, votes, comments)
                 ├── SMTP (verification emails)
                 └── pdaa/ (Demand Signal Agent)
+                      ├── Notion DBs (signals + evidence)
                       ├── Git-backed signal store
                       ├── LLM semantic matching (optional)
                       └── Slack notifications (optional)
@@ -24,7 +25,7 @@ Browser ──► Flask (port 3000) ──► Notion API
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install flask requests
+pip install -r requirements.txt
 
 # Required
 export NOTION_API_KEY="ntn_xxxxxxxxx"
@@ -86,6 +87,7 @@ SHERPA/
     ├── matching.py     # LLM semantic match + keyword fallback
     ├── scoring.py      # Weighted demand score formula
     ├── git_sync.py     # Git-backed canonical store
+    ├── notion_sync.py  # Notion database read/write sync
     ├── slack_notify.py # Slack Block Kit notifications
     └── sherpa_connector.py  # Vote/comment → evidence conversion
 ```
@@ -123,8 +125,9 @@ SHERPA/
 | `/api/pdaa/ingest` | POST | Ingest evidence from external sources (Slack, Jira, forums) |
 | `/api/pdaa/signals` | GET | List all demand signals with scores |
 | `/api/pdaa/signals/{id}` | GET | Get a single signal with all evidence |
+| `/api/pdaa/notion-status` | GET | Check Notion sync configuration and status |
 
-SHERPA votes and comments are automatically ingested into PDAA. External sources can POST evidence to `/api/pdaa/ingest`. Without `PDAA_GIT_REPO_PATH`, signals are stored locally in `pdaa_data/signals/`.
+SHERPA votes and comments are automatically ingested into PDAA and synced to two Notion databases (Demand Signals + Customer Evidence). External sources can POST evidence to `/api/pdaa/ingest`. Without `PDAA_GIT_REPO_PATH`, signals are also stored locally in `pdaa_data/signals/`.
 
 ## Roadmap
 

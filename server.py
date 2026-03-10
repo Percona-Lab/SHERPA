@@ -689,6 +689,27 @@ def pdaa_signal_detail(signal_id):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/pdaa/notion-status")
+def pdaa_notion_status():
+    """Check if Notion sync is configured and working."""
+    has_key = bool(os.environ.get("NOTION_API_KEY"))
+    if not has_key:
+        return jsonify({"status": "unconfigured", "message": "NOTION_API_KEY not set"}), 200
+    try:
+        from pdaa.notion_sync import get_all_signals, DEMAND_SIGNALS_DB, CUSTOMER_EVIDENCE_DB
+        signals = get_all_signals()
+        return jsonify({
+            "status": "ok",
+            "signal_count": len(signals),
+            "databases": {
+                "demand_signals": DEMAND_SIGNALS_DB,
+                "customer_evidence": CUSTOMER_EVIDENCE_DB,
+            },
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 def _fetch_notion_page_content(page_id):
     """Fetch all blocks from a Notion page and return as plain text."""
     blocks_text = []
