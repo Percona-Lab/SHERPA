@@ -1,5 +1,5 @@
 """
-PDAA Scoring — Weighted demand score calculation.
+SHERPA Demand Engine — Weighted demand score calculation.
 
 Score formula:
   demand_score = sum(evidence.score_weight * source_multiplier * recency_factor)
@@ -19,7 +19,15 @@ from typing import List
 
 from .models import CustomerEvidence, DemandSignal
 
-log = logging.getLogger("pdaa.scoring")
+log = logging.getLogger("demand.scoring")
+
+# Importance mapping from SHERPA vote levels to urgency/weight
+IMPORTANCE_MAP = {
+    "critical":      {"urgency": "High",   "weight": 3.0},
+    "important":     {"urgency": "Medium", "weight": 2.0},
+    "nice_to_have":  {"urgency": "Low",    "weight": 1.0},
+    "nice to have":  {"urgency": "Low",    "weight": 1.0},
+}
 
 SOURCE_MULTIPLIERS = {
     "Internal": 1.0,

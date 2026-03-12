@@ -13,8 +13,8 @@ __pycache__/
 *.pyo
 .venv/
 
-# PDAA local signal store (when PDAA_GIT_REPO_PATH not set)
-pdaa_data/
+# SHERPA local signal store (when SHERPA_GIT_REPO_PATH not set)
+sherpa_data/
 
 # macOS
 .DS_Store

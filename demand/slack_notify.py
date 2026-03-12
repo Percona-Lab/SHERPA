@@ -1,5 +1,5 @@
 """
-PDAA Slack Notifications — Block Kit formatters for #pdaa-signals.
+SHERPA Demand Engine — Slack notifications for #sherpa-signals.
 """
 
 import logging
@@ -10,16 +10,17 @@ import requests
 
 from .models import DemandSignal, CustomerEvidence
 
-log = logging.getLogger("pdaa.slack_notify")
+log = logging.getLogger("demand.slack_notify")
 
-SLACK_WEBHOOK_URL = os.environ.get("PDAA_SLACK_WEBHOOK_URL", "")
+SLACK_WEBHOOK_URL = os.environ.get("SHERPA_SLACK_WEBHOOK_URL", "")
 
 
 def _source_badge(source: str) -> str:
     """Emoji badge by evidence source."""
     badges = {
-        "sherpa_vote": "\U0001f3d4\ufe0f SHERPA",   # 🏔️
-        "sherpa_comment": "\U0001f3d4\ufe0f SHERPA",
+        "SHERPA": "\U0001f5f3\ufe0f SHERPA",     # 🗳️
+        "sherpa_vote": "\U0001f5f3\ufe0f SHERPA",
+        "sherpa_comment": "\U0001f5f3\ufe0f SHERPA",
         "jira": "\U0001f41b Jira",
         "slack": "\U0001f4ac Slack",
         "forum": "\U0001f310 Forum",
@@ -41,7 +42,7 @@ def format_new_signal(signal: DemandSignal, evidence: CustomerEvidence) -> dict:
         "blocks": [
             {
                 "type": "header",
-                "text": {"type": "plain_text", "text": f"\U0001f4e1 New Demand Signal", "emoji": True},
+                "text": {"type": "plain_text", "text": "\U0001f4e1 New Demand Signal", "emoji": True},
             },
             {
                 "type": "section",
@@ -66,7 +67,7 @@ def format_evidence_added(signal: DemandSignal, evidence: CustomerEvidence) -> d
         "blocks": [
             {
                 "type": "header",
-                "text": {"type": "plain_text", "text": f"\U0001f4ca Evidence Added", "emoji": True},
+                "text": {"type": "plain_text", "text": "\U0001f4ca Evidence Added", "emoji": True},
             },
             {
                 "type": "section",
@@ -89,7 +90,7 @@ def format_evidence_added(signal: DemandSignal, evidence: CustomerEvidence) -> d
 def notify(payload: dict) -> bool:
     """Post a Block Kit payload to the configured Slack webhook. Returns success."""
     if not SLACK_WEBHOOK_URL:
-        log.debug("PDAA_SLACK_WEBHOOK_URL not set, skipping notification")
+        log.debug("SHERPA_SLACK_WEBHOOK_URL not set, skipping notification")
         return False
     try:
         resp = requests.post(SLACK_WEBHOOK_URL, json=payload, timeout=5)

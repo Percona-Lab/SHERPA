@@ -1,5 +1,5 @@
 """
-PDAA Data Models — DemandSignal and CustomerEvidence dataclasses.
+SHERPA Demand Engine — DemandSignal and CustomerEvidence dataclasses.
 """
 
 import hashlib

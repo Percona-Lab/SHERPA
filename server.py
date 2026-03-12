@@ -326,10 +326,10 @@ def vote():
 
     count = db.execute("SELECT COUNT(*) as cnt FROM votes WHERE feature_id=?", (feature_id,)).fetchone()["cnt"]
 
-    # PDAA: fire demand signal ingestion (non-blocking, best-effort)
+    # SHERPA Demand Engine: fire signal ingestion (non-blocking, best-effort)
     if action != "remove":
         try:
-            from pdaa.sherpa_connector import handle_vote_event
+            from demand.ingestion import handle_vote_event
             tallies_rows = db.execute(
                 "SELECT importance, COUNT(*) as cnt FROM votes WHERE feature_id=? GROUP BY importance",
                 (feature_id,),
@@ -350,7 +350,7 @@ def vote():
                 notion_url=f"https://www.notion.so/{feature_id.replace('-', '')}",
             )
         except Exception as e:
-            app.logger.warning(f"PDAA ingestion failed (non-blocking): {e}")
+            app.logger.warning(f"Demand engine ingestion failed (non-blocking): {e}")
 
     return jsonify({"ok": True, "votes": count})
 
@@ -393,9 +393,9 @@ def post_comment():
     db.execute("UPDATE voters SET last_active_at=? WHERE id=?", (time.time(), voter["id"]))
     db.commit()
 
-    # PDAA: fire demand signal ingestion for comment (non-blocking, best-effort)
+    # SHERPA Demand Engine: fire signal ingestion for comment (non-blocking, best-effort)
     try:
-        from pdaa.sherpa_connector import handle_comment_event
+        from demand.ingestion import handle_comment_event
         vote_count = db.execute("SELECT COUNT(*) as cnt FROM votes WHERE feature_id=?", (feature_id,)).fetchone()["cnt"]
         tallies_rows = db.execute(
             "SELECT importance, COUNT(*) as cnt FROM votes WHERE feature_id=? GROUP BY importance",
@@ -417,7 +417,7 @@ def post_comment():
             notion_url=f"https://www.notion.so/{feature_id.replace('-', '')}",
         )
     except Exception as e:
-        app.logger.warning(f"PDAA comment ingestion failed (non-blocking): {e}")
+        app.logger.warning(f"Demand engine comment ingestion failed (non-blocking): {e}")
 
     return jsonify({"ok": True})
 
@@ -642,27 +642,27 @@ def save_description(feature_id):
     return jsonify({"ok": True})
 
 
-# ─── Routes: PDAA Demand Signal Agent ───
-@app.route("/api/pdaa/ingest", methods=["POST"])
-def pdaa_ingest():
+# ─── Routes: SHERPA Demand Engine ───
+@app.route("/api/sherpa/ingest", methods=["POST"])
+def sherpa_ingest():
     """Ingest evidence from external sources (Slack, Jira, forums, etc.)"""
     data = request.get_json(silent=True)
     if not data:
         return jsonify({"error": "No JSON body"}), 400
     try:
-        from pdaa.ingestion import ingest_evidence
+        from demand.ingestion import ingest_evidence
         result = ingest_evidence(data)
         return jsonify(result.to_dict()), 200
     except Exception as e:
-        app.logger.error(f"PDAA ingest error: {e}")
+        app.logger.error(f"Demand engine ingest error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/pdaa/signals")
-def pdaa_signals():
+@app.route("/api/sherpa/signals")
+def sherpa_signals():
     """List all demand signals."""
     try:
-        from pdaa.git_sync import GitSyncManager
+        from demand.git_sync import GitSyncManager
         manager = GitSyncManager()
         signals = manager.load_all_signals()
         return jsonify({
@@ -670,33 +670,33 @@ def pdaa_signals():
             "signals": [s.to_dict() for s in signals],
         }), 200
     except Exception as e:
-        app.logger.error(f"PDAA signals error: {e}")
+        app.logger.error(f"Demand engine signals error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/pdaa/signals/<signal_id>")
-def pdaa_signal_detail(signal_id):
+@app.route("/api/sherpa/signals/<signal_id>")
+def sherpa_signal_detail(signal_id):
     """Get a single demand signal with all evidence."""
     try:
-        from pdaa.git_sync import GitSyncManager
+        from demand.git_sync import GitSyncManager
         manager = GitSyncManager()
         signal = manager.load_signal(signal_id)
         if not signal:
             return jsonify({"error": "Signal not found"}), 404
         return jsonify(signal.to_dict()), 200
     except Exception as e:
-        app.logger.error(f"PDAA signal error: {e}")
+        app.logger.error(f"Demand engine signal error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/pdaa/notion-status")
-def pdaa_notion_status():
+@app.route("/api/sherpa/notion-status")
+def sherpa_notion_status():
     """Check if Notion sync is configured and working."""
     has_key = bool(os.environ.get("NOTION_API_KEY"))
     if not has_key:
         return jsonify({"status": "unconfigured", "message": "NOTION_API_KEY not set"}), 200
     try:
-        from pdaa.notion_sync import get_all_signals, DEMAND_SIGNALS_DB, CUSTOMER_EVIDENCE_DB
+        from demand.notion_sync import get_all_signals, DEMAND_SIGNALS_DB, CUSTOMER_EVIDENCE_DB
         signals = get_all_signals()
         return jsonify({
             "status": "ok",

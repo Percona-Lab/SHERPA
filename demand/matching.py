@@ -1,7 +1,7 @@
 """
-PDAA Matching — Semantic match (LLM) with keyword fallback.
+SHERPA Demand Engine — Semantic match (LLM) with keyword fallback.
 
-When PDAA_LLM_ENDPOINT is set, uses an LLM to compare evidence titles
+When SHERPA_LLM_ENDPOINT is set, uses an LLM to compare evidence titles
 against existing demand signals. Otherwise, falls back to keyword overlap.
 """
 
@@ -14,9 +14,9 @@ import requests
 
 from .models import DemandSignal
 
-log = logging.getLogger("pdaa.matching")
+log = logging.getLogger("demand.matching")
 
-LLM_ENDPOINT = os.environ.get("PDAA_LLM_ENDPOINT", "")
+LLM_ENDPOINT = os.environ.get("SHERPA_LLM_ENDPOINT", "")
 MATCH_THRESHOLD = 0.75
 AUTO_MERGE_THRESHOLD = 0.90
 

@@ -1,5 +1,5 @@
 """
-PDAA Notion Sync — Read/write demand signals and evidence to Notion databases.
+SHERPA Demand Engine — Read/write demand signals and evidence to Notion databases.
 
 Requires `notion-client` package and NOTION_API_KEY env var.
 If NOTION_API_KEY is not set, all operations are no-ops.
@@ -12,7 +12,7 @@ from typing import List, Optional
 
 from .models import DemandSignal, CustomerEvidence
 
-log = logging.getLogger("pdaa.notion_sync")
+log = logging.getLogger("demand.notion_sync")
 
 DEMAND_SIGNALS_DB = "67ca4fa6cb9b444390dd62008ccd819b"
 CUSTOMER_EVIDENCE_DB = "9539dbfc3661420387c1e9705407bbd8"

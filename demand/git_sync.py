@@ -1,11 +1,11 @@
 """
-PDAA Git Sync — Git-backed canonical store for demand signals.
+SHERPA Demand Engine — Git-backed canonical store for demand signals.
 
 Signals are stored as JSON files in a Git repo:
-  <PDAA_GIT_REPO_PATH>/signals/<signal_id>.json
+  <SHERPA_GIT_REPO_PATH>/signals/<signal_id>.json
 
-If PDAA_GIT_REPO_PATH is not set, falls back to a local directory
-at <project_root>/pdaa_data/signals/.
+If SHERPA_GIT_REPO_PATH is not set, falls back to a local directory
+at <project_root>/sherpa_data/signals/.
 """
 
 import json
@@ -17,14 +17,14 @@ from typing import List, Optional
 
 from .models import DemandSignal
 
-log = logging.getLogger("pdaa.git_sync")
+log = logging.getLogger("demand.git_sync")
 
-_FALLBACK_DIR = Path(__file__).parent.parent / "pdaa_data" / "signals"
+_FALLBACK_DIR = Path(__file__).parent.parent / "sherpa_data" / "signals"
 
 
 class GitSyncManager:
     def __init__(self):
-        repo_path = os.environ.get("PDAA_GIT_REPO_PATH", "")
+        repo_path = os.environ.get("SHERPA_GIT_REPO_PATH", "")
         if repo_path:
             self.signals_dir = Path(repo_path) / "signals"
         else:
