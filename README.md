@@ -2,7 +2,7 @@
 
 **Stakeholder Hub for Enhancement Request Prioritization & Action**
 
-A feature voting portal backed by Notion, with email-verified voting. Percona employees vote on features based on customer and market needs, helping align product priorities with real demand.
+A unified product intelligence platform that combines feature voting, demand signal analysis, and proactive monitoring. Percona employees vote on features based on customer and market needs, while the demand engine aggregates evidence from Slack, Jira, forums, and votes into scored, stack-ranked demand signals.
 
 > 100% vibe coded with [Claude](https://claude.ai)
 
@@ -13,11 +13,16 @@ Browser ──► Flask (port 3000) ──► Notion API
                 │
                 ├── portal.db (SQLite: voters, votes, comments)
                 ├── SMTP (verification emails)
-                └── pdaa/ (Demand Signal Agent)
-                      ├── Notion DBs (signals + evidence)
-                      ├── Git-backed signal store
-                      ├── LLM semantic matching (optional)
-                      └── Slack notifications (optional)
+                ├── demand/ (Demand Signal Engine)
+                │     ├── Notion DBs (signals + evidence)
+                │     ├── Git-backed signal store
+                │     ├── LLM semantic matching (optional)
+                │     └── Slack webhook notifications (optional)
+                └── bot/ (Slack Bot)
+                      ├── /sherpa slash commands
+                      ├── Enterprise search
+                      ├── Channel notifications
+                      └── APScheduler (digest + anomaly scan)
 ```
 
 ## Quick Start
@@ -40,22 +45,37 @@ export SMTP_FROM="sherpa@percona.com"
 # Required: admin key for /admin panel
 export PORTAL_ADMIN_KEY="your-secret-admin-key"
 
-# Optional: PDAA Demand Signal Agent
-export PDAA_GIT_REPO_PATH="/path/to/pdaa-signals-repo"    # Git-backed signal store
-export PDAA_SLACK_WEBHOOK_URL="https://hooks.slack.com/..." # Slack notifications
-export PDAA_LLM_ENDPOINT="https://..."                      # LLM for semantic matching
+# Optional: Demand Signal Engine
+export SHERPA_GIT_REPO_PATH="/path/to/sherpa-signals-repo"    # Git-backed signal store
+export SHERPA_SLACK_WEBHOOK_URL="https://hooks.slack.com/..."  # Slack webhook notifications
+export SHERPA_LLM_ENDPOINT="https://..."                       # LLM for semantic matching
+
+# Optional: Slack Bot
+export SLACK_BOT_TOKEN="xoxb-..."           # Bot token from Slack app
+export SLACK_SIGNING_SECRET="..."           # Signing secret from Slack app
+export SLACK_CHANNEL_ID="C0123456789"       # Channel for digests and alerts
 
 python server.py
 # → http://localhost:3000       (SHERPA portal)
 # → http://localhost:3000/admin (admin panel)
+# → /slack/events              (Slack bot events endpoint)
+# → /slack/commands            (Slack slash commands endpoint)
 ```
 
 ### Dev mode (no SMTP)
 Without SMTP env vars, verification codes print to the terminal. Perfect for local testing.
 
+### Graceful Degradation
+Every capability is independently optional:
+- **No Notion key** → portal won't load features but won't crash
+- **No SMTP** → verification codes print to console
+- **No Slack tokens** → bot and proactive monitoring disabled
+- **No Git repo path** → signals stored locally in `sherpa_data/`
+- **No LLM endpoint** → matching falls back to keyword overlap
+
 ## Features
 
-### Voting
+### Voting Portal
 - **Email verified** — one vote per email address
 - **Importance levels** — Nice to have / Important / Critical
 - Importance breakdown shown as a colored bar on each card
@@ -71,25 +91,51 @@ Without SMTP env vars, verification codes print to the terminal. Perfect for loc
 - **Remove comments**
 - **Block voters** — removes all their votes and hides comments
 
+### Demand Signal Engine
+- Automatic ingestion of votes and comments as customer evidence
+- External evidence ingestion via API (Slack, Jira, forums)
+- Weighted demand scoring with recency decay
+- LLM-powered semantic matching (with keyword fallback)
+- Git-backed canonical signal store
+- Two-way Notion sync (Demand Signals + Customer Evidence databases)
+- Slack webhook notifications for new signals
+
+### Slack Bot (`/sherpa`)
+- `/sherpa search [query]` — Search demand signals
+- `/sherpa log "[feedback]"` — Log evidence manually
+- `/sherpa top [product]` — Top 10 signals by demand score
+- `/sherpa signal [id]` — Signal details with score breakdown
+- `/sherpa digest` — Trigger weekly digest on demand
+- `@sherpa` mentions in channels
+
+### Proactive Monitoring
+- **Weekly digest** — Top signals, new evidence, and trends posted to Slack every Monday at 9 AM
+- **Anomaly scan** — Detects score spikes, evidence surges, and new high-score signals every 4 hours
+
 ## File Structure
 
 ```
 SHERPA/
-├── server.py           # Flask backend
-├── portal.db           # Auto-created SQLite database
+├── server.py              # Flask backend + Slack event routes + APScheduler
+├── portal.db              # Auto-created SQLite database
+├── requirements.txt       # Python dependencies
 ├── static/
-│   ├── index.html      # Main portal
-│   └── admin.html      # Admin panel
-└── pdaa/               # Demand Signal Agent sub-package
+│   ├── index.html         # Main voting portal
+│   └── admin.html         # Admin panel
+├── demand/                # Demand Signal Engine
+│   ├── __init__.py
+│   ├── models.py          # DemandSignal, CustomerEvidence dataclasses
+│   ├── ingestion.py       # Extract → Classify → Match → Store pipeline
+│   ├── matching.py        # LLM semantic match + keyword fallback
+│   ├── scoring.py         # Weighted demand score formula
+│   ├── git_sync.py        # Git-backed canonical store
+│   ├── notion_sync.py     # Notion database read/write sync
+│   └── slack_notify.py    # Slack webhook notifications
+└── bot/                   # Slack Bot
     ├── __init__.py
-    ├── models.py       # DemandSignal, CustomerEvidence dataclasses
-    ├── ingestion.py    # Extract → Classify → Match → Store pipeline
-    ├── matching.py     # LLM semantic match + keyword fallback
-    ├── scoring.py      # Weighted demand score formula
-    ├── git_sync.py     # Git-backed canonical store
-    ├── notion_sync.py  # Notion database read/write sync
-    ├── slack_notify.py # Slack Block Kit notifications
-    └── sherpa_connector.py  # Vote/comment → evidence conversion
+    ├── handlers.py        # /sherpa slash commands + event handlers
+    ├── search.py          # Enterprise signal search
+    └── notifications.py   # Digest + anomaly alert formatting
 ```
 
 ## API Reference
@@ -119,34 +165,18 @@ SHERPA/
 | `/api/admin/comment/{id}` | DELETE | Hide a comment |
 | `/api/admin/voter/{id}/block` | POST | `{ "block": true }` — block/unblock voter |
 
-### PDAA Demand Signal Agent
+### Demand Signal Engine
 | Endpoint | Method | Description |
 |---|---|---|
-| `/api/pdaa/ingest` | POST | Ingest evidence from external sources (Slack, Jira, forums) |
-| `/api/pdaa/signals` | GET | List all demand signals with scores |
-| `/api/pdaa/signals/{id}` | GET | Get a single signal with all evidence |
-| `/api/pdaa/notion-status` | GET | Check Notion sync configuration and status |
+| `/api/sherpa/ingest` | POST | Ingest evidence from external sources (Slack, Jira, forums) |
+| `/api/sherpa/signals` | GET | List all demand signals with scores |
+| `/api/sherpa/signals/{id}` | GET | Get a single signal with all evidence |
+| `/api/sherpa/notion-status` | GET | Check Notion sync configuration and status |
 
-SHERPA votes and comments are automatically ingested into PDAA and synced to two Notion databases (Demand Signals + Customer Evidence). External sources can POST evidence to `/api/pdaa/ingest`. Without `PDAA_GIT_REPO_PATH`, signals are also stored locally in `pdaa_data/signals/`.
+Votes and comments are automatically ingested as customer evidence and synced to two Notion databases (Demand Signals + Customer Evidence). External sources can POST evidence to `/api/sherpa/ingest`. Without `SHERPA_GIT_REPO_PATH`, signals are stored locally in `sherpa_data/signals/`.
 
-## Roadmap
-
-Planned improvements, roughly in priority order. Items marked with **n8n** leverage the existing n8n automation infrastructure.
-
-### Phase 1 — Notifications & Visibility
-- [ ] **n8n** Slack alerts on votes/comments — webhook from SHERPA posts to a `#product-feedback` channel when someone votes or comments
-- [ ] **n8n** Weekly digest — scheduled workflow aggregates top-voted features, new comments, and trending items → posts summary to Slack or email
-- [ ] **n8n** Vote threshold alerts — notify product owners via Slack DM when a feature crosses a configurable vote threshold
-
-### Phase 2 — Feedback Loop
-- [ ] **n8n** Status change notifications — poll Notion for status updates (→ In Progress, → Shipped) and notify voters who cared about that feature
-- [ ] **n8n** Cache invalidation webhook — when Notion data changes, trigger SHERPA to refresh so the portal stays current
-- [ ] Add a `/api/webhook` endpoint in SHERPA for n8n to call (vote events, cache busting)
-
-### Phase 3 — Cross-system Integration
-- [ ] **n8n** Jira ticket creation — auto-create Jira epic/story when a feature hits enough traction (votes + comments), linked back to the Notion page
-- [ ] **n8n** CRM enrichment — pull customer context (ARR, segment) from Salesforce to give PMs a revenue-weighted demand view
-
-### Phase 4 — Analytics & Observability
-- [ ] **n8n** Activity logging to Elastic — ship SHERPA events (votes, comments, logins) to the existing Elastic stack for dashboards and trend analysis
-- [ ] Engagement metrics — track unique visitors, vote-to-visit ratio, comment activity over time
+### Slack Bot
+| Endpoint | Method | Description |
+|---|---|---|
+| `/slack/events` | POST | Slack Events API (bot mentions, messages) |
+| `/slack/commands` | POST | Slack slash command handler (`/sherpa`) |
