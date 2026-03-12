@@ -768,6 +768,47 @@ except Exception as e:
     logging.getLogger(__name__).info(f"Slack bot not loaded: {e}")
 
 
+# ─── Proactive Monitoring (scheduler) ───
+if os.getenv("SLACK_BOT_TOKEN"):
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+
+        scheduler = BackgroundScheduler()
+
+        def weekly_digest_job():
+            """Runs Monday 9 AM — posts weekly digest to #sherpa-signals."""
+            try:
+                from bot.notifications import format_weekly_digest, send_to_channel
+                from demand.notion_sync import get_all_signals
+                signals = get_all_signals()
+                digest = format_weekly_digest(
+                    new_signals=len(signals),
+                    merged_count=0,
+                    pending_reviews=0,
+                    top_movers=[],
+                )
+                send_to_channel(digest.get("blocks", []))
+            except Exception as e:
+                logging.getLogger(__name__).warning(f"Weekly digest failed: {e}")
+
+        def anomaly_scan_job():
+            """Runs every 4 hours — checks for demand spikes, clusters, churn signals."""
+            try:
+                from bot.notifications import format_anomaly_alert, send_to_channel
+                from demand.notion_sync import get_all_signals
+                # TODO: Compare current scores to last snapshot
+                # Alert if: score jumps >10 pts, 3+ customers same topic in a week,
+                # new churn signal, 5+ evidence in 48 hours
+            except Exception as e:
+                logging.getLogger(__name__).warning(f"Anomaly scan failed: {e}")
+
+        scheduler.add_job(weekly_digest_job, 'cron', day_of_week='mon', hour=9)
+        scheduler.add_job(anomaly_scan_job, 'interval', hours=4)
+        scheduler.start()
+    except ImportError:
+        logging.getLogger(__name__).info("APScheduler not installed — proactive monitoring disabled")
+
+
 if __name__ == "__main__":
     init_db()
     if not DATABASE_ID:
