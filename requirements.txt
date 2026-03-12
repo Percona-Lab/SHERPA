@@ -2,3 +2,4 @@ flask
 requests
 python-dotenv
 notion-client
+slack-bolt

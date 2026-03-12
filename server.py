@@ -749,6 +749,25 @@ def _fetch_notion_page_content(page_id):
     return "\n".join(blocks_text)
 
 
+# ─── @sherpa Slack Bot ───
+try:
+    from bot.handlers import create_slack_app
+    slack_app = create_slack_app()
+    if slack_app:
+        from slack_bolt.adapter.flask import SlackRequestHandler
+        slack_handler = SlackRequestHandler(slack_app)
+
+        @app.route("/slack/events", methods=["POST"])
+        def slack_events():
+            return slack_handler.handle(request)
+
+        @app.route("/slack/commands", methods=["POST"])
+        def slack_commands():
+            return slack_handler.handle(request)
+except Exception as e:
+    logging.getLogger(__name__).info(f"Slack bot not loaded: {e}")
+
+
 if __name__ == "__main__":
     init_db()
     if not DATABASE_ID:
@@ -761,4 +780,6 @@ if __name__ == "__main__":
         print("  WARNING: PORTAL_ADMIN_KEY not set — admin endpoints disabled")
     else:
         print(f"  Admin key: {ADMIN_KEY[:4]}{'*' * (len(ADMIN_KEY) - 4)}")
+    if os.getenv("SLACK_BOT_TOKEN"):
+        print("  Slack bot: enabled")
     app.run(host="0.0.0.0", port=3000, debug=True)
