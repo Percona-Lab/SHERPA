@@ -136,7 +136,11 @@ tbody td { padding: 12px 16px; font-size: 13px; vertical-align: top; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
-<script src="http://10.30.50.182:3080/api/script.js" data-site-id="7ecde10714bd" defer></script>
+<script>
+(function(){var s=document.createElement('script');s.src='http://10.30.50.182:3080/api/script.js';s.defer=true;
+s.dataset.siteId=location.hostname.includes('staging')?'a0aeed07d55a':'7ecde10714bd';
+document.head.appendChild(s);})();
+</script>
 </head>
 <body>
 <script src="/static/header.js"></script>
