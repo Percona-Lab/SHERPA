@@ -18,6 +18,7 @@ from flask import Flask, g, jsonify, redirect, request, send_from_directory
 load_dotenv(Path.home() / ".percona-portal.env")
 
 app = Flask(__name__, static_folder="static")
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 3600  # Cache static assets for 1 hour
 
 # ─── Configuration ───
 NOTION_API_KEY = os.environ.get("NOTION_API_KEY", "")
@@ -148,11 +149,11 @@ def is_trusted_domain(email):
 # ─── Routes: Static ───
 @app.route("/")
 def index():
-    return redirect("/portal")
+    return send_from_directory("static", "index.html")
 
 @app.route("/portal")
 def portal_page():
-    return send_from_directory("static", "index.html")
+    return redirect("/")
 
 @app.route("/admin")
 def admin_page():

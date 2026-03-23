@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHERPA — Percona</title>
 <link rel="icon" type="image/png" href="/static/favicon.png">
+<link rel="preload" as="image" href="/static/logo-small.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/header.css">
 <style>
 :root {
   --accent: #2B5AE2;
@@ -52,56 +54,7 @@ body::before {
   pointer-events: none; z-index: 0;
 }
 
-/* Header */
-.header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(11,14,20,0.82);
-  backdrop-filter: blur(20px) saturate(1.4);
-  border-bottom: 1px solid var(--border);
-}
-.header-inner {
-  max-width: 1400px; margin: 0 auto; padding: 0 32px;
-  height: 56px; display: flex; align-items: center; gap: 32px;
-}
-.logo-area { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.logo-img { height: 28px; width: auto; }
-.logo-text { font-weight: 600; font-size: 15px; letter-spacing: -0.3px; }
-.logo-text span { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
-nav { display: flex; gap: 4px; }
-nav a {
-  font-size: 13px; font-weight: 500; padding: 6px 14px;
-  border-radius: 100px; color: var(--text-secondary);
-  transition: all var(--transition); text-decoration: none;
-}
-nav a:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
-nav a.active { color: var(--accent-light); background: rgba(43,90,226,0.12); }
-.prototype-badge {
-  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-  padding: 4px 12px; border-radius: 100px;
-  background: rgba(239,68,68,0.15); color: var(--red);
-  border: 1px solid rgba(239,68,68,0.3);
-  text-transform: uppercase; animation: pulse-badge 2s ease-in-out infinite;
-}
-@keyframes pulse-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
-/* Auth area */
-.auth-area { display: flex; align-items: center; gap: 12px; }
-.user-pill {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 14px; border-radius: 100px;
-  background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.2);
-  font-size: 13px; color: var(--orange);
-}
-.user-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
-.sign-in-btn, .sign-out-btn {
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  padding: 7px 16px; border-radius: 100px; cursor: pointer;
-  transition: all var(--transition); border: 1px solid var(--border);
-  background: transparent; color: var(--text-secondary);
-}
-.sign-in-btn { border-color: var(--orange); color: var(--orange); background: rgba(249,115,22,0.08); }
-.sign-in-btn:hover { background: rgba(249,115,22,0.16); }
-.sign-out-btn:hover { border-color: var(--red); color: var(--red); }
+/* Header + Auth styles in header.css */
 
 /* Toolbar */
 .toolbar { max-width: 1200px; margin: 0 auto; padding: 24px 32px 0; }
@@ -240,52 +193,7 @@ nav a.active { color: var(--accent-light); background: rgba(43,90,226,0.12); }
 .importance-legend .dot-nice { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
 /* ─── Modal ─── */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
-  justify-content: center; align-items: flex-start;
-  padding: 60px 16px; overflow-y: auto;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--bg-surface); border: 1px solid var(--border);
-  border-radius: 16px; width: 100%; max-width: 560px;
-  padding: 32px; position: relative;
-  animation: modal-in 0.25s ease;
-}
-@keyframes modal-in { from { opacity: 0; transform: translateY(20px) scale(0.97); } }
-.modal-close {
-  position: absolute; top: 16px; right: 16px;
-  background: none; border: none; color: var(--text-muted);
-  font-size: 20px; cursor: pointer; padding: 4px 8px;
-  border-radius: var(--radius-xs); transition: all var(--transition);
-}
-.modal-close:hover { color: var(--text-primary); background: rgba(255,255,255,0.06); }
-.modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
-.modal p.subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; }
-
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-.form-input {
-  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-primary); font-family: inherit; font-size: 14px;
-  transition: all var(--transition); outline: none;
-}
-.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-.form-input::placeholder { color: var(--text-muted); }
-textarea.form-input { resize: vertical; min-height: 80px; }
-
-.btn-primary {
-  font-family: inherit; font-size: 14px; font-weight: 600;
-  padding: 10px 24px; border-radius: var(--radius-sm);
-  border: none; background: var(--orange); color: white;
-  cursor: pointer; transition: all var(--transition); width: 100%;
-}
-.btn-primary:hover { background: #EA6A0B; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.form-error { color: var(--red); font-size: 13px; margin-top: 8px; }
+/* Modal + Form styles in header.css */
 
 /* Importance picker */
 .importance-picker { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -408,24 +316,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 </style>
 </head>
 <body>
-
-<header class="header">
-  <div class="header-inner">
-    <a href="/portal" class="logo-area">
-      <img src="/static/logo-small.png" alt="SHERPA" class="logo-img">
-      <div class="logo-text">SHERPA <span>Demand Intelligence</span></div>
-    </a>
-    <div class="prototype-badge">PROTOTYPE</div>
-    <nav style="margin-left:auto">
-      <a href="/portal" class="active">Portal</a>
-      <a href="/signals">Signals</a>
-      <a href="/evidence">Evidence</a>
-    </nav>
-    <div class="auth-area" id="authArea">
-      <button class="sign-in-btn" onclick="openAuthModal()">Sign in to vote</button>
-    </div>
-  </div>
-</header>
+<script src="/static/header.js"></script>
 
 <div class="toolbar">
   <div class="toolbar-top">
@@ -472,24 +363,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   <div class="loading-state" id="loading"><div class="loading-spinner"></div><p>Loading features…</p></div>
 </main>
 
-<!-- Sign In Modal -->
-<div class="modal-overlay" id="authModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
-    <h2>Sign in to vote</h2>
-    <p class="subtitle">Use your Percona email to vote and comment on features.</p>
-    <div class="form-group">
-      <label>Your name</label>
-      <input class="form-input" type="text" id="authName" placeholder="Jane Smith" onkeydown="if(event.key==='Enter')document.getElementById('authEmail').focus()">
-    </div>
-    <div class="form-group">
-      <label>Percona email</label>
-      <input class="form-input" type="email" id="authEmail" placeholder="you@percona.com" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <button class="btn-primary" onclick="doLogin()" id="loginBtn">Sign in</button>
-    <div id="authError" class="form-error" style="display:none"></div>
-  </div>
-</div>
+<!-- Auth modal injected by header.js -->
 
 <!-- Feature Detail Modal -->
 <div class="modal-overlay" id="featureModal">
@@ -507,9 +381,12 @@ let searchQuery = '';
 let activeView = 'ranked';
 let rankSort = 'votes';
 let rankSortDir = 'desc';
-let currentUser = null;
 
 const STATUS_ORDER = ['In Progress', 'Planned', 'Under Consideration', 'Shipped'];
+
+// Auth state comes from header.js (currentUser, esc, loadSession, etc.)
+// Notify header.js to reload features on auth change
+window.onAuthChange = function() { loadFeatures(); };
 
 function headers() {
   const h = { 'Content-Type': 'application/json' };
@@ -522,64 +399,7 @@ async function api(path, opts = {}) {
   return resp.json();
 }
 
-// ─── Auth ───
-function loadSession() {
-  const saved = localStorage.getItem('percona_voter');
-  if (saved) { currentUser = JSON.parse(saved); updateAuthUI(); }
-}
-
-function updateAuthUI() {
-  const area = document.getElementById('authArea');
-  if (currentUser) {
-    const name = currentUser.display_name || currentUser.email;
-    area.innerHTML = `
-      <div class="user-pill"><div class="dot"></div>${esc(name)}</div>
-      <button class="sign-out-btn" onclick="signOut()">Sign out</button>`;
-  } else {
-    area.innerHTML = `<button class="sign-in-btn" onclick="openAuthModal()">Sign in to vote</button>`;
-  }
-}
-
-function signOut() {
-  currentUser = null;
-  localStorage.removeItem('percona_voter');
-  updateAuthUI();
-  loadFeatures();
-}
-
-function openAuthModal() {
-  document.getElementById('authError').style.display = 'none';
-  document.getElementById('authModal').classList.add('open');
-  setTimeout(() => document.getElementById('authName').focus(), 100);
-}
-
-async function doLogin() {
-  const name = document.getElementById('authName').value.trim();
-  const email = document.getElementById('authEmail').value.trim();
-  const btn = document.getElementById('loginBtn');
-  const err = document.getElementById('authError');
-
-  if (!name || !email) { err.textContent = 'Name and email are required'; err.style.display = ''; return; }
-
-  btn.disabled = true; btn.textContent = 'Signing in…';
-  err.style.display = 'none';
-
-  const data = await api('/api/auth/login', {
-    method: 'POST', body: JSON.stringify({ email, display_name: name })
-  });
-
-  btn.disabled = false; btn.textContent = 'Sign in';
-
-  if (data.error) { err.textContent = data.error; err.style.display = ''; return; }
-
-  currentUser = { voter_id: data.voter_id, email: data.email, display_name: data.display_name };
-  localStorage.setItem('percona_voter', JSON.stringify(currentUser));
-  updateAuthUI();
-  closeModal('authModal');
-  loadFeatures();
-}
-
-// ─── Modals ───
+// ─── Modals (feature detail) ───
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', (e) => { if (e.target === el) el.classList.remove('open'); });
@@ -942,8 +762,7 @@ document.getElementById('filters').addEventListener('click', (e) => {
   render();
 });
 
-// ─── Helpers ───
-function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+// ─── Helpers ─── (esc() provided by header.js)
 function timeAgo(ts) {
   const diff = Date.now() / 1000 - ts;
   if (diff < 60) return 'just now';
@@ -953,7 +772,7 @@ function timeAgo(ts) {
   return new Date(ts * 1000).toLocaleDateString();
 }
 
-loadSession();
+// Session loaded by header.js
 loadFeatures();
 </script>
 </body>
