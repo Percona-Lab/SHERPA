@@ -113,7 +113,8 @@ echo ""
 # 3. Ensure data directory exists
 mkdir -p "$BASE/data"
 
-# 4. Restart the systemd service
+# 4. Clean up stale gunicorn control socket and restart
+rm -f "$CODE/gunicorn.ctl"
 echo "--- restarting $SERVICE ---"
 sudo systemctl restart "$SERVICE"
 sleep 2
