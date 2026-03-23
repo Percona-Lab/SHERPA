@@ -241,16 +241,19 @@ body::before {
 .empty-section-msg { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border); border-radius: var(--radius); }
 
 /* View toggle */
-.view-toggle { display: flex; gap: 2px; background: rgba(255,255,255,0.04); border-radius: 100px; padding: 2px; }
-.view-toggle-btn {
-  font-family: inherit; font-size: 12px; font-weight: 500;
-  padding: 6px 14px; border-radius: 100px; border: none;
-  background: transparent; color: var(--text-muted); cursor: pointer;
-  transition: all var(--transition); display: flex; align-items: center; gap: 5px;
+.view-toggle {
+  display: flex; gap: 2px; background: var(--bg-surface); border-radius: var(--radius-sm);
+  padding: 3px; border: 1px solid var(--border);
 }
-.view-toggle-btn:hover { color: var(--text-secondary); }
-.view-toggle-btn.active { background: var(--bg-card); color: var(--text-primary); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
-.view-toggle-btn svg { width: 14px; height: 14px; }
+.view-toggle-btn {
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 8px 20px; border-radius: var(--radius-xs); border: none;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  transition: all var(--transition); display: flex; align-items: center; gap: 6px;
+}
+.view-toggle-btn:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
+.view-toggle-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(43,90,226,0.35); }
+.view-toggle-btn svg { width: 15px; height: 15px; }
 
 /* ─── Ranked Table ─── */
 .ranked-table { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -329,7 +332,7 @@ body::before {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Board
       </button>
-      <button class="view-toggle-btn active" data-view="ranked" onclick="setView('ranked', this)">
+      <button class="view-toggle-btn" data-view="ranked" onclick="setView('ranked', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
         Ranked
       </button>
@@ -378,7 +381,7 @@ let allFeatures = [];
 let activeTech = 'all';
 let activeStatus = 'all';
 let searchQuery = '';
-let activeView = 'ranked';
+let activeView = localStorage.getItem('sherpa_view') || 'board';
 let rankSort = 'votes';
 let rankSortDir = 'desc';
 
@@ -539,10 +542,16 @@ function renderRanked() {
 
 function setView(view, btn) {
   activeView = view;
+  localStorage.setItem('sherpa_view', view);
   document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
+
+// Sync toggle buttons with persisted view on load
+document.querySelectorAll('.view-toggle-btn').forEach(b => {
+  b.classList.toggle('active', b.dataset.view === activeView);
+});
 
 function toggleRankSort(col) {
   if (rankSort === col) { rankSortDir = rankSortDir === 'desc' ? 'asc' : 'desc'; }
