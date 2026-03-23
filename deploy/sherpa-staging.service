@@ -6,11 +6,11 @@ After=network.target
 Type=notify
 User=dennis.kittrell
 Group=dennis.kittrell
-WorkingDirectory=/home/dennis.kittrell/SHERPA
+WorkingDirectory=/home/dennis.kittrell/sherpa-staging/code
 EnvironmentFile=/home/dennis.kittrell/.percona-portal.env
-EnvironmentFile=/home/dennis.kittrell/SHERPA/env/staging.env
-ExecStart=/home/dennis.kittrell/SHERPA/venv/bin/gunicorn \
-    --bind 127.0.0.1:3001 \
+EnvironmentFile=/home/dennis.kittrell/sherpa-staging/env.conf
+ExecStart=/home/dennis.kittrell/sherpa-staging/venv/bin/gunicorn \
+    --bind 0.0.0.0:3001 \
     --workers 1 \
     --timeout 120 \
     --access-logfile - \
