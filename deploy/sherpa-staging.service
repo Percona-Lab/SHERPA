@@ -1,0 +1,23 @@
+[Unit]
+Description=SHERPA Staging
+After=network.target
+
+[Service]
+Type=notify
+User=dennis.kittrell
+Group=dennis.kittrell
+WorkingDirectory=/home/dennis.kittrell/SHERPA
+EnvironmentFile=/home/dennis.kittrell/.percona-portal.env
+EnvironmentFile=/home/dennis.kittrell/SHERPA/env/staging.env
+ExecStart=/home/dennis.kittrell/SHERPA/venv/bin/gunicorn \
+    --bind 127.0.0.1:3001 \
+    --workers 1 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    wsgi:app
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

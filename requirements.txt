@@ -4,3 +4,4 @@ python-dotenv
 notion-client
 slack-bolt
 APScheduler
+gunicorn

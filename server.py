@@ -31,7 +31,8 @@ ALLOWED_DOMAINS = [d.strip().lower() for d in os.environ.get("ALLOWED_DOMAINS", 
 # When True, allowed domains skip email verification. Others need verification (future).
 DOMAIN_TRUST_MODE = True
 
-DB_PATH = Path(__file__).parent / "portal.db"
+_DATA_DIR = Path(os.environ.get("SHERPA_DATA_DIR", str(Path(__file__).parent)))
+DB_PATH = _DATA_DIR / "portal.db"
 
 NOTION_HEADERS = {
     "Authorization": f"Bearer {NOTION_API_KEY}",
@@ -889,4 +890,6 @@ if __name__ == "__main__":
         print(f"  Admin key: {ADMIN_KEY[:4]}{'*' * (len(ADMIN_KEY) - 4)}")
     if os.getenv("SLACK_BOT_TOKEN"):
         print("  Slack bot: enabled")
-    app.run(host="0.0.0.0", port=3000, debug=True)
+    port = int(os.environ.get("PORT", "3000"))
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=port, debug=debug)

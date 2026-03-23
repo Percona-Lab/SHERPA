@@ -26,7 +26,7 @@ DEMAND_SIGNALS_DB = "67ca4fa6cb9b444390dd62008ccd819b"
 CUSTOMER_EVIDENCE_DB = "9539dbfc3661420387c1e9705407bbd8"
 
 CACHE_TTL = 300  # 5 minutes
-_CACHE_DB_PATH = Path(__file__).parent.parent / "portal.db"
+_CACHE_DB_PATH = Path(os.environ.get("SHERPA_DATA_DIR", str(Path(__file__).parent.parent))) / "portal.db"
 
 
 def _get_client():

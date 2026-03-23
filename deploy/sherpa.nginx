@@ -1,0 +1,42 @@
+# SHERPA — production and staging reverse proxy
+# SSL: run `sudo certbot --nginx -d sherpa.percona.net -d sherpa-staging.percona.net`
+
+server {
+    listen 80;
+    server_name sherpa.percona.net;
+
+    location /static/ {
+        alias /home/dennis.kittrell/SHERPA/static/;
+        expires 1h;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+}
+
+server {
+    listen 80;
+    server_name sherpa-staging.percona.net;
+
+    location /static/ {
+        alias /home/dennis.kittrell/SHERPA/static/;
+        expires 1h;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+}

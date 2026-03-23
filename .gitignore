@@ -20,5 +20,8 @@ sherpa_data/
 .DS_Store
 .fuse_hidden*
 
+# VM-local environment overrides
+env/
+
 # IDE / tooling
 .claude/
