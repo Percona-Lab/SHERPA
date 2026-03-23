@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Evidence — SHERPA</title>
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #2B5AE2;
+  --accent-light: #4B7BFF;
+  --accent-glow: rgba(43, 90, 226, 0.25);
+  --bg-root: #0B0E14;
+  --bg-surface: #12161F;
+  --bg-card: #181D28;
+  --bg-card-hover: #1E2433;
+  --bg-input: #0F1219;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(43, 90, 226, 0.3);
+  --text-primary: #E8ECF4;
+  --text-secondary: #8B95A8;
+  --text-muted: #5A6478;
+  --green: #22C55E;
+  --amber: #F59E0B;
+  --orange: #F97316;
+  --purple: #A855F7;
+  --red: #EF4444;
+  --cyan: #06B6D4;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg-root);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+a { color: inherit; text-decoration: none; }
+
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11,14,20,0.82);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto; padding: 0 32px;
+  height: 56px; display: flex; align-items: center; gap: 32px;
+}
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-img { height: 28px; width: auto; }
+.logo-text { font-weight: 600; font-size: 15px; letter-spacing: -0.3px; }
+.logo-text span { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+nav { display: flex; gap: 4px; }
+nav a {
+  font-size: 13px; font-weight: 500; padding: 6px 14px;
+  border-radius: 100px; color: var(--text-secondary);
+  transition: all var(--transition);
+}
+nav a:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+nav a.active { color: var(--accent-light); background: rgba(43,90,226,0.12); }
+
+/* Toolbar */
+.toolbar {
+  max-width: 1400px; margin: 24px auto 0; padding: 0 32px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.toolbar h2 {
+  font-size: 20px; font-weight: 600; letter-spacing: -0.3px; margin-right: 16px;
+}
+.toolbar h2 span { color: var(--text-muted); font-weight: 400; font-size: 14px; margin-left: 8px; }
+.filter-group { display: flex; align-items: center; gap: 6px; }
+.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-right: 2px; }
+.filter-select {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 30px 7px 14px; border-radius: 100px;
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-secondary); cursor: pointer;
+  transition: all var(--transition); outline: none;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
+.filter-select:hover { border-color: var(--border-accent); color: var(--text-primary); }
+.filter-sep { width: 1px; height: 24px; background: var(--border); margin: 0 6px; }
+.search-input {
+  font-family: inherit; font-size: 13px;
+  padding: 7px 14px; border-radius: 100px;
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text-primary); outline: none; width: 260px;
+  transition: all var(--transition);
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--accent); }
+
+/* Table */
+.table-wrap {
+  max-width: 1400px; margin: 16px auto 48px; padding: 0 32px;
+}
+table {
+  width: 100%; border-collapse: collapse;
+  background: var(--bg-card); border-radius: var(--radius);
+  overflow: hidden; border: 1px solid var(--border);
+}
+thead th {
+  text-align: left; padding: 12px 16px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted);
+  background: var(--bg-surface); border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background var(--transition); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg-card-hover); }
+tbody td { padding: 12px 16px; font-size: 13px; vertical-align: top; }
+.mrr { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); }
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 100px; white-space: nowrap;
+}
+.badge-product { background: rgba(139,92,246,0.14); color: #A78BFA; }
+.badge-source {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: 100px;
+  background: rgba(255,255,255,0.04); color: var(--text-muted);
+}
+.sentiment-badge { font-size: 11px; font-weight: 600; }
+.sentiment-badge[data-s="Positive"] { color: var(--green); }
+.sentiment-badge[data-s="Neutral"] { color: var(--text-muted); }
+.sentiment-badge[data-s="Negative"] { color: var(--red); }
+.sentiment-badge[data-s="Churn Signal"] { color: var(--red); }
+.source-link { color: var(--accent-light); }
+.source-link:hover { text-decoration: underline; }
+.summary-cell { max-width: 350px; color: var(--text-secondary); }
+
+/* Loading / empty */
+.loading, .empty {
+  text-align: center; padding: 80px 32px;
+  color: var(--text-muted); font-size: 15px;
+}
+.loading .spinner {
+  width: 32px; height: 32px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo-area">
+      <img src="/static/logo-transparent.png" alt="SHERPA" class="logo-img">
+      <div class="logo-text">SHERPA <span>Demand Intelligence</span></div>
+    </a>
+    <nav>
+      <a href="/signals">Signals</a>
+      <a href="/evidence" class="active">Evidence</a>
+      <a href="/portal">Portal</a>
+      <a href="/admin">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="toolbar">
+  <h2>Customer Evidence <span id="evidence-count"></span></h2>
+  <div style="flex:1"></div>
+  <div class="filter-group">
+    <span class="filter-label">Product</span>
+    <select class="filter-select" id="filter-product">
+      <option value="">All Products</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Source</span>
+    <select class="filter-select" id="filter-source">
+      <option value="">All Sources</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Sentiment</span>
+    <select class="filter-select" id="filter-sentiment">
+      <option value="">All</option>
+      <option value="Positive">Positive</option>
+      <option value="Neutral">Neutral</option>
+      <option value="Negative">Negative</option>
+      <option value="Churn Signal">Churn Signal</option>
+    </select>
+  </div>
+  <div class="filter-sep"></div>
+  <input type="text" class="search-input" id="search" placeholder="Search by summary or account...">
+</div>
+
+<div class="table-wrap">
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Loading customer evidence...
+  </div>
+  <table id="evidence-table" style="display:none">
+    <thead>
+      <tr>
+        <th>Account</th>
+        <th>Summary</th>
+        <th>Product</th>
+        <th>MRR</th>
+        <th>Source</th>
+        <th>Sentiment</th>
+        <th>Date</th>
+        <th>Contact</th>
+      </tr>
+    </thead>
+    <tbody id="evidence-body"></tbody>
+  </table>
+  <div class="empty" id="empty" style="display:none">No evidence matches your filters.</div>
+</div>
+
+<script>
+let allEvidence = [];
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/sherpa/customer-evidence');
+    const data = await res.json();
+    allEvidence = (data.evidence || []).sort((a, b) => (b.mrr || 0) - (a.mrr || 0));
+    populateFilters();
+    renderTable();
+  } catch (e) {
+    document.getElementById('loading').innerHTML = `<p style="color:var(--red)">Failed to load: ${e.message}</p>`;
+  }
+}
+
+function populateFilters() {
+  const products = [...new Set(allEvidence.map(e => e.product_line).filter(Boolean))].sort();
+  const sources = [...new Set(allEvidence.map(e => e.source).filter(Boolean))].sort();
+  const pSel = document.getElementById('filter-product');
+  const sSel = document.getElementById('filter-source');
+  products.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; pSel.appendChild(o); });
+  sources.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sSel.appendChild(o); });
+}
+
+function getFiltered() {
+  const product = document.getElementById('filter-product').value;
+  const source = document.getElementById('filter-source').value;
+  const sentiment = document.getElementById('filter-sentiment').value;
+  const search = document.getElementById('search').value.toLowerCase();
+  return allEvidence.filter(e => {
+    if (product && e.product_line !== product) return false;
+    if (source && e.source !== source) return false;
+    if (sentiment && e.sentiment !== sentiment) return false;
+    if (search && !(e.summary || '').toLowerCase().includes(search) && !(e.account_name || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function formatMrr(v) {
+  if (v == null || v === 0) return '<span style="color:var(--text-muted)">—</span>';
+  return '$' + Math.round(v).toLocaleString();
+}
+
+function renderTable() {
+  const filtered = getFiltered();
+  const tbody = document.getElementById('evidence-body');
+  const table = document.getElementById('evidence-table');
+  const loading = document.getElementById('loading');
+  const empty = document.getElementById('empty');
+
+  loading.style.display = 'none';
+  document.getElementById('evidence-count').textContent = `(${filtered.length})`;
+
+  if (filtered.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  table.style.display = 'table';
+
+  tbody.innerHTML = filtered.map(e => `
+    <tr>
+      <td style="font-weight:500; white-space:nowrap">${esc(e.account_name)}</td>
+      <td class="summary-cell">${esc(e.summary)}</td>
+      <td>${e.product_line ? `<span class="badge badge-product">${esc(e.product_line)}</span>` : ''}</td>
+      <td><span class="mrr">${formatMrr(e.mrr)}</span></td>
+      <td>${e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" class="source-link">${esc(e.source)}</a>` : `<span class="badge-source">${esc(e.source)}</span>`}</td>
+      <td><span class="sentiment-badge" data-s="${esc(e.sentiment)}">${esc(e.sentiment)}</span></td>
+      <td style="white-space:nowrap; color:var(--text-muted); font-size:12px">${esc(e.date_captured)}</td>
+      <td style="color:var(--text-secondary); font-size:12px">${esc(e.contact)}</td>
+    </tr>
+  `).join('');
+}
+
+document.querySelectorAll('.filter-select').forEach(el => el.addEventListener('change', renderTable));
+document.getElementById('search').addEventListener('input', renderTable);
+
+loadData();
+</script>
+</body>
+</html>

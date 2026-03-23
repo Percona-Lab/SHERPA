@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Optional, Union
 
 from .models import CustomerEvidence, DemandSignal
-from .matching import find_best_match, should_auto_merge
+from .matching import find_best_match, should_auto_merge, extract_problem_statement
 from .scoring import recalculate, IMPORTANCE_MAP
 from .git_sync import GitSyncManager
 from .slack_notify import notify_new_signal, notify_evidence_added
@@ -174,8 +174,10 @@ def ingest_evidence(data: Union[dict, CustomerEvidence]) -> DemandSignal:
     manager = GitSyncManager()
     existing_signals = manager.load_all_signals()
 
-    # Match against existing signals
-    matched_signal, confidence = find_best_match(evidence.title, existing_signals)
+    # Problem-level matching: compare underlying need, not surface feature request
+    matched_signal, confidence = find_best_match(
+        evidence.title, existing_signals, description=evidence.description,
+    )
 
     if matched_signal and confidence > 0:
         # Append evidence to existing signal
@@ -187,6 +189,10 @@ def ingest_evidence(data: Union[dict, CustomerEvidence]) -> DemandSignal:
         else:
             matched_signal.status = "Reviewing"
             log.info(f"Evidence added to '{matched_signal.title}' for review (confidence={confidence:.2f})")
+
+        # Log anti-SCORE warnings
+        if matched_signal.evidence_warnings:
+            log.info(f"Signal '{matched_signal.title}' warnings: {matched_signal.evidence_warnings}")
 
         manager.save_signal(matched_signal)
 
@@ -202,19 +208,28 @@ def ingest_evidence(data: Union[dict, CustomerEvidence]) -> DemandSignal:
         notify_evidence_added(matched_signal, evidence)
         return matched_signal
     else:
-        # Create new demand signal
+        # Create new demand signal — extract problem statement via LLM
+        problem = extract_problem_statement(evidence.title, evidence.description)
+
         signal_id = DemandSignal.generate_id(evidence.title)
         new_signal = DemandSignal(
             id=signal_id,
             title=evidence.title,
             description=evidence.description,
+            problem_statement=problem or "",
             feature_id=evidence.raw_data.get("feature_id"),
             notion_url=evidence.raw_data.get("notion_url"),
         )
         new_signal.add_evidence(evidence)
         recalculate(new_signal)
 
-        log.info(f"Created new demand signal '{new_signal.title}' (score={new_signal.demand_score})")
+        log.info(
+            f"Created new demand signal '{new_signal.title}' "
+            f"(score={new_signal.demand_score}, biz={new_signal.business_impact_score}, "
+            f"uv={new_signal.user_value_score}, confidence={new_signal.confidence_level})"
+        )
+        if new_signal.evidence_warnings:
+            log.info(f"New signal warnings: {new_signal.evidence_warnings}")
 
         manager.save_signal(new_signal)
 

@@ -2,7 +2,7 @@
 
 **Stakeholder Hub for Enhancement Request Prioritization & Action**
 
-A unified product intelligence platform that combines feature voting, demand signal analysis, and proactive monitoring. Percona employees vote on features based on customer and market needs, while the demand engine aggregates evidence from Slack, Jira, forums, and votes into scored, stack-ranked demand signals.
+A discovery-informed product intelligence platform that aggregates evidence from 14+ data sources, scores demand signals with transparent dual metrics (Business Impact + User Value), and actively prevents opinion-based prioritization. Built on [Gilad](https://itamargilad.com/discovery-problems)/[Cagan](https://www.svpg.com/) principles: signals are framed as problems, not features; scoring is never opaque; and anti-SCORE safeguards flag sparse or single-source evidence before it becomes a "must-have."
 
 > 100% vibe coded with [Claude](https://claude.ai)
 
@@ -91,14 +91,16 @@ Every capability is independently optional:
 - **Remove comments**
 - **Block voters** — removes all their votes and hides comments
 
-### Demand Signal Engine
-- Automatic ingestion of votes and comments as customer evidence
-- External evidence ingestion via API (Slack, Jira, forums)
-- Weighted demand scoring with recency decay
-- LLM-powered semantic matching (with keyword fallback)
-- Git-backed canonical signal store
-- Two-way Notion sync (Demand Signals + Customer Evidence databases)
-- Slack webhook notifications for new signals
+### Demand Signal Engine (Discovery-Informed)
+- **Problem-level framing** — LLM extracts the underlying need, not just the feature request
+- **Dual scoring** — Business Impact (MRR, deal blockers, churn) + User Value (community, surveys, calls)
+- **Source diversity tracking** — signals corroborated across source types rank higher
+- **Confidence levels** — Strong / Moderate / Weak based on evidence quality and breadth
+- **Anti-SCORE warnings** — flags Sparse Evidence, Single Source, Stale Data, No Customer/Community Data
+- **Transparent scoring** — every signal shows *why* it ranks where it does, not just a number
+- 14+ data sources: Salesforce, TAM/SDM/SE notes, Update.AI, GitHub, Forums, Surveys, ServiceNow, and more
+- LLM-powered problem-level matching (with keyword fallback)
+- Git-backed canonical signal store + two-way Notion sync
 
 ### Slack Bot (`/sherpa`)
 - `/sherpa search [query]` — Search demand signals
@@ -122,12 +124,12 @@ SHERPA/
 ├── static/
 │   ├── index.html         # Main voting portal
 │   └── admin.html         # Admin panel
-├── demand/                # Demand Signal Engine
+├── demand/                # Demand Signal Engine (discovery-informed)
 │   ├── __init__.py
-│   ├── models.py          # DemandSignal, CustomerEvidence dataclasses
+│   ├── models.py          # DemandSignal (problem-level), CustomerEvidence
 │   ├── ingestion.py       # Extract → Classify → Match → Store pipeline
-│   ├── matching.py        # LLM semantic match + keyword fallback
-│   ├── scoring.py         # Weighted demand score formula
+│   ├── matching.py        # LLM problem-level match + keyword fallback
+│   ├── scoring.py         # Dual scoring: Business Impact + User Value
 │   ├── git_sync.py        # Git-backed canonical store
 │   ├── notion_sync.py     # Notion database read/write sync
 │   └── slack_notify.py    # Slack webhook notifications

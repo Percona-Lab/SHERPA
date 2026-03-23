@@ -1,5 +1,11 @@
 """
 SHERPA Demand Engine — DemandSignal and CustomerEvidence dataclasses.
+
+Discovery-informed design (Gilad/Cagan principles):
+- Signals are framed as problems/needs, not feature requests
+- Dual scoring: Business Impact + User Value (not a single opaque score)
+- Source diversity and confidence levels prevent "must-have" bypass
+- Anti-SCORE warnings flag sparse/single-source evidence
 """
 
 import hashlib
@@ -58,7 +64,12 @@ class CustomerEvidence:
 
 @dataclass
 class DemandSignal:
-    """An aggregated demand signal with evidence from multiple sources."""
+    """An aggregated demand signal framed as a problem/need, not a feature request.
+
+    Discovery-informed: signals are grouped at the problem level. Multiple feature
+    requests addressing the same underlying need share one signal. Dual scoring
+    (business_impact_score + user_value_score) replaces the old single opaque score.
+    """
     id: str
     title: str
     description: str
@@ -72,8 +83,22 @@ class DemandSignal:
     notion_url: Optional[str] = None
     feature_id: Optional[str] = None
 
+    # Problem-level framing (Gilad/Cagan: discover problems, not features)
+    problem_statement: str = ""         # LLM-extracted underlying need behind feature requests
+
+    # Dual scoring (Gilad: Business Metric + North Star Metric)
+    business_impact_score: float = 0.0  # 0-100: MRR, deal blockers, churn risk
+    user_value_score: float = 0.0       # 0-100: community, surveys, call transcripts
+
+    # Evidence quality (Anti-SCORE safeguards)
+    source_diversity: int = 0           # Count of unique source types contributing evidence
+    confidence_level: str = "Weak"      # "Strong", "Moderate", "Weak"
+    evidence_warnings: List[str] = field(default_factory=list)
+    # Possible warnings: "Sparse Evidence", "Single Source", "Stale Data",
+    # "No Customer Data", "No Community Data", "Contradictory Signals"
+
     # Notion-specific fields for Demand Signals DB
-    impact_score: Optional[float] = None
+    impact_score: Optional[float] = None  # PM override — takes precedence over demand_score
     product_line: str = ""
     urgency: str = "Medium"             # "Churn Risk", "Deal Blocker", "High", "Medium", "Low"
     sources: List[str] = field(default_factory=list)  # ["SHERPA", "Slack", "Jira"]

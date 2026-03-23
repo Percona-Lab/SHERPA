@@ -88,11 +88,22 @@ def create_slack_app():
                 manager = GitSyncManager()
                 signal = manager.load_signal(signal_id)
                 if signal:
+                    # Transparent score breakdown (anti-SCORE: always show WHY)
+                    problem_line = f"\n:dart: *Problem:* {signal.problem_statement}" if signal.problem_statement else ""
+                    warnings_line = f"\n:warning: *Warnings:* {', '.join(signal.evidence_warnings)}" if signal.evidence_warnings else ""
                     respond(
-                        f"\U0001f50e *{signal.title}*\n"
-                        f"Score: *{signal.demand_score}* | Evidence: *{len(signal.evidence)}*\n"
-                        f"Category: {signal.category} | Status: {signal.status}\n"
+                        f"\U0001f50e *{signal.title}*{problem_line}\n"
+                        f"*Demand Score:* {signal.demand_score:.1f}  |  "
+                        f"Biz Impact: {signal.business_impact_score:.0f}  |  "
+                        f"User Value: {signal.user_value_score:.0f}\n"
+                        f"Confidence: *{signal.confidence_level}*  |  "
+                        f"Source Diversity: *{signal.source_diversity}* types  |  "
+                        f"Evidence: *{len(signal.evidence)}*\n"
+                        f"Customers: {signal.customer_count}  |  "
+                        f"Community: {signal.community_mentions}  |  "
+                        f"MRR: ${signal.total_mrr or 0:,.0f}\n"
                         f"Sources: {', '.join(signal.sources) or 'N/A'}"
+                        f"{warnings_line}"
                     )
                 else:
                     respond(f"\U0001f50e Signal `{signal_id}` not found")

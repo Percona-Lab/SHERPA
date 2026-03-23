@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal Detail — SHERPA</title>
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #2B5AE2;
+  --accent-light: #4B7BFF;
+  --accent-glow: rgba(43, 90, 226, 0.25);
+  --bg-root: #0B0E14;
+  --bg-surface: #12161F;
+  --bg-card: #181D28;
+  --bg-card-hover: #1E2433;
+  --bg-input: #0F1219;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(43, 90, 226, 0.3);
+  --text-primary: #E8ECF4;
+  --text-secondary: #8B95A8;
+  --text-muted: #5A6478;
+  --green: #22C55E;
+  --amber: #F59E0B;
+  --orange: #F97316;
+  --purple: #A855F7;
+  --red: #EF4444;
+  --cyan: #06B6D4;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg-root);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+a { color: inherit; text-decoration: none; }
+
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11,14,20,0.82);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto; padding: 0 32px;
+  height: 56px; display: flex; align-items: center; gap: 32px;
+}
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.logo-img { height: 28px; width: auto; }
+.logo-text { font-weight: 600; font-size: 15px; letter-spacing: -0.3px; }
+.logo-text span { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+nav { display: flex; gap: 4px; }
+nav a {
+  font-size: 13px; font-weight: 500; padding: 6px 14px;
+  border-radius: 100px; color: var(--text-secondary);
+  transition: all var(--transition);
+}
+nav a:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+nav a.active { color: var(--accent-light); background: rgba(43,90,226,0.12); }
+
+/* Main content */
+.content { max-width: 1400px; margin: 0 auto; padding: 32px; }
+.back-link { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; }
+.back-link:hover { color: var(--text-secondary); }
+
+/* Signal header */
+.signal-header { margin-bottom: 32px; }
+.signal-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 12px; }
+.signal-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 100px; white-space: nowrap;
+}
+.badge-product { background: rgba(139,92,246,0.14); color: #A78BFA; }
+.badge-category { background: rgba(59,130,246,0.10); color: #60A5FA; }
+.badge-category[data-c="Bug"] { background: rgba(239,68,68,0.12); color: #F87171; }
+.badge-category[data-c="Pain Point"] { background: rgba(245,158,11,0.12); color: #FBBF24; }
+.badge-category[data-c="Use Case"] { background: rgba(34,197,94,0.12); color: #4ADE80; }
+.badge-urgency { font-size: 12px; font-weight: 600; }
+.badge-urgency[data-u="Deal Blocker"] { color: var(--red); }
+.badge-urgency[data-u="High"] { color: var(--amber); }
+.badge-urgency[data-u="Medium"] { color: var(--text-secondary); }
+.signal-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.6; max-width: 800px; }
+
+/* Info grid */
+.info-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px; margin-bottom: 32px;
+}
+.info-item {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px;
+}
+.info-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-bottom: 4px; }
+.info-value { font-size: 18px; font-weight: 600; }
+.info-value.green { color: var(--green); }
+.info-value.amber { color: var(--amber); }
+.info-value.accent { color: var(--accent-light); }
+.info-value a { color: var(--accent-light); }
+.info-value a:hover { text-decoration: underline; }
+
+/* Section titles */
+.section-title {
+  font-size: 16px; font-weight: 600; margin-bottom: 16px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+
+/* Evidence table */
+table {
+  width: 100%; border-collapse: collapse;
+  background: var(--bg-card); border-radius: var(--radius);
+  overflow: hidden; border: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+thead th {
+  text-align: left; padding: 12px 16px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted);
+  background: var(--bg-surface); border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background var(--transition); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg-card-hover); }
+tbody td { padding: 12px 16px; font-size: 13px; vertical-align: top; }
+.mrr { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); }
+.sentiment-badge { font-size: 11px; font-weight: 600; }
+.sentiment-badge[data-s="Positive"] { color: var(--green); }
+.sentiment-badge[data-s="Neutral"] { color: var(--text-muted); }
+.sentiment-badge[data-s="Negative"] { color: var(--red); }
+.sentiment-badge[data-s="Churn Signal"] { color: var(--red); }
+.source-link { color: var(--accent-light); font-size: 12px; }
+.source-link:hover { text-decoration: underline; }
+
+/* Verbatim quotes */
+.quotes-section { margin-bottom: 32px; }
+.quote-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: var(--radius-sm);
+  padding: 16px 20px; margin-bottom: 12px;
+}
+.quote-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; font-style: italic; }
+.quote-attr { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+/* Loading */
+.loading {
+  text-align: center; padding: 80px 32px;
+  color: var(--text-muted); font-size: 15px;
+}
+.loading .spinner {
+  width: 32px; height: 32px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="logo-area">
+      <img src="/static/logo-transparent.png" alt="SHERPA" class="logo-img">
+      <div class="logo-text">SHERPA <span>Demand Intelligence</span></div>
+    </a>
+    <nav>
+      <a href="/signals" class="active">Signals</a>
+      <a href="/evidence">Evidence</a>
+      <a href="/portal">Portal</a>
+      <a href="/admin">Admin</a>
+    </nav>
+  </div>
+</header>
+
+<div class="content">
+  <a href="/signals" class="back-link">&larr; All Signals</a>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Loading signal...
+  </div>
+
+  <div id="signal-content" style="display:none">
+    <div class="signal-header">
+      <h1 class="signal-title" id="signal-title"></h1>
+      <div class="signal-meta" id="signal-meta"></div>
+      <div class="signal-desc" id="signal-desc"></div>
+    </div>
+
+    <div class="info-grid" id="info-grid"></div>
+
+    <h2 class="section-title" id="evidence-title">Customer Evidence</h2>
+    <table id="evidence-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Account</th>
+          <th>Contact</th>
+          <th>MRR</th>
+          <th>Source</th>
+          <th>Sentiment</th>
+          <th>Date</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
+      <tbody id="evidence-body"></tbody>
+    </table>
+    <div id="no-evidence" style="display:none; color:var(--text-muted); font-size:14px; padding:16px 0;">No evidence linked to this signal yet.</div>
+
+    <div class="quotes-section" id="quotes-section" style="display:none">
+      <h2 class="section-title">Verbatim Quotes</h2>
+      <div id="quotes-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const signalId = window.location.pathname.split('/signals/')[1];
+
+async function loadSignal() {
+  try {
+    const res = await fetch(`/api/sherpa/demand-signals/${signalId}`);
+    if (!res.ok) throw new Error('Signal not found');
+    const signal = await res.json();
+    renderSignal(signal);
+  } catch (e) {
+    document.getElementById('loading').innerHTML = `<p style="color:var(--red)">${e.message}</p>`;
+  }
+}
+
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function formatMrr(v) {
+  if (v == null || v === 0) return '—';
+  return '$' + Math.round(v).toLocaleString();
+}
+
+function renderSignal(s) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('signal-content').style.display = 'block';
+  document.title = `${s.title} — SHERPA`;
+
+  document.getElementById('signal-title').textContent = s.title;
+
+  const meta = document.getElementById('signal-meta');
+  let metaHtml = '';
+  if (s.product_line) metaHtml += `<span class="badge badge-product">${esc(s.product_line)}</span>`;
+  if (s.category) metaHtml += `<span class="badge badge-category" data-c="${esc(s.category)}">${esc(s.category)}</span>`;
+  if (s.urgency) metaHtml += `<span class="badge-urgency" data-u="${esc(s.urgency)}">${esc(s.urgency)}</span>`;
+  meta.innerHTML = metaHtml;
+
+  if (s.description) {
+    document.getElementById('signal-desc').textContent = s.description;
+  } else if (s.problem_statement) {
+    document.getElementById('signal-desc').textContent = s.problem_statement;
+  }
+
+  // Info grid
+  const grid = document.getElementById('info-grid');
+  const items = [
+    { label: 'Total MRR Impact', value: formatMrr(s.total_mrr), cls: 'green' },
+    { label: 'Customer Count', value: s.customer_count || 0, cls: '' },
+    { label: 'Demand Score', value: Math.round(s.demand_score || 0), cls: 'accent' },
+    { label: 'Business Impact', value: Math.round(s.business_impact_score || 0), cls: 'amber' },
+    { label: 'User Value', value: Math.round(s.user_value_score || 0), cls: '' },
+    { label: 'Confidence', value: s.confidence_level || '—', cls: '' },
+    { label: 'Strategic Alignment', value: s.strategic_alignment || '—', cls: '' },
+    { label: 'Sources', value: (s.sources || []).join(', ') || '—', cls: '' },
+  ];
+  if (s.jira_url) items.push({ label: 'Jira', value: `<a href="${esc(s.jira_url)}" target="_blank">View ticket</a>`, cls: '', html: true });
+  if (s.customers && s.customers.length) items.push({ label: 'Named Accounts', value: s.customers.join(', '), cls: '' });
+
+  grid.innerHTML = items.map(i => `
+    <div class="info-item">
+      <div class="info-label">${i.label}</div>
+      <div class="info-value ${i.cls}">${i.html ? i.value : esc(String(i.value))}</div>
+    </div>
+  `).join('');
+
+  // Evidence table
+  const evidence = s.evidence || [];
+  document.getElementById('evidence-title').textContent = `Customer Evidence (${evidence.length})`;
+
+  if (evidence.length === 0) {
+    document.getElementById('no-evidence').style.display = 'block';
+  } else {
+    document.getElementById('evidence-table').style.display = 'table';
+    const tbody = document.getElementById('evidence-body');
+    tbody.innerHTML = evidence.map(e => `
+      <tr>
+        <td style="font-weight:500">${esc(e.account_name)}</td>
+        <td style="color:var(--text-secondary)">${esc(e.contact)}</td>
+        <td><span class="mrr">${formatMrr(e.mrr)}</span></td>
+        <td>${e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" class="source-link">${esc(e.source)}</a>` : esc(e.source)}</td>
+        <td><span class="sentiment-badge" data-s="${esc(e.sentiment)}">${esc(e.sentiment)}</span></td>
+        <td style="white-space:nowrap; color:var(--text-muted); font-size:12px">${esc(e.date_captured)}</td>
+        <td style="max-width:300px; color:var(--text-secondary)">${esc(e.summary)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // Verbatim quotes
+  const quotes = evidence.filter(e => e.verbatim).map(e => ({ text: e.verbatim, account: e.account_name, source: e.source }));
+  if (quotes.length > 0) {
+    document.getElementById('quotes-section').style.display = 'block';
+    document.getElementById('quotes-list').innerHTML = quotes.map(q => `
+      <div class="quote-card">
+        <div class="quote-text">"${esc(q.text)}"</div>
+        <div class="quote-attr">— ${esc(q.account)}${q.source ? ` via ${esc(q.source)}` : ''}</div>
+      </div>
+    `).join('');
+  }
+}
+
+loadSignal();
+</script>
+</body>
+</html>

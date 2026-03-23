@@ -13,7 +13,7 @@ from pathlib import Path
 import logging
 from dotenv import load_dotenv
 import requests
-from flask import Flask, g, jsonify, request, send_from_directory
+from flask import Flask, g, jsonify, redirect, request, send_from_directory
 
 load_dotenv(Path.home() / ".percona-portal.env")
 
@@ -147,11 +147,27 @@ def is_trusted_domain(email):
 # ─── Routes: Static ───
 @app.route("/")
 def index():
+    return redirect("/signals")
+
+@app.route("/portal")
+def portal_page():
     return send_from_directory("static", "index.html")
 
 @app.route("/admin")
 def admin_page():
     return send_from_directory("static", "admin.html")
+
+@app.route("/signals")
+def signals_page():
+    return send_from_directory("static", "signals.html")
+
+@app.route("/signals/<signal_id>")
+def signal_detail_page(signal_id):
+    return send_from_directory("static", "signal-detail.html")
+
+@app.route("/evidence")
+def evidence_page():
+    return send_from_directory("static", "evidence.html")
 
 
 # ─── Routes: Features ───
@@ -686,6 +702,56 @@ def sherpa_signal_detail(signal_id):
         return jsonify(signal.to_dict()), 200
     except Exception as e:
         app.logger.error(f"Demand engine signal error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/sherpa/demand-signals")
+def sherpa_demand_signals():
+    """Fetch all demand signals from Notion (cached)."""
+    try:
+        from demand.notion_sync import get_demand_signals_cached
+        signals = get_demand_signals_cached()
+        return jsonify({"count": len(signals), "signals": signals}), 200
+    except Exception as e:
+        app.logger.error(f"Demand signals fetch error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/sherpa/demand-signals/<signal_id>")
+def sherpa_demand_signal_detail(signal_id):
+    """Fetch a single demand signal with linked evidence."""
+    try:
+        from demand.notion_sync import get_signal_with_evidence
+        signal = get_signal_with_evidence(signal_id)
+        if not signal:
+            return jsonify({"error": "Signal not found"}), 404
+        return jsonify(signal), 200
+    except Exception as e:
+        app.logger.error(f"Demand signal detail error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/sherpa/customer-evidence")
+def sherpa_customer_evidence():
+    """Fetch all customer evidence from Notion (cached)."""
+    try:
+        from demand.notion_sync import get_customer_evidence_cached
+        evidence = get_customer_evidence_cached()
+        return jsonify({"count": len(evidence), "evidence": evidence}), 200
+    except Exception as e:
+        app.logger.error(f"Customer evidence fetch error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/sherpa/cache/invalidate", methods=["POST"])
+@require_admin
+def sherpa_invalidate_cache():
+    """Force-refresh Notion cache."""
+    try:
+        from demand.notion_sync import invalidate_cache
+        invalidate_cache()
+        return jsonify({"ok": True}), 200
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
