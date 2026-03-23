@@ -60,13 +60,29 @@ body::before {
   border-bottom: 1px solid var(--border);
 }
 .header-inner {
-  max-width: 1200px; margin: 0 auto; padding: 0 32px;
-  height: 68px; display: flex; align-items: center; justify-content: space-between;
+  max-width: 1400px; margin: 0 auto; padding: 0 32px;
+  height: 56px; display: flex; align-items: center; gap: 32px;
 }
-.logo-area { display: flex; align-items: center; gap: 12px; }
-.logo-img { height: 32px; width: auto; }
-.logo-text { font-weight: 600; font-size: 17px; letter-spacing: -0.3px; }
+.logo-area { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-img { height: 28px; width: auto; }
+.logo-text { font-weight: 600; font-size: 15px; letter-spacing: -0.3px; }
 .logo-text span { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+nav { display: flex; gap: 4px; }
+nav a {
+  font-size: 13px; font-weight: 500; padding: 6px 14px;
+  border-radius: 100px; color: var(--text-secondary);
+  transition: all var(--transition); text-decoration: none;
+}
+nav a:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+nav a.active { color: var(--accent-light); background: rgba(43,90,226,0.12); }
+.prototype-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 4px 12px; border-radius: 100px;
+  background: rgba(239,68,68,0.15); color: var(--red);
+  border: 1px solid rgba(239,68,68,0.3);
+  text-transform: uppercase; animation: pulse-badge 2s ease-in-out infinite;
+}
+@keyframes pulse-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
 /* Auth area */
 .auth-area { display: flex; align-items: center; gap: 12px; }
@@ -395,15 +411,15 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 
 <header class="header">
   <div class="header-inner">
-    <div class="logo-area">
-      <img src="/static/logo-transparent.png" alt="Percona" class="logo-img">
-      <div class="logo-text">Percona <span>SHERPA</span></div>
-    </div>
-    <nav style="display:flex;gap:4px;margin-left:auto;margin-right:16px">
-      <a href="/signals" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--text-secondary);transition:all var(--transition);text-decoration:none">Signals</a>
-      <a href="/evidence" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--text-secondary);transition:all var(--transition);text-decoration:none">Evidence</a>
-      <a href="/portal" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--accent-light);background:rgba(43,90,226,0.12);text-decoration:none">Portal</a>
-      <a href="/admin" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--text-secondary);transition:all var(--transition);text-decoration:none">Admin</a>
+    <a href="/signals" class="logo-area">
+      <img src="/static/logo-transparent.png" alt="SHERPA" class="logo-img">
+      <div class="logo-text">SHERPA <span>Demand Intelligence</span></div>
+    </a>
+    <div class="prototype-badge">PROTOTYPE</div>
+    <nav>
+      <a href="/signals">Signals</a>
+      <a href="/evidence">Evidence</a>
+      <a href="/portal" class="active">Portal</a>
     </nav>
     <div class="auth-area" id="authArea">
       <button class="sign-in-btn" onclick="openAuthModal()">Sign in to vote</button>
@@ -418,11 +434,11 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   </div>
   <div class="filters" id="filters">
     <div class="view-toggle">
-      <button class="view-toggle-btn active" data-view="board" onclick="setView('board', this)">
+      <button class="view-toggle-btn" data-view="board" onclick="setView('board', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Board
       </button>
-      <button class="view-toggle-btn" data-view="ranked" onclick="setView('ranked', this)">
+      <button class="view-toggle-btn active" data-view="ranked" onclick="setView('ranked', this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
         Ranked
       </button>
@@ -488,7 +504,7 @@ let allFeatures = [];
 let activeTech = 'all';
 let activeStatus = 'all';
 let searchQuery = '';
-let activeView = 'board';
+let activeView = 'ranked';
 let rankSort = 'votes';
 let rankSortDir = 'desc';
 let currentUser = null;

@@ -72,6 +72,14 @@ nav a {
 }
 nav a:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
 nav a.active { color: var(--accent-light); background: rgba(43,90,226,0.12); }
+.prototype-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  padding: 4px 12px; border-radius: 100px;
+  background: rgba(239,68,68,0.15); color: var(--red);
+  border: 1px solid rgba(239,68,68,0.3);
+  text-transform: uppercase; animation: pulse-badge 2s ease-in-out infinite;
+}
+@keyframes pulse-badge { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
 /* Toolbar */
 .toolbar {
@@ -163,15 +171,15 @@ tbody td { padding: 12px 16px; font-size: 13px; vertical-align: top; }
 
 <header class="header">
   <div class="header-inner">
-    <a href="/" class="logo-area">
+    <a href="/signals" class="logo-area">
       <img src="/static/logo-transparent.png" alt="SHERPA" class="logo-img">
       <div class="logo-text">SHERPA <span>Demand Intelligence</span></div>
     </a>
+    <div class="prototype-badge">PROTOTYPE</div>
     <nav>
       <a href="/signals">Signals</a>
       <a href="/evidence" class="active">Evidence</a>
       <a href="/portal">Portal</a>
-      <a href="/admin">Admin</a>
     </nav>
   </div>
 </header>
