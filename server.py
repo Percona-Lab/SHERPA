@@ -148,7 +148,7 @@ def is_trusted_domain(email):
 # ─── Routes: Static ───
 @app.route("/")
 def index():
-    return redirect("/signals")
+    return redirect("/portal")
 
 @app.route("/portal")
 def portal_page():
