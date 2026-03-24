@@ -158,7 +158,11 @@ def rybbit_script():
 
 @app.route("/rybbit/<path:path>", methods=["GET", "POST"])
 def rybbit_proxy(path):
-    url = f"{RYBBIT_BACKEND}/{path}"
+    # Rybbit registers tracking at /api/track but serves config at /site/*
+    if path in ("track", "identify"):
+        url = f"{RYBBIT_BACKEND}/api/{path}"
+    else:
+        url = f"{RYBBIT_BACKEND}/{path}"
     if request.method == "POST":
         resp = requests.post(url, data=request.get_data(), headers={"Content-Type": request.content_type or "application/json"}, timeout=10)
     else:
