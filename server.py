@@ -160,10 +160,14 @@ def rybbit_script():
 def rybbit_proxy(path):
     # Rybbit registers all endpoints under /api/ but the script sends without the prefix
     url = f"{RYBBIT_BACKEND}/api/{path}"
+    # Forward browser headers so Rybbit doesn't filter as bot
+    fwd = {"Content-Type": request.content_type or "application/json",
+           "User-Agent": request.headers.get("User-Agent", ""),
+           "X-Forwarded-For": request.headers.get("X-Forwarded-For", request.remote_addr)}
     if request.method == "POST":
-        resp = requests.post(url, data=request.get_data(), headers={"Content-Type": request.content_type or "application/json"}, timeout=10)
+        resp = requests.post(url, data=request.get_data(), headers=fwd, timeout=10)
     else:
-        resp = requests.get(url, params=request.args, timeout=10)
+        resp = requests.get(url, params=request.args, headers=fwd, timeout=10)
     return resp.content, resp.status_code, {"Content-Type": resp.headers.get("Content-Type", "application/json")}
 
 # ─── Routes: Static ───
