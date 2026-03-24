@@ -146,6 +146,25 @@ def is_trusted_domain(email):
     return domain in ALLOWED_DOMAINS
 
 
+# ─── Routes: Rybbit Analytics Proxy ───
+# Rybbit script.js derives analyticsHost from its own src path.
+# With src="/rybbit/script.js", analyticsHost = "/rybbit" and it sends to /rybbit/track, /rybbit/site/*, etc.
+RYBBIT_BACKEND = "http://127.0.0.1:3003"
+
+@app.route("/rybbit/script.js")
+def rybbit_script():
+    resp = requests.get(f"{RYBBIT_BACKEND}/script.js", timeout=5)
+    return resp.content, resp.status_code, {"Content-Type": "application/javascript", "Cache-Control": "public, max-age=3600"}
+
+@app.route("/rybbit/<path:path>", methods=["GET", "POST"])
+def rybbit_proxy(path):
+    url = f"{RYBBIT_BACKEND}/{path}"
+    if request.method == "POST":
+        resp = requests.post(url, data=request.get_data(), headers={"Content-Type": request.content_type or "application/json"}, timeout=10)
+    else:
+        resp = requests.get(url, params=request.args, timeout=10)
+    return resp.content, resp.status_code, {"Content-Type": resp.headers.get("Content-Type", "application/json")}
+
 # ─── Routes: Static ───
 @app.route("/")
 def index():
