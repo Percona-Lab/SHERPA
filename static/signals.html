@@ -322,7 +322,7 @@ function getFiltered() {
 }
 
 function getSorted(list) {
-  const dir = sortDir === 'desc' ? -1 : 1;
+  const dir = sortDir === 'desc' ? 1 : -1;
   return [...list].sort((a, b) => {
     if (currentSort === 'mrr') return ((b.total_mrr || 0) - (a.total_mrr || 0)) * dir;
     if (currentSort === 'customers') return ((b.customer_count || 0) - (a.customer_count || 0)) * dir;
