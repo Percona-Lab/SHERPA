@@ -3,20 +3,26 @@ Description=SHERPA Production
 After=network.target
 
 [Service]
-Type=notify
+Type=simple
 User=dennis.kittrell
 Group=dennis.kittrell
 WorkingDirectory=/home/dennis.kittrell/sherpa-prod/code
 EnvironmentFile=/home/dennis.kittrell/.percona-portal.env
 EnvironmentFile=/home/dennis.kittrell/sherpa-prod/env.conf
+ExecStartPre=-/bin/rm -f /home/dennis.kittrell/sherpa-prod/code/gunicorn.ctl
 ExecStart=/home/dennis.kittrell/sherpa-prod/venv/bin/gunicorn \
     --bind 0.0.0.0:3000 \
     --workers 1 \
     --timeout 120 \
+    --no-control-socket \
     --access-logfile - \
     --error-logfile - \
+    --graceful-timeout 5 \
     wsgi:app
-Restart=on-failure
+ExecStopPost=-/bin/rm -f /home/dennis.kittrell/sherpa-prod/code/gunicorn.ctl
+TimeoutStopSec=10
+KillMode=mixed
+Restart=always
 RestartSec=5
 
 [Install]
