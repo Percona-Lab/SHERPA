@@ -152,6 +152,26 @@
     }
   };
 
-  // Load session immediately
-  loadSession();
+  // Try SSO auto-login, then fall back to localStorage session
+  window.trySSO = async function() {
+    try {
+      var resp = await fetch('/api/auth/sso');
+      var data = await resp.json();
+      if (data.authenticated && data.voter_id) {
+        window.currentUser = {
+          voter_id: data.voter_id,
+          email: data.email,
+          display_name: data.display_name
+        };
+        localStorage.setItem('percona_voter', JSON.stringify(window.currentUser));
+        updateAuthUI();
+        if (typeof window.onAuthChange === 'function') window.onAuthChange();
+        return;
+      }
+    } catch(e) { /* SSO not available, fall through */ }
+    // Fall back to localStorage session
+    loadSession();
+  };
+
+  trySSO();
 })();

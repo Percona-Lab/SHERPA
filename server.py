@@ -326,6 +326,43 @@ def login():
     })
 
 
+@app.route("/api/auth/sso")
+def sso_auth():
+    """Auto-sign-in via SAML proxy Remote-User header."""
+    remote_user = request.headers.get("Remote-User", "").strip().lower()
+    if not remote_user or "@" not in remote_user:
+        return jsonify({"authenticated": False, "sso": False})
+
+    db = get_db()
+    voter = db.execute("SELECT * FROM voters WHERE email=?", (remote_user,)).fetchone()
+
+    if voter and voter["is_blocked"]:
+        return jsonify({"authenticated": False, "sso": True, "error": "Account blocked"}), 403
+
+    if voter:
+        db.execute("UPDATE voters SET verified=1, last_active_at=? WHERE id=?",
+                   (time.time(), voter["id"]))
+        db.commit()
+        voter_id = voter["id"]
+        display_name = voter["display_name"]
+    else:
+        # Auto-create voter from SSO email, derive display name from email
+        name_part = remote_user.split("@")[0]
+        display_name = " ".join(w.capitalize() for w in name_part.replace(".", " ").replace("_", " ").split())
+        cur = db.execute("INSERT INTO voters (email, display_name, verified) VALUES (?,?,1)",
+                         (remote_user, display_name))
+        db.commit()
+        voter_id = cur.lastrowid
+
+    return jsonify({
+        "authenticated": True,
+        "sso": True,
+        "voter_id": voter_id,
+        "email": remote_user,
+        "display_name": display_name,
+    })
+
+
 @app.route("/api/auth/check")
 def check_auth():
     voter = get_verified_voter()
