@@ -4,6 +4,7 @@ Domain-based auth (internal), with optional email verification for customers lat
 """
 
 import hmac
+import json
 import os
 import sqlite3
 import time
@@ -105,6 +106,65 @@ def init_db():
             description TEXT DEFAULT '',
             updated_at REAL DEFAULT (unixepoch())
         );
+
+        -- Demand Intelligence tables (local, replaces Notion dependency)
+        CREATE TABLE IF NOT EXISTS evidence (
+            id TEXT PRIMARY KEY,
+            summary TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            source TEXT DEFAULT '',
+            source_type TEXT DEFAULT '',
+            source_url TEXT,
+            evidence_type TEXT DEFAULT 'Customer',
+            product_line TEXT DEFAULT '',
+            account_name TEXT DEFAULT '',
+            contact TEXT DEFAULT '',
+            verbatim TEXT DEFAULT '',
+            sentiment TEXT DEFAULT 'Neutral',
+            confidence TEXT DEFAULT 'Medium',
+            ingested_by TEXT DEFAULT 'Agent - Scheduled',
+            mrr REAL,
+            date_captured TEXT DEFAULT '',
+            created_at REAL DEFAULT (unixepoch()),
+            call_id TEXT,
+            raw_data TEXT DEFAULT '{}'
+        );
+        CREATE TABLE IF NOT EXISTS signals (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            problem_statement TEXT DEFAULT '',
+            category TEXT DEFAULT 'Feature Request',
+            status TEXT DEFAULT 'New',
+            product_line TEXT DEFAULT '',
+            demand_score REAL DEFAULT 0,
+            business_impact_score REAL DEFAULT 0,
+            user_value_score REAL DEFAULT 0,
+            urgency TEXT DEFAULT 'Medium',
+            confidence_level TEXT DEFAULT 'Weak',
+            customer_count INTEGER DEFAULT 0,
+            total_mrr REAL,
+            source_diversity INTEGER DEFAULT 0,
+            first_reported TEXT DEFAULT '',
+            last_activity TEXT DEFAULT '',
+            created_at REAL DEFAULT (unixepoch()),
+            updated_at REAL DEFAULT (unixepoch())
+        );
+        CREATE TABLE IF NOT EXISTS signal_evidence (
+            signal_id TEXT NOT NULL REFERENCES signals(id),
+            evidence_id TEXT NOT NULL REFERENCES evidence(id),
+            PRIMARY KEY (signal_id, evidence_id)
+        );
+        CREATE TABLE IF NOT EXISTS signal_features (
+            signal_id TEXT NOT NULL REFERENCES signals(id),
+            feature_id TEXT NOT NULL,
+            PRIMARY KEY (signal_id, feature_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_evidence_product ON evidence(product_line);
+        CREATE INDEX IF NOT EXISTS idx_evidence_source ON evidence(source);
+        CREATE INDEX IF NOT EXISTS idx_evidence_account ON evidence(account_name);
+        CREATE INDEX IF NOT EXISTS idx_evidence_call ON evidence(call_id);
+        CREATE INDEX IF NOT EXISTS idx_signals_product ON signals(product_line);
         CREATE INDEX IF NOT EXISTS idx_votes_feature ON votes(feature_id);
         CREATE INDEX IF NOT EXISTS idx_comments_feature ON comments(feature_id);
         CREATE INDEX IF NOT EXISTS idx_voters_email ON voters(email);
@@ -770,52 +830,126 @@ def sherpa_signal_detail(signal_id):
 
 @app.route("/api/sherpa/demand-signals")
 def sherpa_demand_signals():
-    """Fetch all demand signals from Notion (cached)."""
-    try:
-        from demand.notion_sync import get_demand_signals_cached
-        signals = get_demand_signals_cached()
-        return jsonify({"count": len(signals), "signals": signals}), 200
-    except Exception as e:
-        app.logger.error(f"Demand signals fetch error: {e}")
-        return jsonify({"error": str(e)}), 500
+    """Fetch all demand signals from local DB."""
+    db = get_db()
+    rows = db.execute("""
+        SELECT s.*, COUNT(DISTINCT se.evidence_id) as evidence_count
+        FROM signals s
+        LEFT JOIN signal_evidence se ON s.id = se.signal_id
+        GROUP BY s.id
+        ORDER BY s.demand_score DESC
+    """).fetchall()
+    signals = []
+    for r in rows:
+        signals.append({
+            "id": r["id"], "title": r["title"], "description": r["description"],
+            "problem_statement": r["problem_statement"], "category": r["category"],
+            "status": r["status"], "product_line": r["product_line"],
+            "demand_score": r["demand_score"],
+            "business_impact_score": r["business_impact_score"],
+            "user_value_score": r["user_value_score"],
+            "urgency": r["urgency"], "confidence_level": r["confidence_level"],
+            "customer_count": r["customer_count"], "total_mrr": r["total_mrr"],
+            "source_diversity": r["source_diversity"],
+            "first_reported": r["first_reported"], "last_activity": r["last_activity"],
+            "evidence_count": r["evidence_count"],
+        })
+    return jsonify({"count": len(signals), "signals": signals}), 200
 
 
 @app.route("/api/sherpa/demand-signals/<signal_id>")
 def sherpa_demand_signal_detail(signal_id):
     """Fetch a single demand signal with linked evidence."""
-    try:
-        from demand.notion_sync import get_signal_with_evidence
-        signal = get_signal_with_evidence(signal_id)
-        if not signal:
-            return jsonify({"error": "Signal not found"}), 404
-        return jsonify(signal), 200
-    except Exception as e:
-        app.logger.error(f"Demand signal detail error: {e}")
-        return jsonify({"error": str(e)}), 500
+    db = get_db()
+    signal = db.execute("SELECT * FROM signals WHERE id=?", (signal_id,)).fetchone()
+    if not signal:
+        return jsonify({"error": "Signal not found"}), 404
+    evidence = db.execute("""
+        SELECT e.* FROM evidence e
+        JOIN signal_evidence se ON e.id = se.evidence_id
+        WHERE se.signal_id = ?
+        ORDER BY e.created_at DESC
+    """, (signal_id,)).fetchall()
+    features = db.execute(
+        "SELECT feature_id FROM signal_features WHERE signal_id=?", (signal_id,)
+    ).fetchall()
+    result = dict(signal)
+    result["evidence"] = [dict(e) for e in evidence]
+    result["feature_ids"] = [f["feature_id"] for f in features]
+    return jsonify(result), 200
 
 
 @app.route("/api/sherpa/customer-evidence")
 def sherpa_customer_evidence():
-    """Fetch all customer evidence from Notion (cached)."""
-    try:
-        from demand.notion_sync import get_customer_evidence_cached
-        evidence = get_customer_evidence_cached()
-        return jsonify({"count": len(evidence), "evidence": evidence}), 200
-    except Exception as e:
-        app.logger.error(f"Customer evidence fetch error: {e}")
-        return jsonify({"error": str(e)}), 500
+    """Fetch all customer evidence from local DB."""
+    db = get_db()
+    rows = db.execute("""
+        SELECT * FROM evidence ORDER BY date_captured DESC, created_at DESC
+    """).fetchall()
+    evidence = []
+    for r in rows:
+        evidence.append({
+            "id": r["id"], "summary": r["summary"], "description": r["description"],
+            "source": r["source"], "source_type": r["source_type"],
+            "source_url": r["source_url"], "evidence_type": r["evidence_type"],
+            "product_line": r["product_line"], "account_name": r["account_name"],
+            "contact": r["contact"], "verbatim": r["verbatim"],
+            "sentiment": r["sentiment"], "confidence": r["confidence"],
+            "ingested_by": r["ingested_by"], "mrr": r["mrr"],
+            "date_captured": r["date_captured"],
+        })
+    return jsonify({"count": len(evidence), "evidence": evidence}), 200
+
+
+@app.route("/api/sherpa/evidence/bulk", methods=["POST"])
+@require_admin
+def sherpa_evidence_bulk():
+    """Bulk-insert evidence records into local DB."""
+    body = request.get_json(silent=True) or {}
+    records = body.get("evidence", [])
+    if not records:
+        return jsonify({"error": "No evidence records provided"}), 400
+
+    db = get_db()
+    created = 0
+    skipped = 0
+    for rec in records:
+        eid = rec.get("id", "")
+        if not eid:
+            import hashlib
+            raw = f"{rec.get('summary','')}-{rec.get('source','')}-{rec.get('date_captured','')}"
+            eid = hashlib.sha256(raw.encode()).hexdigest()[:16]
+        try:
+            db.execute("""
+                INSERT OR IGNORE INTO evidence
+                (id, summary, description, source, source_type, source_url,
+                 evidence_type, product_line, account_name, contact, verbatim,
+                 sentiment, confidence, ingested_by, mrr, date_captured, call_id, raw_data)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """, (
+                eid, rec.get("summary", ""), rec.get("description", ""),
+                rec.get("source", ""), rec.get("source_type", ""),
+                rec.get("source_url"), rec.get("evidence_type", "Customer"),
+                rec.get("product_line", ""), rec.get("account_name", ""),
+                rec.get("contact", ""), rec.get("verbatim", ""),
+                rec.get("sentiment", "Neutral"), rec.get("confidence", "Medium"),
+                rec.get("ingested_by", "Agent - Scheduled"), rec.get("mrr"),
+                rec.get("date_captured", ""), rec.get("call_id", ""),
+                json.dumps(rec.get("raw_data", {})),
+            ))
+            created += 1
+        except Exception as e:
+            app.logger.warning(f"Evidence insert failed: {e}")
+            skipped += 1
+    db.commit()
+    return jsonify({"created": created, "skipped": skipped, "total": len(records)}), 200
 
 
 @app.route("/api/sherpa/cache/invalidate", methods=["POST"])
 @require_admin
 def sherpa_invalidate_cache():
-    """Force-refresh Notion cache."""
-    try:
-        from demand.notion_sync import invalidate_cache
-        invalidate_cache()
-        return jsonify({"ok": True}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    """Legacy endpoint - no-op since we use local DB now."""
+    return jsonify({"ok": True, "message": "Using local DB, no cache to invalidate"}), 200
 
 
 @app.route("/api/sherpa/clari/sync", methods=["POST"])
@@ -832,6 +966,38 @@ def sherpa_clari_sync():
             market_signals=body.get("market_signals"),
             dry_run=body.get("dry_run", False),
         )
+
+        # Bulk-insert collected evidence into local DB
+        batch = results.pop("evidence_batch", [])
+        if batch:
+            db = get_db()
+            inserted = 0
+            for rec in batch:
+                try:
+                    db.execute("""
+                        INSERT OR IGNORE INTO evidence
+                        (id, summary, description, source, source_type, source_url,
+                         evidence_type, product_line, account_name, contact, verbatim,
+                         sentiment, confidence, ingested_by, mrr, date_captured, call_id, raw_data)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    """, (
+                        rec.get("id", ""), rec.get("summary", ""), rec.get("description", ""),
+                        rec.get("source", ""), rec.get("source_type", ""),
+                        rec.get("source_url"), rec.get("evidence_type", "Customer"),
+                        rec.get("product_line", ""), rec.get("account_name", ""),
+                        rec.get("contact", ""), rec.get("verbatim", ""),
+                        rec.get("sentiment", "Neutral"), rec.get("confidence_label", "Medium"),
+                        rec.get("ingested_by", "Agent - Scheduled"), rec.get("mrr"),
+                        rec.get("date_captured", ""),
+                        rec.get("raw_data", {}).get("call_id", ""),
+                        json.dumps(rec.get("raw_data", {})),
+                    ))
+                    inserted += 1
+                except Exception as e:
+                    app.logger.warning(f"Evidence insert failed: {e}")
+            db.commit()
+            results["db_inserted"] = inserted
+
         return jsonify(results), 200
     except Exception as e:
         log.exception("Clari sync failed")

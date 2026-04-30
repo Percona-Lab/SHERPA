@@ -28,7 +28,8 @@ import requests
 from dotenv import load_dotenv
 
 from .models import CustomerEvidence
-from .ingestion import ingest_evidence
+# Import ingest_evidence only if needed for signal matching
+# For bulk loading, we write directly to SQLite via the bulk API
 
 log = logging.getLogger("demand.clari_connector")
 
@@ -327,7 +328,10 @@ def sync_clari_calls(
                         "market_signals": call.get("market_signals", []),
                     })
                 else:
-                    ingest_evidence(evidence)
+                    # Collect for bulk insert
+                    if "evidence_batch" not in results:
+                        results["evidence_batch"] = []
+                    results["evidence_batch"].append(evidence.to_dict())
 
                 results["evidence_created"] += 1
             except Exception as e:
