@@ -350,13 +350,13 @@ def get_features():
             GROUP BY s.id
         """, (page_id,)).fetchall()
 
-        market_demand_score = 0
         market_evidence_count = 0
         market_customer_count = 0
         market_mrr = 0
         market_signals = []
+        signal_scores = []
         for sr in signal_rows:
-            market_demand_score = max(market_demand_score, sr["demand_score"] or 0)
+            signal_scores.append(sr["demand_score"] or 0)
             market_evidence_count += sr["evidence_count"]
             market_customer_count += sr["customer_count"] or 0
             market_mrr += sr["total_mrr"] or 0
@@ -367,6 +367,16 @@ def get_features():
                 "evidence_count": sr["evidence_count"],
                 "urgency": sr["urgency"],
             })
+
+        # Composite demand score: weighted avg of signal scores + bonus for breadth
+        import math
+        if signal_scores:
+            avg_score = sum(signal_scores) / len(signal_scores)
+            breadth_bonus = min(15, len(signal_scores) * 3)  # more signals = broader demand
+            evidence_bonus = min(15, math.log2(max(market_evidence_count, 1)) * 2)
+            market_demand_score = min(100, round(avg_score * 0.7 + breadth_bonus + evidence_bonus, 1))
+        else:
+            market_demand_score = 0
 
         features.append({
             "id": page_id, "name": name, "description": description,

@@ -497,18 +497,22 @@ function renderRanked() {
     var total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
     var pc = function(v) { return total > 0 ? (v / total * 100).toFixed(1) : 0; };
 
-    // Market demand bar
+    // Market demand bar with score
     var demandBar = '';
+    var scoreColor = f.market_demand_score >= 80 ? 'var(--red)' : f.market_demand_score >= 50 ? 'var(--amber)' : 'var(--green)';
     if (f.market_demand_score > 0) {
       demandBar = '<div style="display:flex;align-items:center;gap:10px">' +
-        '<div style="flex:1;height:4px;background:var(--bg-muted);border-radius:999px;overflow:hidden">' +
-          '<div style="height:100%;width:' + Math.min(100, f.market_demand_score) + '%;background:linear-gradient(90deg,var(--brand-purple),var(--brand-yellow-deep))"></div>' +
-        '</div>' +
-        '<span class="t-mono" style="font-size:12px;color:var(--text-secondary);min-width:88px" title="' +
-          (f.market_mrr ? '$' + Math.round(f.market_mrr).toLocaleString() + ' total MRR at risk' : 'No MRR data') +
-          ' across ' + (f.market_evidence_count || 0) + ' evidence records from ' + (f.market_customer_count || 0) + ' accounts">' +
-          fmtMRR(f.market_mrr || 0) + ' &middot; ' + (f.market_evidence_count || 0) +
-        '</span></div>';
+        '<span class="t-mono" style="font-size:16px;font-weight:700;color:' + scoreColor + ';min-width:32px">' + Math.round(f.market_demand_score) + '</span>' +
+        '<div style="flex:1">' +
+          '<div style="height:4px;background:var(--bg-muted);border-radius:999px;overflow:hidden">' +
+            '<div style="height:100%;width:' + Math.min(100, f.market_demand_score) + '%;background:linear-gradient(90deg,var(--brand-purple),var(--brand-yellow-deep))"></div>' +
+          '</div>' +
+          '<div class="t-mono" style="font-size:11px;color:var(--text-muted);margin-top:3px" title="' +
+            (f.market_mrr ? '$' + Math.round(f.market_mrr).toLocaleString() + ' total MRR at risk' : 'No MRR data') +
+            ' across ' + (f.market_evidence_count || 0) + ' evidence records from ' + (f.market_customer_count || 0) + ' accounts">' +
+            fmtMRR(f.market_mrr || 0) + ' &middot; ' + (f.market_evidence_count || 0) + ' evidence' +
+          '</div>' +
+        '</div></div>';
     } else {
       demandBar = '<span style="color:var(--text-muted);font-size:12px">No data</span>';
     }
