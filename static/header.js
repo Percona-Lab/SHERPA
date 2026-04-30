@@ -127,7 +127,7 @@
         '<b>SHERPA</b>' +
         ' &mdash; Stakeholder Hub for Enhancement Request Prioritization &amp; Action' +
         ' &nbsp;&bull;&nbsp; Internal &middot; Percona' +
-        ' &nbsp;&bull;&nbsp; v0.4 beta' +
+        ' &nbsp;&bull;&nbsp; v0.8 beta' +
       '</div>' +
     '</footer>';
   // Defer footer injection until DOM is fully parsed so it appears after all page content
