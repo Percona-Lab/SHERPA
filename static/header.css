@@ -282,6 +282,24 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 .sign-in-btn:hover { background: color-mix(in oklab, var(--brand-purple) 16%, transparent); }
 .sign-out-btn:hover { border-color: var(--red); color: var(--red); }
 
+/* User popover */
+.user-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  box-shadow: var(--shadow-md);
+  min-width: 200px;
+  z-index: 100;
+  text-align: left;
+  cursor: default;
+}
+.user-popover.open { display: block; }
+
 /* App footer */
 .app-footer {
   border-top: 1px solid var(--border);

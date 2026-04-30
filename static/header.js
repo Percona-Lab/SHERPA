@@ -84,9 +84,6 @@
       '<nav class="app-header__nav">' + navHTML + '</nav>' +
       '<div class="app-header__spacer"></div>' +
       '<div class="app-header__cluster">' +
-        '<a href="/admin" class="icon-btn" title="Admin" style="text-decoration:none">' +
-          '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2.5"/><path d="M13.7 8.8a1 1 0 0 0 .2-1.1l-.5-1a1 1 0 0 0-.9-.6h-.7a5 5 0 0 0-.5-.8l.3-.7a1 1 0 0 0-.1-1.1l-.8-.7a1 1 0 0 0-1.1-.1l-.6.3a5 5 0 0 0-.9-.4V2a1 1 0 0 0-.8-.9h-1a1 1 0 0 0-.9.8v.7a5 5 0 0 0-.8.5l-.7-.3a1 1 0 0 0-1.1.1l-.7.8a1 1 0 0 0-.1 1.1l.3.6a5 5 0 0 0-.4.9H2a1 1 0 0 0-.9.8v1a1 1 0 0 0 .8.9h.7a5 5 0 0 0 .5.8l-.3.7a1 1 0 0 0 .1 1.1l.8.7a1 1 0 0 0 1.1.1l.6-.3a5 5 0 0 0 .9.4V14a1 1 0 0 0 .8.9h1a1 1 0 0 0 .9-.8v-.7a5 5 0 0 0 .8-.5l.7.3a1 1 0 0 0 1.1-.1l.7-.8a1 1 0 0 0 .1-1.1l-.3-.6a5 5 0 0 0 .4-.9H14a1 1 0 0 0 .9-.8v-1z"/></svg>' +
-        '</a>' +
         '<button class="icon-btn" id="themeToggleBtn" onclick="window.__toggleTheme()" title="Toggle theme"></button>' +
         '<div class="auth-area" id="authArea">' +
           '<button class="btn btn--primary btn--sm" onclick="openAuthModal()">Sign in to vote</button>' +
@@ -167,10 +164,15 @@
     if (window.currentUser) {
       var name = window.currentUser.display_name || window.currentUser.email;
       var initials = name.split(/\s+/).map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
+      var email = window.currentUser.email || '';
       area.innerHTML =
-        '<div class="user-pill">' +
+        '<div class="user-pill" onclick="document.getElementById(\'userPopover\').classList.toggle(\'open\')" style="cursor:pointer; position:relative">' +
           '<span class="user-pill__avatar">' + esc(initials) + '</span>' +
           '<span>' + esc(name) + '</span>' +
+          '<div class="user-popover" id="userPopover">' +
+            '<div style="font-weight:600; font-size:14px; margin-bottom:4px">' + esc(name) + '</div>' +
+            '<div style="font-size:12px; color:var(--text-muted)">' + esc(email) + '</div>' +
+          '</div>' +
         '</div>';
     } else {
       // SSO handles login automatically via Remote-User header
