@@ -323,6 +323,11 @@ def get_features():
             if linked_products:
                 db_tech = [r["product_line"] for r in linked_products]
 
+        # Enrich db_tech from feature name (e.g. "Internal/Operators" in name → add Operators)
+        name_lower = name.lower()
+        if "operator" in name_lower and "Operators" not in db_tech:
+            db_tech.append("Operators")
+
         vote_count = db.execute("SELECT COUNT(*) as cnt FROM votes WHERE feature_id=?", (page_id,)).fetchone()["cnt"]
         importance = dict(db.execute("SELECT importance, COUNT(*) as cnt FROM votes WHERE feature_id=? GROUP BY importance", (page_id,)).fetchall())
         comment_count = db.execute("SELECT COUNT(*) as cnt FROM comments WHERE feature_id=? AND is_removed=0", (page_id,)).fetchone()["cnt"]
