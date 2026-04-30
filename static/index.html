@@ -347,7 +347,7 @@ document.head.appendChild(s);})();
     <div class="filter-sep"></div>
     <div class="filter-group">
       <span class="filter-label">Product Area</span>
-      <select class="filter-select" id="techFilter" onchange="activeTech = this.value; render()">
+      <select class="filter-select" id="techFilter" onchange="activeTech = this.value; localStorage.setItem('sherpa_tech', this.value); render()">
         <option value="all">All</option>
       </select>
     </div>
@@ -379,12 +379,12 @@ document.head.appendChild(s);})();
 
 <script>
 let allFeatures = [];
-let activeTech = 'all';
-let activeStatus = 'all';
-let searchQuery = '';
+let activeTech = localStorage.getItem('sherpa_tech') || 'all';
+let activeStatus = localStorage.getItem('sherpa_status') || 'all';
+let searchQuery = localStorage.getItem('sherpa_search') || '';
 let activeView = localStorage.getItem('sherpa_view') || 'board';
-let rankSort = 'votes';
-let rankSortDir = 'desc';
+let rankSort = localStorage.getItem('sherpa_rankSort') || 'demand';
+let rankSortDir = localStorage.getItem('sherpa_rankSortDir') || 'desc';
 
 const STATUS_ORDER = ['In Progress', 'Planned', 'Under Consideration', 'Shipped'];
 
@@ -432,6 +432,12 @@ async function loadFeatures() {
     const techs = [...new Set(data.flatMap(f => f.db_tech))].sort();
     techSel.innerHTML = '<option value="all">All</option>';
     techs.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = productLabel(t); techSel.appendChild(o); });
+    // Restore saved filter states
+    techSel.value = activeTech;
+    document.querySelectorAll('.filter-btn[data-filter="status"]').forEach(b => {
+      b.classList.toggle('active', b.dataset.value === activeStatus);
+    });
+    if (searchQuery) document.getElementById('searchInput').value = searchQuery;
     render();
   } catch (err) {
     board.innerHTML = `<div class="error-state"><p>Failed to load features.</p><p style="margin-top:8px;font-size:13px;opacity:.6">${esc(err.message)}</p></div>`;
@@ -579,6 +585,8 @@ document.querySelectorAll('.view-toggle-btn').forEach(b => {
 function toggleRankSort(col) {
   if (rankSort === col) { rankSortDir = rankSortDir === 'desc' ? 'asc' : 'desc'; }
   else { rankSort = col; rankSortDir = col === 'name' ? 'asc' : 'desc'; }
+  localStorage.setItem('sherpa_rankSort', rankSort);
+  localStorage.setItem('sherpa_rankSortDir', rankSortDir);
   render();
 }
 
@@ -789,6 +797,7 @@ async function postComment(featureId) {
 // ─── Search ───
 function onSearch() {
   searchQuery = document.getElementById('searchInput').value.trim();
+  localStorage.setItem('sherpa_search', searchQuery);
   render();
 }
 
@@ -798,7 +807,7 @@ document.getElementById('filters').addEventListener('click', (e) => {
   if (!btn) return;
   btn.closest('.filter-group').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  if (btn.dataset.filter === 'status') activeStatus = btn.dataset.value;
+  if (btn.dataset.filter === 'status') { activeStatus = btn.dataset.value; localStorage.setItem('sherpa_status', btn.dataset.value); }
   render();
 });
 
