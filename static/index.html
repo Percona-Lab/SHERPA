@@ -7,54 +7,18 @@
 <link rel="icon" type="image/png" href="/static/favicon.png">
 <link rel="preload" as="image" href="/static/logo-small.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/tokens.css">
+<link rel="stylesheet" href="/static/components.css">
 <link rel="stylesheet" href="/static/header.css">
 <style>
+/* Compat shims for old tech-badge vars */
 :root {
-  --accent: #2B5AE2;
-  --accent-light: #4B7BFF;
-  --accent-glow: rgba(43, 90, 226, 0.25);
-  --bg-root: #0B0E14;
-  --bg-surface: #12161F;
-  --bg-card: #181D28;
-  --bg-card-hover: #1E2433;
-  --bg-input: #0F1219;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(43, 90, 226, 0.3);
-  --text-primary: #E8ECF4;
-  --text-secondary: #8B95A8;
-  --text-muted: #5A6478;
-  --green: #22C55E;
-  --amber: #F59E0B;
-  --orange: #F97316;
-  --purple: #A855F7;
-  --red: #EF4444;
-  --cyan: #06B6D4;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-xs: 6px;
-  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
-  --mysql-bg: rgba(139,92,246,0.14); --mysql-text: #A78BFA;
-  --pg-bg: rgba(59,130,246,0.14); --pg-text: #60A5FA;
-  --mongo-bg: rgba(34,197,94,0.14); --mongo-text: #4ADE80;
-  --valkey-bg: rgba(245,158,11,0.14); --valkey-text: #FBBF24;
+  --mysql-bg: var(--tint-purple); --mysql-text: var(--tech-mysql);
+  --pg-bg: var(--tint-info); --pg-text: var(--tech-postgres);
+  --mongo-bg: var(--tint-green); --mongo-text: var(--tech-mongo);
+  --valkey-bg: var(--tint-amber); --valkey-text: var(--tech-valkey);
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  background: var(--bg-root);
-  color: var(--text-primary);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 0;
-}
-
-/* Header + Auth styles in header.css */
 
 /* Toolbar */
 .toolbar { max-width: 1200px; margin: 0 auto; padding: 24px 32px 0; }
@@ -74,8 +38,8 @@ body::before {
   color: var(--text-secondary); cursor: pointer;
   transition: all var(--transition); white-space: nowrap;
 }
-.filter-btn:hover { border-color: var(--border-accent); color: var(--text-primary); background: rgba(43,90,226,0.06); }
-.filter-btn.active { border-color: var(--accent); background: rgba(43,90,226,0.12); color: var(--accent-light); }
+.filter-btn:hover { border-color: var(--border-brand); color: var(--text-primary); background: var(--tint-purple); }
+.filter-btn.active { border-color: var(--brand-purple); background: var(--tint-purple); color: var(--brand-purple); }
 .filter-group { display: flex; align-items: center; gap: 6px; }
 .filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-right: 4px; }
 .filter-sep { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
@@ -131,7 +95,7 @@ body::before {
 }
 .card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--orange), var(--amber));
+  background: linear-gradient(90deg, var(--brand-purple), var(--brand-yellow-deep, #D9EE2E));
   opacity: 0; transition: opacity var(--transition);
 }
 .card:hover { border-color: var(--border-accent); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
@@ -160,8 +124,8 @@ body::before {
   color: var(--text-secondary); font-size: 13px; font-weight: 500;
   cursor: pointer; transition: all var(--transition); user-select: none;
 }
-.vote-btn:hover { border-color: var(--orange); color: var(--orange); background: rgba(249,115,22,0.08); }
-.vote-btn.voted { border-color: var(--orange); background: rgba(249,115,22,0.14); color: var(--orange); }
+.vote-btn:hover { border-color: var(--brand-purple); color: var(--brand-purple); background: var(--tint-purple); }
+.vote-btn.voted { border-color: var(--brand-purple); background: var(--tint-purple); color: var(--brand-purple); }
 .vote-btn .arrow { font-size: 14px; line-height: 1; transition: transform var(--transition); }
 .vote-btn:hover .arrow, .vote-btn.voted .arrow { transform: translateY(-1px); }
 
@@ -223,11 +187,11 @@ body::before {
 .comment-form button {
   font-family: inherit; font-size: 13px; font-weight: 500;
   padding: 8px 16px; border-radius: var(--radius-sm);
-  border: 1px solid var(--orange); background: rgba(249,115,22,0.1);
-  color: var(--orange); cursor: pointer; white-space: nowrap;
+  border: 1px solid var(--brand-purple); background: var(--tint-purple);
+  color: var(--brand-purple); cursor: pointer; white-space: nowrap;
   transition: all var(--transition);
 }
-.comment-form button:hover { background: rgba(249,115,22,0.2); }
+.comment-form button:hover { background: color-mix(in oklab, var(--brand-purple) 16%, transparent); }
 
 .notion-link {
   font-size: 12px; color: var(--accent-light); text-decoration: none;
@@ -252,7 +216,7 @@ body::before {
   transition: all var(--transition); display: flex; align-items: center; gap: 6px;
 }
 .view-toggle-btn:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
-.view-toggle-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(43,90,226,0.35); }
+.view-toggle-btn.active { background: var(--brand-purple); color: white; box-shadow: 0 2px 8px color-mix(in oklab, var(--brand-purple) 35%, transparent); }
 .view-toggle-btn svg { width: 15px; height: 15px; }
 
 /* ─── Ranked Table ─── */
@@ -697,7 +661,7 @@ async function openFeatureModal(featureId) {
       </div>`;
   } else if (currentUser && voted) {
     voteSection = `
-      <div style="margin:20px 0;padding:14px;border-radius:var(--radius-sm);background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div style="margin:20px 0;padding:14px;border-radius:var(--radius-sm);background:var(--tint-purple);border:1px solid var(--border-brand);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
         <div>
           <span style="font-size:13px;color:var(--orange)">✓ You voted: <strong>${feature.my_vote.replace(/_/g, ' ')}</strong></span>
           ${feature.my_customer ? `<span style="font-size:12px;color:var(--text-muted);margin-left:8px">for ${esc(feature.my_customer)}</span>` : ''}

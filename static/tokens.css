@@ -1,0 +1,287 @@
+/* SHERPA Design Tokens — Percona brand
+   Light/dark via [data-theme] on <html>; matches system by default via JS bootstrap */
+
+:root,
+[data-theme="light"] {
+  /* Brand */
+  --brand-purple: #6E3FF3;
+  --brand-purple-600: #5A2BE0;
+  --brand-purple-50:  #F1ECFE;
+  --brand-purple-100: #E3D8FD;
+  --brand-yellow: #EFFE61;
+  --brand-yellow-deep: #D9EE2E;
+
+  /* Tech colors (verbatim from cheat sheet) */
+  --tech-mysql:      #E65A15;
+  --tech-postgres:   #005ED6;
+  --tech-mongo:      #1FA23A;
+  --tech-redis:      #D6362A;
+  --tech-valkey:     #A83FEF;
+  --tech-kubernetes: #2AA6DF;
+  --tech-pmm:        #6E3FF3;       /* PMM uses Percona purple */
+  --tech-toolkit:    #6E3FF3;
+
+  /* Surfaces — light */
+  --bg-app:        #F6F4F0;          /* warm off-white, hint of paper */
+  --bg-surface:    #FFFFFF;
+  --bg-card:       #FFFFFF;
+  --bg-card-hover: #FAF8F3;
+  --bg-input:      #FFFFFF;
+  --bg-elevated:   #FFFFFF;
+  --bg-muted:      #ECE8DF;
+  --bg-inverse:    #14111C;
+
+  /* Text — light */
+  --text-primary:   #14111C;
+  --text-secondary: #4A4655;
+  --text-muted:     #7A7585;
+  --text-faint:     #A39FAB;
+  --text-on-brand:  #FFFFFF;
+  --text-on-yellow: #14111C;
+
+  /* Borders / strokes — light */
+  --border:           rgba(20, 17, 28, 0.08);
+  --border-strong:    rgba(20, 17, 28, 0.14);
+  --border-faint:     rgba(20, 17, 28, 0.05);
+  --border-brand:     rgba(110, 63, 243, 0.32);
+
+  /* Semantic */
+  --green:  #1FA23A;
+  --amber:  #E89407;
+  --red:    #D6362A;
+  --info:   #005ED6;
+
+  /* Tints (semi-transparent for chips on light) */
+  --tint-purple: rgba(110, 63, 243, 0.10);
+  --tint-yellow: rgba(217, 238, 46, 0.40);
+  --tint-green:  rgba(31, 162, 58, 0.10);
+  --tint-amber:  rgba(232, 148, 7, 0.12);
+  --tint-red:    rgba(214, 54, 42, 0.10);
+  --tint-info:   rgba(0, 94, 214, 0.10);
+
+  /* Vote heat */
+  --vote-critical:  #D6362A;
+  --vote-important: #E89407;
+  --vote-nice:      #1FA23A;
+
+  /* Effects */
+  --shadow-xs: 0 1px 0 rgba(20,17,28,0.04);
+  --shadow-sm: 0 1px 2px rgba(20,17,28,0.06), 0 1px 1px rgba(20,17,28,0.04);
+  --shadow-md: 0 4px 16px -4px rgba(20,17,28,0.10), 0 2px 6px rgba(20,17,28,0.05);
+  --shadow-lg: 0 24px 48px -16px rgba(20,17,28,0.18), 0 8px 16px -8px rgba(20,17,28,0.08);
+  --shadow-glow-purple: 0 0 0 4px rgba(110,63,243,0.12);
+  --shadow-glow-yellow: 0 0 0 4px rgba(239,254,97,0.45);
+
+  /* Backward-compat aliases (old → new) */
+  --orange: var(--brand-purple);
+  --accent: var(--brand-purple);
+  --accent-light: var(--brand-purple);
+  --accent-glow: var(--shadow-glow-purple);
+  --purple: var(--tech-valkey);
+  --bg-root: var(--bg-app);
+  --border-accent: var(--border-brand);
+  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Radii */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Type */
+  --font-sans: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+
+  /* Density (overridden by [data-density]) */
+  --density-row: 52px;
+  --density-card-pad: 18px;
+  --density-card-gap: 14px;
+  --density-section-gap: 28px;
+}
+
+[data-theme="dark"] {
+  /* Surfaces — dark */
+  --bg-app:        #0B0912;
+  --bg-surface:    #120F1B;
+  --bg-card:       #181426;
+  --bg-card-hover: #1F1A2F;
+  --bg-input:      #0F0C18;
+  --bg-elevated:   #1C1830;
+  --bg-muted:      #1A1626;
+  --bg-inverse:    #F6F4F0;
+
+  /* Text — dark */
+  --text-primary:   #ECE8F6;
+  --text-secondary: #ADA6BF;
+  --text-muted:     #7E7894;
+  --text-faint:     #595370;
+  --text-on-brand:  #FFFFFF;
+  --text-on-yellow: #14111C;
+
+  /* Borders — dark */
+  --border:        rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --border-faint:  rgba(255, 255, 255, 0.04);
+  --border-brand:  rgba(160, 120, 255, 0.42);
+
+  /* Tints — dark (need a touch more luminance) */
+  --tint-purple: rgba(160, 120, 255, 0.16);
+  --tint-yellow: rgba(239, 254, 97, 0.18);
+  --tint-green:  rgba(72, 200, 100, 0.16);
+  --tint-amber:  rgba(245, 175, 60, 0.16);
+  --tint-red:    rgba(240, 90, 80, 0.16);
+  --tint-info:   rgba(80, 145, 255, 0.18);
+
+  /* Brand purple gets brighter on dark for AA */
+  --brand-purple: #8C66F8;
+  --brand-purple-600: #7A52F5;
+
+  /* Tech colors brightened slightly on dark for legibility */
+  --tech-mysql:      #FF7A3D;
+  --tech-postgres:   #4A8FFF;
+  --tech-mongo:      #4ED06A;
+  --tech-redis:      #F25A50;
+  --tech-valkey:     #C97DFF;
+  --tech-kubernetes: #5BC0F0;
+
+  --green:  #4ED06A;
+  --amber:  #F5AF3C;
+  --red:    #F25A50;
+  --info:   #4A8FFF;
+
+  --shadow-xs: 0 1px 0 rgba(0,0,0,0.4);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.5), 0 1px 1px rgba(0,0,0,0.35);
+  --shadow-md: 0 4px 16px -4px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35);
+  --shadow-lg: 0 24px 48px -16px rgba(0,0,0,0.65), 0 8px 16px -8px rgba(0,0,0,0.45);
+  --shadow-glow-purple: 0 0 0 4px rgba(140,102,248,0.22);
+  --shadow-glow-yellow: 0 0 0 4px rgba(239,254,97,0.28);
+}
+
+/* Density variants */
+[data-density="compact"] {
+  --density-row: 40px;
+  --density-card-pad: 12px;
+  --density-card-gap: 10px;
+  --density-section-gap: 20px;
+}
+
+[data-density="comfortable"] {
+  --density-row: 56px;
+  --density-card-pad: 20px;
+  --density-card-gap: 16px;
+  --density-section-gap: 32px;
+}
+
+/* ============================================== */
+/* Base */
+/* ============================================== */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+  background-image:
+    radial-gradient(1200px 600px at 85% -10%, color-mix(in oklab, var(--brand-purple) 8%, transparent), transparent 60%),
+    radial-gradient(800px 500px at -10% 100%, color-mix(in oklab, var(--brand-yellow) 14%, transparent), transparent 55%);
+  background-attachment: fixed;
+}
+
+a { color: inherit; text-decoration: none; }
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+::selection {
+  background: var(--brand-yellow);
+  color: var(--text-on-yellow);
+}
+
+/* ============================================== */
+/* Type system */
+/* ============================================== */
+
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  font-size: 32px;
+  line-height: 1.05;
+}
+.t-h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.t-h2 { font-size: 18px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.25; }
+.t-h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.005em; line-height: 1.3; }
+.t-body { font-size: 14px; line-height: 1.55; color: var(--text-secondary); }
+.t-small { font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+.t-micro { font-size: 11px; line-height: 1.4; color: var(--text-muted); }
+.t-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.t-mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================== */
+/* Reusable atoms */
+/* ============================================== */
+
+.surface {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  border: 0;
+}
+
+/* Mountain motif — used as an SVG fill / pattern */
+.mountain-bg {
+  background-image:
+    linear-gradient(135deg, color-mix(in oklab, var(--brand-purple) 12%, transparent), transparent 65%),
+    radial-gradient(60% 80% at 70% 100%, color-mix(in oklab, var(--brand-yellow) 35%, transparent), transparent);
+}
+
+/* Animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(214,54,42,0.55); }
+  70%  { box-shadow: 0 0 0 10px rgba(214,54,42,0); }
+  100% { box-shadow: 0 0 0 0 rgba(214,54,42,0); }
+}
+
+.fade-up { animation: fade-up 0.4s cubic-bezier(0.4,0,0.2,1) backwards; }
+
+/* Utility scrollbar */
+.scroller::-webkit-scrollbar { width: 10px; height: 10px; }
+.scroller::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--bg-app);
+}
+.scroller::-webkit-scrollbar-track { background: transparent; }

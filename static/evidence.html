@@ -7,49 +7,11 @@
 <link rel="icon" type="image/png" href="/static/favicon.png">
 <link rel="preload" as="image" href="/static/logo-small.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/tokens.css">
+<link rel="stylesheet" href="/static/components.css">
 <link rel="stylesheet" href="/static/header.css">
 <style>
-:root {
-  --accent: #2B5AE2;
-  --accent-light: #4B7BFF;
-  --accent-glow: rgba(43, 90, 226, 0.25);
-  --bg-root: #0B0E14;
-  --bg-surface: #12161F;
-  --bg-card: #181D28;
-  --bg-card-hover: #1E2433;
-  --bg-input: #0F1219;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(43, 90, 226, 0.3);
-  --text-primary: #E8ECF4;
-  --text-secondary: #8B95A8;
-  --text-muted: #5A6478;
-  --green: #22C55E;
-  --amber: #F59E0B;
-  --orange: #F97316;
-  --purple: #A855F7;
-  --red: #EF4444;
-  --cyan: #06B6D4;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-xs: 6px;
-  --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  background: var(--bg-root);
-  color: var(--text-primary);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-}
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 0;
-}
-/* Header + Auth styles in header.css */
 
 /* Toolbar */
 .toolbar {
