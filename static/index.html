@@ -349,10 +349,6 @@ document.head.appendChild(s);})();
       <span class="filter-label">Product Area</span>
       <select class="filter-select" id="techFilter" onchange="activeTech = this.value; render()">
         <option value="all">All</option>
-        <option value="MySQL">MySQL</option>
-        <option value="PostgreSQL">PostgreSQL</option>
-        <option value="MongoDB">MongoDB</option>
-        <option value="Valkey">Valkey</option>
       </select>
     </div>
     <div class="filter-sep"></div>
@@ -392,6 +388,17 @@ let rankSortDir = 'desc';
 
 const STATUS_ORDER = ['In Progress', 'Planned', 'Under Consideration', 'Shipped'];
 
+// Product area display names (shorten long Notion values)
+const PRODUCT_DISPLAY = {
+  'Percona Server for MySQL': 'MySQL',
+  'PostgreSQL': 'PostgreSQL',
+  'MongoDB': 'MongoDB',
+  'Valkey': 'Valkey',
+  'PMM': 'PMM',
+  'Operators': 'Operators',
+};
+function productLabel(t) { return PRODUCT_DISPLAY[t] || t; }
+
 // Auth state comes from header.js (currentUser, esc, loadSession, etc.)
 // Notify header.js to reload features on auth change
 window.onAuthChange = function() { loadFeatures(); };
@@ -420,6 +427,11 @@ async function loadFeatures() {
     const data = await api('/api/features');
     if (data.error) throw new Error(data.error);
     allFeatures = data;
+    // Populate product area filter dynamically
+    const techSel = document.getElementById('techFilter');
+    const techs = [...new Set(data.flatMap(f => f.db_tech))].sort();
+    techSel.innerHTML = '<option value="all">All</option>';
+    techs.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = productLabel(t); techSel.appendChild(o); });
     render();
   } catch (err) {
     board.innerHTML = `<div class="error-state"><p>Failed to load features.</p><p style="margin-top:8px;font-size:13px;opacity:.6">${esc(err.message)}</p></div>`;
@@ -513,7 +525,7 @@ function renderRanked() {
   }
 
   sorted.forEach((f, i) => {
-    const badges = f.db_tech.map(t => `<span class="badge badge-${t.toLowerCase()}">${t}</span>`).join(' ');
+    const badges = f.db_tech.map(t => `<span class="badge badge-${productLabel(t).toLowerCase()}">${productLabel(t)}</span>`).join(' ');
     const total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
     const pc = v => total > 0 ? (v / total * 100).toFixed(1) : 0;
     const statusCls = 'sp-' + f.status.toLowerCase().replace(/ /g, '-');
@@ -572,7 +584,7 @@ function toggleRankSort(col) {
 
 function cardHTML(f) {
   const voted = !!f.my_vote;
-  const badges = f.db_tech.map(t => `<span class="badge badge-${t.toLowerCase()}">${t}</span>`).join('');
+  const badges = f.db_tech.map(t => `<span class="badge badge-${productLabel(t).toLowerCase()}">${productLabel(t)}</span>`).join('');
   const total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
   let impBar = '';
   if (total > 0) {
@@ -649,7 +661,7 @@ async function openFeatureModal(featureId) {
   const feature = allFeatures.find(f => f.id === featureId);
   if (!feature) return;
 
-  const badges = feature.db_tech.map(t => `<span class="badge badge-${t.toLowerCase()}">${t}</span>`).join('');
+  const badges = feature.db_tech.map(t => `<span class="badge badge-${productLabel(t).toLowerCase()}">${productLabel(t)}</span>`).join('');
   const voted = !!feature.my_vote;
 
   let voteSection = '';
