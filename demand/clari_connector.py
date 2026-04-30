@@ -127,7 +127,7 @@ def _load_call_index() -> List[dict]:
 
 
 def _fetch_summary(call_id: str) -> dict:
-    """Fetch AI summary from Clari REST API."""
+    """Fetch call details (including AI summary) from Clari REST API."""
     if not CLARI_API_KEY or not CLARI_API_PASSWORD:
         raise ValueError("CLARI_API_KEY and CLARI_API_PASSWORD must be set")
 
@@ -137,14 +137,21 @@ def _fetch_summary(call_id: str) -> dict:
         "Accept": "application/json",
     }
     resp = requests.get(
-        f"{CLARI_BASE_URL}/v1/calls/{call_id}/smart-summary",
+        f"{CLARI_BASE_URL}/call-details",
+        params={"id": call_id},
         headers=headers,
         timeout=30,
     )
     if resp.status_code == 404:
         return {}
     resp.raise_for_status()
-    return resp.json()
+    data = resp.json()
+    # The summary lives inside data["call"]["summary"]
+    call = data.get("call", data)
+    return {
+        "summary": call.get("summary", {}),
+        "competitor_sentiments": call.get("competitor_sentiments", []),
+    }
 
 
 def call_to_evidence(
