@@ -130,7 +130,14 @@
         ' &nbsp;&bull;&nbsp; v0.4 beta' +
       '</div>' +
     '</footer>';
-  document.body.insertAdjacentHTML('beforeend', footerHTML);
+  // Defer footer injection until DOM is fully parsed so it appears after all page content
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.insertAdjacentHTML('beforeend', footerHTML);
+    });
+  } else {
+    document.body.insertAdjacentHTML('beforeend', footerHTML);
+  }
 
   // Set up theme toggle icon
   window.__toggleTheme = toggleTheme;
