@@ -818,6 +818,44 @@ def sherpa_invalidate_cache():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/sherpa/clari/sync", methods=["POST"])
+@require_admin
+def sherpa_clari_sync():
+    """Trigger Clari Copilot call sync into demand engine."""
+    try:
+        from demand.clari_connector import sync_clari_calls
+        body = request.get_json(silent=True) or {}
+        results = sync_clari_calls(
+            days=body.get("days", 30),
+            limit=body.get("limit", 200),
+            product_areas=body.get("product_areas"),
+            market_signals=body.get("market_signals"),
+            dry_run=body.get("dry_run", False),
+        )
+        return jsonify(results), 200
+    except Exception as e:
+        log.exception("Clari sync failed")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/sherpa/clari/status")
+def sherpa_clari_status():
+    """Check Clari connector status and ingestion stats."""
+    try:
+        from demand.clari_connector import _load_ingested
+        ingested = _load_ingested()
+        return jsonify({
+            "status": "ok",
+            "calls_ingested": len(ingested),
+            "last_ingested": max(
+                (v.get("ingested_at", "") for v in ingested.values()),
+                default=None,
+            ) if ingested else None,
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 @app.route("/api/sherpa/notion-status")
 def sherpa_notion_status():
     """Check if Notion sync is configured and working."""
