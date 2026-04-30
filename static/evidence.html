@@ -114,6 +114,12 @@ document.head.appendChild(s);})();
       </select>
       <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
     </div>
+    <div class="input" style="width:158px">
+      <select id="filter-source" onchange="renderTable()">
+        <option value="">All sources</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
     <div class="input" style="width:168px">
       <select id="filter-sentiment">
         <option value="">All sentiment</option>
@@ -221,16 +227,29 @@ function populateFilters() {
   var products = [...new Set(allEvidence.map(e => e.product_line).filter(Boolean))].sort();
   var pSel = document.getElementById('filter-product');
   products.forEach(p => { var o = document.createElement('option'); o.value = p; o.textContent = p; pSel.appendChild(o); });
+
+  // Source filter with counts
+  var sourceCounts = {};
+  allEvidence.forEach(e => { var s = e.source || 'Unknown'; sourceCounts[s] = (sourceCounts[s] || 0) + 1; });
+  var sSel = document.getElementById('filter-source');
+  Object.keys(sourceCounts).sort().forEach(s => {
+    var o = document.createElement('option');
+    o.value = s;
+    o.textContent = s + ' (' + sourceCounts[s] + ')';
+    sSel.appendChild(o);
+  });
 }
 
 function getFiltered() {
   var product = document.getElementById('filter-product').value;
+  var source = document.getElementById('filter-source').value;
   var sentiment = document.getElementById('filter-sentiment').value;
   var search = document.getElementById('search').value.toLowerCase();
   return allEvidence.filter(e => {
     if (product && e.product_line !== product) return false;
+    if (source && e.source !== source) return false;
     if (sentiment && e.sentiment !== sentiment) return false;
-    if (search && !(e.summary || '').toLowerCase().includes(search) && !(e.account_name || '').toLowerCase().includes(search) && !(e.quote || '').toLowerCase().includes(search)) return false;
+    if (search && !(e.summary || '').toLowerCase().includes(search) && !(e.account_name || '').toLowerCase().includes(search) && !(e.verbatim || '').toLowerCase().includes(search)) return false;
     return true;
   });
 }
@@ -326,7 +345,8 @@ function renderTable() {
 }
 
 function evidenceRowHTML(e, indented) {
-  var quoteHTML = e.quote ? '<div class="evidence-quote">"' + esc(e.quote) + '"</div>' : '';
+  var quoteText = e.quote || e.verbatim || '';
+  var quoteHTML = quoteText ? '<div class="evidence-quote">"' + esc(quoteText.substring(0, 200)) + (quoteText.length > 200 ? '...' : '') + '"</div>' : '';
   var sourceHTML = e.source_url
     ? '<a href="' + esc(e.source_url) + '" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary)" onclick="event.stopPropagation()">' + esc(e.source) +
       ' <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7 9"/></svg></a>'
