@@ -348,7 +348,7 @@ function evidenceRowHTML(e, indented) {
   var quoteText = e.quote || e.verbatim || '';
   var quoteHTML = quoteText ? '<div class="evidence-quote">"' + esc(quoteText.substring(0, 200)) + (quoteText.length > 200 ? '...' : '') + '"</div>' : '';
   var sourceHTML = e.source_url
-    ? '<a href="' + esc(e.source_url) + '" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary)" onclick="event.stopPropagation()">' + esc(e.source) +
+    ? '<a href="' + esc(e.source_url) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary)" onclick="event.stopPropagation()">' + esc(e.source) +
       ' <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7 9"/></svg></a>'
     : '<span style="font-size:12px;color:var(--text-secondary)">' + esc(e.source) + '</span>';
 
