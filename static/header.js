@@ -121,15 +121,13 @@
   var footerHTML =
     '<footer class="app-footer">' +
       '<div class="app-footer__inner">' +
-        '<span>SHERPA</span>' +
-        '<span class="app-footer__dot"> &middot; </span>' +
-        '<span>Stakeholder Hub for Enhancement Request Prioritization &amp; Action</span>' +
-        '<span class="app-footer__dot"> &middot; </span>' +
-        '<span>Internal</span>' +
-        '<span class="app-footer__dot"> &middot; </span>' +
-        '<span>Percona</span>' +
-        '<span class="app-footer__dot"> &middot; </span>' +
-        '<span>v0.4 beta</span>' +
+        '<svg width="14" height="14" viewBox="0 0 300 300" fill="var(--text-muted)" style="vertical-align:-2px; margin-right:4px">' +
+          '<path d="M108.9,139.5l63.5,110.1h-127L108.9,139.5z M178.8,82.2c10.3-4.9,21.8-6,33-3c12.3,3.3,22.6,11.2,29,22.3 c12.6,21.8,6,49.4-14.4,63.3L178.8,82.2z M119.3,121.4l30.6-53l0,0l104.5,181.2h-61.2L119.3,121.4z M108.9,103.4L14.2,267.6h271.5 l-50.3-87.2c29-18.9,38.4-57.6,20.9-88c-8.8-15.2-23-26.1-40-30.7c-15.7-4.2-32.2-2.5-46.6,4.8l-19.8-34.2L108.9,103.4z"/>' +
+        '</svg>' +
+        '<b>SHERPA</b>' +
+        ' &mdash; Stakeholder Hub for Enhancement Request Prioritization &amp; Action' +
+        ' &nbsp;&bull;&nbsp; Internal &middot; Percona' +
+        ' &nbsp;&bull;&nbsp; v0.4 beta' +
       '</div>' +
     '</footer>';
   document.body.insertAdjacentHTML('beforeend', footerHTML);
@@ -167,12 +165,13 @@
       var name = window.currentUser.display_name || window.currentUser.email;
       var initials = name.split(/\s+/).map(function(w) { return w[0]; }).join('').substring(0, 2).toUpperCase();
       area.innerHTML =
-        '<button class="user-pill" onclick="signOut()" title="Sign out">' +
-          '<span>' + esc(name) + '</span>' +
+        '<div class="user-pill">' +
           '<span class="user-pill__avatar">' + esc(initials) + '</span>' +
-        '</button>';
+          '<span>' + esc(name) + '</span>' +
+        '</div>';
     } else {
-      area.innerHTML = '<button class="btn btn--primary btn--sm" onclick="openAuthModal()">Sign in to vote</button>';
+      // SSO handles login automatically via Remote-User header
+      area.innerHTML = '';
     }
   };
 
