@@ -16,7 +16,7 @@
           '<img src="/static/logo-small.png" alt="SHERPA" class="logo-img">' +
           '<div class="logo-text">SHERPA <span>Demand Intelligence</span></div>' +
         '</a>' +
-        '<div class="prototype-badge">PROTOTYPE</div>' +
+        '<div class="prototype-badge">BETA</div>' +
         '<nav style="margin-left:auto">' +
           '<a href="/"' + (activePage === 'portal' ? ' class="active"' : '') + '>Portal</a>' +
           '<a href="/signals"' + (activePage === 'signals' ? ' class="active"' : '') + '>Signals</a>' +
