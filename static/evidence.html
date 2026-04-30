@@ -49,12 +49,24 @@
 /* Table */
 .table-wrap {
   max-width: 1400px; margin: 16px auto 48px; padding: 0 32px;
+  overflow-x: auto;
 }
 table {
   width: 100%; border-collapse: collapse;
   background: var(--bg-card); border-radius: var(--radius);
   overflow: hidden; border: 1px solid var(--border);
+  table-layout: fixed;
 }
+/* Column widths */
+table th:nth-child(1) { width: 14%; }  /* Account */
+table th:nth-child(2) { width: 28%; }  /* Summary */
+table th:nth-child(3) { width: 12%; }  /* Product */
+table th:nth-child(4) { width: 9%; }   /* MRR */
+table th:nth-child(5) { width: 8%; }   /* Source */
+table th:nth-child(6) { width: 8%; }   /* Sentiment */
+table th:nth-child(7) { width: 9%; }   /* Date */
+table th:nth-child(8) { width: 12%; }  /* Contact */
+tbody td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 thead th {
   text-align: left; padding: 12px 16px;
   font-size: 11px; font-weight: 600; text-transform: uppercase;
