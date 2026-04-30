@@ -424,7 +424,7 @@ function renderRanked() {
   var filtered = getFiltered();
 
   var sorted = [...filtered].sort(function(a, b) {
-    var va, vb;
+    var va, vb, result;
     if (rankSort === 'votes') { va = a.votes; vb = b.votes; }
     else if (rankSort === 'critical') { va = a.importance.critical; vb = b.importance.critical; }
     else if (rankSort === 'demand') { va = a.market_demand_score || 0; vb = b.market_demand_score || 0; }
@@ -432,7 +432,12 @@ function renderRanked() {
     else if (rankSort === 'name') { va = a.name.toLowerCase(); vb = b.name.toLowerCase(); return rankSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
     else if (rankSort === 'comments') { va = a.comment_count || 0; vb = b.comment_count || 0; }
     else { va = a.market_demand_score || 0; vb = b.market_demand_score || 0; }
-    return rankSortDir === 'desc' ? vb - va : va - vb;
+    result = rankSortDir === 'desc' ? vb - va : va - vb;
+    // Tiebreakers: evidence count → MRR → votes
+    if (result === 0) result = (b.market_evidence_count || 0) - (a.market_evidence_count || 0);
+    if (result === 0) result = (b.market_mrr || 0) - (a.market_mrr || 0);
+    if (result === 0) result = (b.votes || 0) - (a.votes || 0);
+    return result;
   });
 
   var html = '<div class="table-wrap"><table class="table">' +
