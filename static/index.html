@@ -375,7 +375,7 @@ function updateOperatorsChip() {
   chip.style.display = showChip ? '' : 'none';
   if (showChip) {
     chip.setAttribute('data-active', includeOperators);
-    label.textContent = includeOperators ? 'Operators included' : 'Include Operators';
+    label.textContent = includeOperators ? 'Operators included' : 'Operators excluded';
   }
 }
 
@@ -383,9 +383,15 @@ function getFiltered() {
   return allFeatures.filter(f => {
     if (activeTech !== 'all') {
       var matchesTech = f.db_tech.includes(activeTech);
+      var hasOperators = f.db_tech.includes('Operators');
+
+      if (!includeOperators && hasOperators && activeTech !== 'Operators') {
+        // Toggle is off: hide any feature tagged with Operators (unless filtering BY Operators)
+        return false;
+      }
       if (!matchesTech) {
-        // If "include operators" is on and this feature has Operators tag, show it
-        if (includeOperators && f.db_tech.includes('Operators')) {
+        // Feature doesn't match selected tech - show only if it's an Operators feature and toggle is on
+        if (includeOperators && hasOperators) {
           // keep it
         } else {
           return false;
