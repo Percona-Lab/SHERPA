@@ -194,6 +194,8 @@ html, body {
 
 body {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-size: 14px;
   line-height: 1.5;
   background-image:

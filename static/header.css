@@ -288,7 +288,8 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   color: var(--text-muted);
   font-size: 12px;
   letter-spacing: 0.01em;
-  margin-top: 32px;
+  margin-top: auto;
+  padding-top: 32px;
 }
 .app-footer__inner {
   padding: 22px 24px;
