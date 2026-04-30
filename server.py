@@ -328,6 +328,36 @@ def get_features():
         # Notion page URL
         notion_url = f"https://www.notion.so/{page_id.replace('-', '')}"
 
+        # Market demand: linked signals and evidence for this feature
+        signal_rows = db.execute("""
+            SELECT s.id, s.demand_score, s.customer_count, s.total_mrr,
+                   s.urgency, s.confidence_level, s.title,
+                   COUNT(DISTINCT se.evidence_id) as evidence_count
+            FROM signal_features sf
+            JOIN signals s ON sf.signal_id = s.id
+            LEFT JOIN signal_evidence se ON s.id = se.signal_id
+            WHERE sf.feature_id = ?
+            GROUP BY s.id
+        """, (page_id,)).fetchall()
+
+        market_demand_score = 0
+        market_evidence_count = 0
+        market_customer_count = 0
+        market_mrr = 0
+        market_signals = []
+        for sr in signal_rows:
+            market_demand_score = max(market_demand_score, sr["demand_score"] or 0)
+            market_evidence_count += sr["evidence_count"]
+            market_customer_count += sr["customer_count"] or 0
+            market_mrr += sr["total_mrr"] or 0
+            market_signals.append({
+                "id": sr["id"], "title": sr["title"],
+                "demand_score": sr["demand_score"],
+                "customer_count": sr["customer_count"],
+                "evidence_count": sr["evidence_count"],
+                "urgency": sr["urgency"],
+            })
+
         features.append({
             "id": page_id, "name": name, "description": description,
             "db_tech": db_tech, "status": display_status, "votes": vote_count,
@@ -339,6 +369,11 @@ def get_features():
             "my_vote": my_vote, "my_customer": my_customer,
             "comment_count": comment_count,
             "notion_url": notion_url,
+            "market_demand_score": round(market_demand_score, 1),
+            "market_evidence_count": market_evidence_count,
+            "market_customer_count": market_customer_count,
+            "market_mrr": market_mrr if market_mrr > 0 else None,
+            "market_signals": market_signals,
         })
 
     return jsonify(features)

@@ -483,9 +483,11 @@ function renderRanked() {
     let va, vb;
     if (rankSort === 'votes') { va = a.votes; vb = b.votes; }
     else if (rankSort === 'critical') { va = a.importance.critical; vb = b.importance.critical; }
+    else if (rankSort === 'demand') { va = a.market_demand_score || 0; vb = b.market_demand_score || 0; }
+    else if (rankSort === 'evidence') { va = a.market_evidence_count || 0; vb = b.market_evidence_count || 0; }
     else if (rankSort === 'name') { va = a.name.toLowerCase(); vb = b.name.toLowerCase(); return rankSortDir === 'asc' ? (va < vb ? -1 : 1) : (va > vb ? -1 : 1); }
     else if (rankSort === 'comments') { va = a.comment_count || 0; vb = b.comment_count || 0; }
-    else { va = a.votes; vb = b.votes; }
+    else { va = a.market_demand_score || 0; vb = b.market_demand_score || 0; }
     return rankSortDir === 'desc' ? vb - va : va - vb;
   });
 
@@ -500,13 +502,14 @@ function renderRanked() {
       <th style="width:48px">#</th>
       ${thSort('name', 'Feature')}
       ${thSort('votes', 'Votes')}
-      ${thSort('critical', 'Market Demand', 'col-demand')}
+      ${thSort('demand', 'Market Demand', 'col-demand')}
+      ${thSort('evidence', 'Evidence')}
       <th class="col-status">Status</th>
       ${thSort('comments', '💬')}
     </tr></thead><tbody>`;
 
   if (!sorted.length) {
-    html += `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No features match the current filters.</td></tr>`;
+    html += `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No features match the current filters.</td></tr>`;
   }
 
   sorted.forEach((f, i) => {
@@ -524,17 +527,20 @@ function renderRanked() {
       </td>
       <td class="ranked-row-votes">${f.votes}<span class="votes-label">vote${f.votes !== 1 ? 's' : ''}</span></td>
       <td class="ranked-row-demand col-demand">
-        ${total > 0 ? `
-          <div class="ranked-demand-bar">
-            ${f.importance.critical ? `<div class="seg-critical" style="width:${pc(f.importance.critical)}%"></div>` : ''}
-            ${f.importance.important ? `<div class="seg-important" style="width:${pc(f.importance.important)}%"></div>` : ''}
-            ${f.importance.nice_to_have ? `<div class="seg-nice" style="width:${pc(f.importance.nice_to_have)}%"></div>` : ''}
+        ${f.market_demand_score > 0 ? `
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden">
+              <div style="height:100%;width:${Math.min(100, f.market_demand_score)}%;background:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'};border-radius:3px"></div>
+            </div>
+            <span style="font-size:13px;font-weight:600;color:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'}">${Math.round(f.market_demand_score)}</span>
           </div>
-          <div class="ranked-demand-labels">
-            ${f.importance.critical ? `<span><span class="d-c"></span>${f.importance.critical}</span>` : ''}
-            ${f.importance.important ? `<span><span class="d-i"></span>${f.importance.important}</span>` : ''}
-            ${f.importance.nice_to_have ? `<span><span class="d-n"></span>${f.importance.nice_to_have}</span>` : ''}
-          </div>` : '<span style="color:var(--text-muted);font-size:12px">—</span>'}
+          <div style="display:flex;gap:8px;margin-top:3px">
+            <span style="font-size:10px;color:var(--text-muted)">${f.market_customer_count || 0} accounts</span>
+            ${f.market_mrr ? `<span style="font-size:10px;color:var(--green)">$${(f.market_mrr/1000).toFixed(0)}k MRR</span>` : ''}
+          </div>` : '<span style="color:var(--text-muted);font-size:12px">No data</span>'}
+      </td>
+      <td style="text-align:center">
+        ${f.market_evidence_count > 0 ? `<span style="font-size:14px;font-weight:600;color:var(--accent-light)">${f.market_evidence_count}</span><br><span style="font-size:10px;color:var(--text-muted)">${(f.market_signals || []).length} signals</span>` : '<span style="color:var(--text-muted);font-size:12px">—</span>'}
       </td>
       <td class="ranked-row-status col-status"><span class="status-pill ${statusCls}">${f.status}</span></td>
       <td class="ranked-row-comments">${f.comment_count || '—'}</td>
@@ -601,6 +607,14 @@ function cardHTML(f) {
         </button>
       </div>
       ${impBar}
+      ${f.market_evidence_count > 0 ? `
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">
+        <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden">
+          <div style="height:100%;width:${Math.min(100, f.market_demand_score)}%;background:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'};border-radius:2px"></div>
+        </div>
+        <span style="font-size:11px;font-weight:600;color:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'}">⚡ ${Math.round(f.market_demand_score)}</span>
+        <span style="font-size:10px;color:var(--text-muted)">${f.market_evidence_count} evidence</span>
+      </div>` : ''}
     </article>`;
 }
 
