@@ -313,6 +313,16 @@ def get_features():
         db_tech_obj = props.get("DB Tech", {})
         db_tech = [o["name"] for o in db_tech_obj.get("multi_select", [])] if db_tech_obj.get("type") == "multi_select" else []
 
+        # Enrich db_tech with product lines from linked signals (so PMM etc. show without Notion changes)
+        if not db_tech:
+            linked_products = db.execute("""
+                SELECT DISTINCT s.product_line FROM signal_features sf
+                JOIN signals s ON sf.signal_id = s.id
+                WHERE sf.feature_id = ? AND s.product_line != ''
+            """, (page_id,)).fetchall()
+            if linked_products:
+                db_tech = [r["product_line"] for r in linked_products]
+
         vote_count = db.execute("SELECT COUNT(*) as cnt FROM votes WHERE feature_id=?", (page_id,)).fetchone()["cnt"]
         importance = dict(db.execute("SELECT importance, COUNT(*) as cnt FROM votes WHERE feature_id=? GROUP BY importance", (page_id,)).fetchall())
         comment_count = db.execute("SELECT COUNT(*) as cnt FROM comments WHERE feature_id=? AND is_removed=0", (page_id,)).fetchone()["cnt"]
