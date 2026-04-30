@@ -166,11 +166,15 @@ document.head.appendChild(s);})();
 
     <div class="input" style="width:168px">
       <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11l-4 5v4l-3-1V9l-4-5Z"/></svg>
-      <select id="techFilter" onchange="activeTech = this.value; localStorage.setItem('sherpa_tech', this.value); render()">
+      <select id="techFilter" onchange="activeTech = this.value; localStorage.setItem('sherpa_tech', this.value); updateOperatorsChip(); render()">
         <option value="all">All products</option>
       </select>
       <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
     </div>
+    <button class="chip" id="operatorsChip" style="display:none" onclick="toggleOperators()">
+      <span class="chip__dot" style="background:var(--tech-kubernetes)"></span>
+      <span id="operatorsChipLabel">Include Operators</span>
+    </button>
 
     <div class="toolbar__sep"></div>
 
@@ -206,6 +210,7 @@ document.head.appendChild(s);})();
 <script>
 let allFeatures = [];
 let activeTech = localStorage.getItem('sherpa_tech') || 'all';
+let includeOperators = localStorage.getItem('sherpa_include_operators') !== 'false'; // default true
 let activeStatus = localStorage.getItem('sherpa_status') || 'all';
 let searchQuery = localStorage.getItem('sherpa_search') || '';
 let activeView = localStorage.getItem('sherpa_view') || 'board';
@@ -334,6 +339,7 @@ async function loadFeatures() {
     techSel.innerHTML = '<option value="all">All products</option>';
     techs.forEach(t => { var o = document.createElement('option'); o.value = t; o.textContent = productLabel(t); techSel.appendChild(o); });
     techSel.value = activeTech;
+    updateOperatorsChip();
 
     // Restore saved filter states
     document.querySelectorAll('.chip[data-filter="status"]').forEach(b => {
@@ -352,9 +358,40 @@ async function loadFeatures() {
   }
 }
 
+// DB products that have overlapping Operators features
+var DB_PRODUCTS = ['MySQL', 'PostgreSQL', 'MongoDB', 'Percona Server for MySQL'];
+
+function toggleOperators() {
+  includeOperators = !includeOperators;
+  localStorage.setItem('sherpa_include_operators', includeOperators);
+  updateOperatorsChip();
+  render();
+}
+
+function updateOperatorsChip() {
+  var chip = document.getElementById('operatorsChip');
+  var label = document.getElementById('operatorsChipLabel');
+  var showChip = activeTech !== 'all' && DB_PRODUCTS.includes(activeTech);
+  chip.style.display = showChip ? '' : 'none';
+  if (showChip) {
+    chip.setAttribute('data-active', includeOperators);
+    label.textContent = includeOperators ? 'Operators included' : 'Include Operators';
+  }
+}
+
 function getFiltered() {
   return allFeatures.filter(f => {
-    if (activeTech !== 'all' && !f.db_tech.includes(activeTech)) return false;
+    if (activeTech !== 'all') {
+      var matchesTech = f.db_tech.includes(activeTech);
+      if (!matchesTech) {
+        // If "include operators" is on and this feature has Operators tag, show it
+        if (includeOperators && f.db_tech.includes('Operators')) {
+          // keep it
+        } else {
+          return false;
+        }
+      }
+    }
     if (activeStatus !== 'all' && f.status !== activeStatus) return false;
     if (searchQuery) {
       var q = searchQuery.toLowerCase();
