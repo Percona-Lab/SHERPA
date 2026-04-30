@@ -11,106 +11,83 @@
 <link rel="stylesheet" href="/static/components.css">
 <link rel="stylesheet" href="/static/header.css">
 <style>
-
-.container { max-width: 1100px; margin: 0 auto; padding: 32px; }
-h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-.subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
-
-.admin-auth { max-width: 400px; margin: 80px auto; text-align: center; }
-.admin-auth input {
-  width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border); background: var(--bg-card);
-  color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
-  font-size: 14px; margin: 16px 0; outline: none;
+/* Admin auth screen */
+.admin-auth {
+  max-width: 400px;
+  margin: 80px auto;
+  text-align: center;
 }
-.admin-auth input:focus { border-color: var(--orange); }
-.admin-auth button {
-  padding: 10px 24px; border-radius: var(--radius-sm); border: none;
-  background: var(--orange); color: white; font-family: inherit;
-  font-size: 14px; font-weight: 600; cursor: pointer;
+.admin-auth .input {
+  margin: 16px 0;
+  width: 100%;
 }
-
-.tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
-.tab {
-  font-family: inherit; font-size: 13px; font-weight: 500; padding: 10px 18px;
-  border: none; background: transparent; color: var(--text-muted);
-  cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+.admin-auth .input input {
+  font-family: var(--font-mono);
 }
-.tab:hover { color: var(--text-secondary); }
-.tab.active { color: var(--orange); border-bottom-color: var(--orange); }
-
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th {
-  text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
-}
-td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: top; }
-tr:hover td { background: rgba(255,255,255,0.02); }
-.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
-.truncate { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
-.pill-critical { background: rgba(239,68,68,0.15); color: var(--red); }
-.pill-important { background: rgba(245,158,11,0.15); color: var(--amber); }
-.pill-nice_to_have { background: rgba(34,197,94,0.15); color: var(--green); }
-.pill-blocked { background: rgba(239,68,68,0.15); color: var(--red); }
-.pill-active { background: rgba(34,197,94,0.15); color: var(--green); }
-
-.action-btn {
-  font-family: inherit; font-size: 11px; padding: 4px 10px;
-  border-radius: 100px; border: 1px solid var(--border);
-  background: transparent; color: var(--text-muted); cursor: pointer;
-}
-.action-btn:hover { border-color: var(--red); color: var(--red); }
-.action-btn.unblock:hover { border-color: var(--green); color: var(--green); }
-
-.stats { display: flex; gap: 16px; margin-bottom: 24px; }
-.stat-card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 16px 20px; flex: 1;
-}
-.stat-card .num { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: var(--orange); }
-.stat-card .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-
-.empty { text-align: center; padding: 40px; color: var(--text-muted); }
-.back-link { display: inline-block; margin-bottom: 16px; color: var(--orange); font-size: 13px; text-decoration: none; }
-.back-link:hover { text-decoration: underline; }
 
 /* Feature cards */
 .feature-card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 14px;
 }
-.feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.feature-card .meta { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-.feature-card .meta a { color: var(--accent); text-decoration: none; }
+.feature-card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.feature-card .meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.feature-card .meta a { color: var(--brand-purple); text-decoration: none; }
 .feature-card .meta a:hover { text-decoration: underline; }
-.feature-card .desc-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
 .feature-card textarea {
-  width: 100%; min-height: 70px; padding: 10px 12px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border); background: var(--bg-root); color: var(--text-primary);
-  font-family: inherit; font-size: 13px; resize: vertical; outline: none;
+  width: 100%;
+  min-height: 70px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  outline: none;
 }
-.feature-card textarea:focus { border-color: var(--orange); }
+.feature-card textarea:focus { border-color: var(--brand-purple); box-shadow: var(--shadow-glow-purple); }
 .feature-card .btn-row { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
-.feature-card .btn-gen, .feature-card .btn-save {
-  font-family: inherit; font-size: 12px; font-weight: 500; padding: 6px 14px;
-  border-radius: 100px; cursor: pointer; transition: all 0.15s;
-}
-.feature-card .btn-gen {
-  border: 1px solid var(--border); background: transparent; color: var(--text-secondary);
-}
-.feature-card .btn-gen:hover { border-color: var(--accent); color: var(--accent); }
-.feature-card .btn-save {
-  border: 1px solid var(--brand-purple); background: var(--tint-purple); color: var(--brand-purple);
-}
-.feature-card .btn-save:hover { background: color-mix(in oklab, var(--brand-purple) 16%, transparent); }
-.feature-card .btn-save:disabled, .feature-card .btn-gen:disabled { opacity: 0.5; cursor: not-allowed; }
 .feature-card .status-msg { font-size: 12px; margin-left: 8px; display: none; align-items: center; }
 .feature-card .status-msg.ok { color: var(--green); }
 .feature-card .status-msg.err { color: var(--red); }
-.no-desc { color: var(--amber); font-size: 12px; padding: 2px 8px; background: rgba(245,158,11,0.1); border-radius: 100px; }
+.no-desc {
+  color: var(--amber);
+  font-size: 12px;
+  padding: 2px 8px;
+  background: var(--tint-amber);
+  border-radius: var(--radius-pill);
+}
+
+/* Table pills */
+.pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+}
+.pill-blocked { background: var(--tint-red); color: var(--red); }
+.pill-active { background: var(--tint-green); color: var(--green); }
+.pill-critical { background: var(--tint-red); color: var(--red); }
+.pill-important { background: var(--tint-amber); color: var(--amber); }
+.pill-nice_to_have { background: var(--tint-green); color: var(--green); }
 </style>
 <script>
 (function(){var s=document.createElement('script');s.src='/rybbit/script.js';s.defer=true;
@@ -119,40 +96,46 @@ document.head.appendChild(s);})();
 </script>
 </head>
 <body>
-<script>
-// Theme initialization (matches header.js logic)
-(function(){var s=localStorage.getItem('sherpa-theme');if(s){document.documentElement.setAttribute('data-theme',s)}else{document.documentElement.setAttribute('data-theme',window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')}})();
-</script>
+<script src="/static/header.js"></script>
 
-<div class="container">
-  <div style="display:flex;gap:4px;margin-bottom:20px">
-    <a href="/signals" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--text-secondary);text-decoration:none">Signals</a>
-    <a href="/evidence" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--text-secondary);text-decoration:none">Evidence</a>
-    <a href="/portal" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--text-secondary);text-decoration:none">Portal</a>
-    <a href="/admin" style="font-size:13px;font-weight:500;padding:6px 14px;border-radius:100px;color:var(--brand-purple);background:var(--tint-purple);text-decoration:none">Admin</a>
-  </div>
-
+<main class="page page--wide">
+  <!-- Auth screen -->
   <div id="authScreen" class="admin-auth">
-    <h1>SHERPA Admin</h1>
-    <p class="subtitle">Enter admin key to continue</p>
-    <input type="password" id="adminKeyInput" placeholder="Admin key" onkeydown="if(event.key==='Enter')adminLogin()">
-    <button onclick="adminLogin()">Sign in</button>
+    <div class="page-head" style="justify-content:center">
+      <div class="page-head__title" style="align-items:center;text-align:center">
+        <span class="t-eyebrow" style="color:var(--brand-purple)">Expedition control</span>
+        <h1 class="t-display">Admin</h1>
+        <p class="t-body">Enter admin key to continue</p>
+      </div>
+    </div>
+    <div class="input" style="margin:16px 0">
+      <input type="password" id="adminKeyInput" placeholder="Admin key" style="font-family:var(--font-mono)" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <button class="btn btn--primary" onclick="adminLogin()" style="width:100%">Sign in</button>
     <p id="adminError" style="color:var(--red);font-size:13px;margin-top:8px;display:none"></p>
   </div>
 
+  <!-- Dashboard -->
   <div id="dashboard" style="display:none">
-    <h1>SHERPA Admin</h1>
-    <p class="subtitle">Manage votes, comments, and voters</p>
-    <div class="stats" id="stats"></div>
-    <div class="tabs">
-      <button class="tab active" data-tab="features" onclick="switchTab('features', this)">Features</button>
-      <button class="tab" data-tab="voters" onclick="switchTab('voters', this)">Voters</button>
-      <button class="tab" data-tab="votes" onclick="switchTab('votes', this)">Votes</button>
-      <button class="tab" data-tab="comments" onclick="switchTab('comments', this)">Comments</button>
+    <div class="page-head">
+      <div class="page-head__title">
+        <span class="t-eyebrow" style="color:var(--brand-purple)">Expedition control</span>
+        <h1 class="t-display">Admin</h1>
+      </div>
     </div>
+
+    <div class="stat-grid" id="stats" style="margin-bottom:24px"></div>
+
+    <div class="seg" style="margin-bottom:18px">
+      <button class="seg__btn" data-active="true" data-tab="features" onclick="switchTab('features', this)">Features</button>
+      <button class="seg__btn" data-tab="voters" onclick="switchTab('voters', this)">Voters</button>
+      <button class="seg__btn" data-tab="votes" onclick="switchTab('votes', this)">Votes</button>
+      <button class="seg__btn" data-tab="comments" onclick="switchTab('comments', this)">Comments</button>
+    </div>
+
     <div id="tabContent"></div>
   </div>
-</div>
+</main>
 
 <script>
 let adminKey = '';
@@ -160,9 +143,9 @@ function adminHeaders() { return { 'Content-Type': 'application/json', 'X-Admin-
 
 async function adminLogin() {
   adminKey = document.getElementById('adminKeyInput').value;
-  const err = document.getElementById('adminError');
+  var err = document.getElementById('adminError');
   try {
-    const resp = await fetch('/api/admin/voters', { headers: adminHeaders() });
+    var resp = await fetch('/api/admin/voters', { headers: adminHeaders() });
     if (resp.status === 401) { err.textContent = 'Invalid admin key'; err.style.display = ''; return; }
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = '';
@@ -171,11 +154,11 @@ async function adminLogin() {
   } catch (e) { err.textContent = 'Connection error'; err.style.display = ''; }
 }
 
-const savedKey = sessionStorage.getItem('admin_key');
+var savedKey = sessionStorage.getItem('admin_key');
 if (savedKey) { adminKey = savedKey; adminLogin(); }
 
 async function loadDashboard() {
-  const [voters, votes, comments, features] = await Promise.all([
+  var [voters, votes, comments, features] = await Promise.all([
     fetch('/api/admin/voters', { headers: adminHeaders() }).then(r => r.json()),
     fetch('/api/admin/votes', { headers: adminHeaders() }).then(r => r.json()),
     fetch('/api/admin/comments', { headers: adminHeaders() }).then(r => r.json()),
@@ -183,18 +166,18 @@ async function loadDashboard() {
   ]);
   window._voters = voters; window._votes = votes; window._comments = comments; window._features = features;
 
-  document.getElementById('stats').innerHTML = `
-    <div class="stat-card"><div class="num">${features.length}</div><div class="label">Features</div></div>
-    <div class="stat-card"><div class="num">${voters.length}</div><div class="label">Voters</div></div>
-    <div class="stat-card"><div class="num">${votes.length}</div><div class="label">Votes</div></div>
-    <div class="stat-card"><div class="num">${comments.length}</div><div class="label">Comments</div></div>`;
-  switchTab('features', document.querySelector('.tab.active'));
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><span class="stat__label">Features</span><span class="stat__value">' + features.length + '</span></div>' +
+    '<div class="stat"><span class="stat__label">Voters</span><span class="stat__value">' + voters.length + '</span></div>' +
+    '<div class="stat"><span class="stat__label">Votes</span><span class="stat__value">' + votes.length + '</span></div>' +
+    '<div class="stat"><span class="stat__label">Comments</span><span class="stat__value">' + comments.length + '</span></div>';
+  switchTab('features', document.querySelector('.seg__btn[data-active="true"]'));
 }
 
 function switchTab(tab, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  const content = document.getElementById('tabContent');
+  document.querySelectorAll('.seg__btn[data-tab]').forEach(t => t.setAttribute('data-active', 'false'));
+  btn.setAttribute('data-active', 'true');
+  var content = document.getElementById('tabContent');
   if (tab === 'features') renderFeatures(content);
   else if (tab === 'voters') renderVoters(content);
   else if (tab === 'votes') renderVotes(content);
@@ -202,110 +185,121 @@ function switchTab(tab, btn) {
 }
 
 function renderVoters(el) {
-  const data = window._voters || [];
-  if (!data.length) { el.innerHTML = '<div class="empty">No voters yet</div>'; return; }
-  el.innerHTML = `<table>
-    <tr><th>Email</th><th>Name</th><th>Votes</th><th>Comments</th><th>Status</th><th>Last Active</th><th></th></tr>
-    ${data.map(v => `<tr>
-      <td class="mono">${esc(v.email)}</td>
-      <td>${esc(v.display_name || '—')}</td>
-      <td>${v.vote_count}</td>
-      <td>${v.comment_count}</td>
-      <td>${v.is_blocked ? '<span class="pill pill-blocked">Blocked</span>' : '<span class="pill pill-active">Active</span>'}</td>
-      <td class="mono">${v.last_active_at ? new Date(v.last_active_at * 1000).toLocaleDateString() : '—'}</td>
-      <td>${v.is_blocked
-        ? `<button class="action-btn unblock" onclick="toggleBlock(${v.id}, false)">Unblock</button>`
-        : `<button class="action-btn" onclick="toggleBlock(${v.id}, true)">Block</button>`}</td>
-    </tr>`).join('')}</table>`;
+  var data = window._voters || [];
+  if (!data.length) { el.innerHTML = '<div class="surface" style="padding:40px;text-align:center;color:var(--text-muted)">No voters yet</div>'; return; }
+  el.innerHTML = '<div class="table-wrap"><table class="table">' +
+    '<thead><tr><th>Email</th><th>Name</th><th style="width:80px">Votes</th><th style="width:100px">Comments</th><th style="width:90px">Status</th><th style="width:120px">Last Active</th><th style="width:90px"></th></tr></thead>' +
+    '<tbody>' + data.map(function(v) {
+      var initials = (v.display_name || v.email || '?').split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      return '<tr>' +
+        '<td><div style="display:flex;align-items:center;gap:10px"><span class="user-pill__avatar">' + esc(initials) + '</span>' +
+          '<span style="font-family:var(--font-mono);font-size:12px">' + esc(v.email) + '</span></div></td>' +
+        '<td>' + esc(v.display_name || '—') + '</td>' +
+        '<td><span class="t-mono" style="font-weight:600">' + v.vote_count + '</span></td>' +
+        '<td><span class="t-mono">' + v.comment_count + '</span></td>' +
+        '<td>' + (v.is_blocked ? '<span class="pill pill-blocked">Blocked</span>' : '<span class="pill pill-active">Active</span>') + '</td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + (v.last_active_at ? new Date(v.last_active_at * 1000).toLocaleDateString() : '—') + '</td>' +
+        '<td>' + (v.is_blocked
+          ? '<button class="btn btn--subtle btn--sm" onclick="toggleBlock(' + v.id + ', false)">Unblock</button>'
+          : '<button class="btn btn--subtle btn--sm" onclick="toggleBlock(' + v.id + ', true)">Block</button>') + '</td>' +
+      '</tr>';
+    }).join('') + '</tbody></table></div>';
 }
 
 function renderVotes(el) {
-  const data = window._votes || [];
-  if (!data.length) { el.innerHTML = '<div class="empty">No votes yet</div>'; return; }
-  el.innerHTML = `<table>
-    <tr><th>Email</th><th>Feature ID</th><th>Importance</th><th>Customer</th><th>Date</th><th></th></tr>
-    ${data.map(v => `<tr>
-      <td class="mono">${esc(v.email)}</td>
-      <td class="mono truncate" title="${v.feature_id}">${v.feature_id.slice(0, 8)}…</td>
-      <td><span class="pill pill-${v.importance}">${v.importance.replace('_', ' ')}</span></td>
-      <td>${esc(v.customer_name || '—')}</td>
-      <td class="mono">${new Date(v.created_at * 1000).toLocaleDateString()}</td>
-      <td><button class="action-btn" onclick="deleteVote(${v.vote_id})">Remove</button></td>
-    </tr>`).join('')}</table>`;
+  var data = window._votes || [];
+  if (!data.length) { el.innerHTML = '<div class="surface" style="padding:40px;text-align:center;color:var(--text-muted)">No votes yet</div>'; return; }
+  el.innerHTML = '<div class="table-wrap"><table class="table">' +
+    '<thead><tr><th>Email</th><th>Feature ID</th><th>Importance</th><th>Customer</th><th>Date</th><th style="width:90px"></th></tr></thead>' +
+    '<tbody>' + data.map(function(v) {
+      return '<tr>' +
+        '<td style="font-family:var(--font-mono);font-size:12px">' + esc(v.email) + '</td>' +
+        '<td style="font-family:var(--font-mono);font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + v.feature_id + '">' + v.feature_id.slice(0, 8) + '...</td>' +
+        '<td><span class="pill pill-' + v.importance + '">' + v.importance.replace('_', ' ') + '</span></td>' +
+        '<td>' + esc(v.customer_name || '—') + '</td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + new Date(v.created_at * 1000).toLocaleDateString() + '</td>' +
+        '<td><button class="btn btn--subtle btn--sm" onclick="deleteVote(' + v.vote_id + ')">Remove</button></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table></div>';
 }
 
 function renderComments(el) {
-  const data = window._comments || [];
-  if (!data.length) { el.innerHTML = '<div class="empty">No comments yet</div>'; return; }
-  el.innerHTML = `<table>
-    <tr><th>Email</th><th>Comment</th><th>Status</th><th>Date</th><th></th></tr>
-    ${data.map(c => `<tr>
-      <td class="mono">${esc(c.email)}</td>
-      <td style="max-width:400px">${esc(c.body)}</td>
-      <td>${c.is_removed ? '<span class="pill pill-blocked">Removed</span>' : '<span class="pill pill-active">Visible</span>'}</td>
-      <td class="mono">${new Date(c.created_at * 1000).toLocaleDateString()}</td>
-      <td>${!c.is_removed ? `<button class="action-btn" onclick="deleteComment(${c.id})">Remove</button>` : ''}</td>
-    </tr>`).join('')}</table>`;
+  var data = window._comments || [];
+  if (!data.length) { el.innerHTML = '<div class="surface" style="padding:40px;text-align:center;color:var(--text-muted)">No comments yet</div>'; return; }
+  el.innerHTML = '<div class="table-wrap"><table class="table">' +
+    '<thead><tr><th>Email</th><th>Comment</th><th style="width:90px">Status</th><th style="width:110px">Date</th><th style="width:90px"></th></tr></thead>' +
+    '<tbody>' + data.map(function(c) {
+      return '<tr>' +
+        '<td style="font-family:var(--font-mono);font-size:12px">' + esc(c.email) + '</td>' +
+        '<td style="max-width:400px">' + esc(c.body) + '</td>' +
+        '<td>' + (c.is_removed ? '<span class="pill pill-blocked">Removed</span>' : '<span class="pill pill-active">Visible</span>') + '</td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + new Date(c.created_at * 1000).toLocaleDateString() + '</td>' +
+        '<td>' + (!c.is_removed ? '<button class="btn btn--subtle btn--sm" onclick="deleteComment(' + c.id + ')">Remove</button>' : '') + '</td>' +
+      '</tr>';
+    }).join('') + '</tbody></table></div>';
 }
 
 async function deleteVote(id) {
   if (!confirm('Remove this vote?')) return;
-  await fetch(`/api/admin/vote/${id}`, { method: 'DELETE', headers: adminHeaders() });
+  await fetch('/api/admin/vote/' + id, { method: 'DELETE', headers: adminHeaders() });
   loadDashboard();
 }
 async function deleteComment(id) {
   if (!confirm('Remove this comment?')) return;
-  await fetch(`/api/admin/comment/${id}`, { method: 'DELETE', headers: adminHeaders() });
+  await fetch('/api/admin/comment/' + id, { method: 'DELETE', headers: adminHeaders() });
   loadDashboard();
 }
 async function toggleBlock(voterId, block) {
   if (!confirm(block ? 'Block this voter? All votes & comments removed.' : 'Unblock this voter?')) return;
-  await fetch(`/api/admin/voter/${voterId}/block`, { method: 'POST', headers: adminHeaders(), body: JSON.stringify({ block }) });
+  await fetch('/api/admin/voter/' + voterId + '/block', { method: 'POST', headers: adminHeaders(), body: JSON.stringify({ block: block }) });
   loadDashboard();
 }
 
 function renderFeatures(el) {
-  const data = window._features || [];
-  if (!data.length) { el.innerHTML = '<div class="empty">No features found</div>'; return; }
-  el.innerHTML = data.map(f => {
-    const techBadges = f.db_tech.map(t => `<span style="color:var(--text-muted)">${esc(t)}</span>`).join(' · ');
-    const hasDesc = !!f.description;
-    return `
-    <div class="feature-card" id="fc-${f.id}">
-      <h3>${esc(f.name)}</h3>
-      <div class="meta">
-        ${techBadges ? `<span>${techBadges}</span>` : ''}
-        <span>${f.votes} vote${f.votes !== 1 ? 's' : ''}</span>
-        <span>${f.comment_count} comment${f.comment_count !== 1 ? 's' : ''}</span>
-        ${!hasDesc ? '<span class="no-desc">No description</span>' : ''}
-        <a href="${f.notion_url}" target="_blank" rel="noopener">View in Notion ↗</a>
-      </div>
-      <div class="desc-label">SHERPA Description</div>
-      <textarea id="desc-${f.id}" placeholder="Click Generate to create a description from the Notion page content…">${esc(f.description)}</textarea>
-      <div class="btn-row">
-        <button class="btn-gen" onclick="generateDesc('${f.id}')" id="gen-${f.id}">✨ Generate from Notion</button>
-        <button class="btn-save" onclick="saveDesc('${f.id}')" id="save-${f.id}">Save</button>
-        <span class="status-msg ok" id="msg-${f.id}">✓ Saved</span>
-        <span class="status-msg err" id="err-${f.id}"></span>
-      </div>
-    </div>`;
+  var data = window._features || [];
+  if (!data.length) { el.innerHTML = '<div class="surface" style="padding:40px;text-align:center;color:var(--text-muted)">No features found</div>'; return; }
+  el.innerHTML = data.map(function(f) {
+    var techBadges = f.db_tech.map(function(t) {
+      var tc = TECH_COLORS[t] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
+      return '<span class="tech-badge" style="--_color:' + tc.color + '; --_tint:' + tc.tint + '">' +
+        '<svg viewBox="0 0 12 11" fill="none" class="tech-badge__tri"><path d="M6 1.2 11.2 9.8 H0.8 Z" stroke="' + tc.color + '" stroke-width="1.4" stroke-linejoin="round" fill="' + tc.color + '" fill-opacity="0.18"/></svg>' +
+        t + '</span>';
+    }).join('');
+    var hasDesc = !!f.description;
+    return '<div class="feature-card" id="fc-' + f.id + '">' +
+      '<h3>' + esc(f.name) + '</h3>' +
+      '<div class="meta">' +
+        (techBadges ? '<span>' + techBadges + '</span>' : '') +
+        '<span>' + f.votes + ' vote' + (f.votes !== 1 ? 's' : '') + '</span>' +
+        '<span>' + f.comment_count + ' comment' + (f.comment_count !== 1 ? 's' : '') + '</span>' +
+        (!hasDesc ? '<span class="no-desc">No description</span>' : '') +
+      '</div>' +
+      '<div class="t-eyebrow" style="margin-bottom:6px">SHERPA Description</div>' +
+      '<textarea id="desc-' + f.id + '" placeholder="Click Generate to create a description from the Notion page content...">' + esc(f.description) + '</textarea>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn--ghost btn--sm" onclick="generateDesc(\'' + f.id + '\')" id="gen-' + f.id + '">Generate from Notion</button>' +
+        '<button class="btn btn--primary btn--sm" onclick="saveDesc(\'' + f.id + '\')" id="save-' + f.id + '">Save</button>' +
+        '<span class="status-msg ok" id="msg-' + f.id + '">Saved</span>' +
+        '<span class="status-msg err" id="err-' + f.id + '"></span>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
 async function generateDesc(featureId) {
-  const feature = (window._features || []).find(f => f.id === featureId);
+  var feature = (window._features || []).find(f => f.id === featureId);
   if (!feature) return;
-  const btn = document.getElementById('gen-' + featureId);
-  const textarea = document.getElementById('desc-' + featureId);
-  const errMsg = document.getElementById('err-' + featureId);
+  var btn = document.getElementById('gen-' + featureId);
+  var textarea = document.getElementById('desc-' + featureId);
+  var errMsg = document.getElementById('err-' + featureId);
   errMsg.style.display = 'none';
-  btn.disabled = true; btn.textContent = '⏳ Reading Notion page…';
+  btn.disabled = true; btn.textContent = 'Reading Notion page...';
   try {
-    const resp = await fetch('/api/admin/generate-description/' + featureId, {
+    var resp = await fetch('/api/admin/generate-description/' + featureId, {
       method: 'POST', headers: adminHeaders(),
       body: JSON.stringify({ name: feature.name }),
     });
-    const data = await resp.json();
+    var data = await resp.json();
     if (data.description) {
       textarea.value = data.description;
     } else if (data.error) {
@@ -314,28 +308,28 @@ async function generateDesc(featureId) {
   } catch (e) {
     errMsg.textContent = 'Error: ' + e.message; errMsg.style.display = 'inline-flex';
   }
-  btn.disabled = false; btn.textContent = '✨ Generate from Notion';
+  btn.disabled = false; btn.textContent = 'Generate from Notion';
 }
 
 async function saveDesc(featureId) {
-  const textarea = document.getElementById('desc-' + featureId);
-  const btn = document.getElementById('save-' + featureId);
-  const msg = document.getElementById('msg-' + featureId);
-  const errMsg = document.getElementById('err-' + featureId);
-  const description = textarea.value.trim();
+  var textarea = document.getElementById('desc-' + featureId);
+  var btn = document.getElementById('save-' + featureId);
+  var msg = document.getElementById('msg-' + featureId);
+  var errMsg = document.getElementById('err-' + featureId);
+  var description = textarea.value.trim();
   if (!description) { alert('Description cannot be empty'); return; }
   btn.disabled = true; errMsg.style.display = 'none'; msg.style.display = 'none';
   try {
-    const resp = await fetch('/api/admin/save-description/' + featureId, {
+    var resp = await fetch('/api/admin/save-description/' + featureId, {
       method: 'POST', headers: adminHeaders(),
-      body: JSON.stringify({ description }),
+      body: JSON.stringify({ description: description }),
     });
-    const data = await resp.json();
+    var data = await resp.json();
     if (data.ok) {
-      const f = (window._features || []).find(f => f.id === featureId);
+      var f = (window._features || []).find(f => f.id === featureId);
       if (f) f.description = description;
       msg.style.display = 'inline-flex';
-      setTimeout(() => { msg.style.display = 'none'; }, 3000);
+      setTimeout(function() { msg.style.display = 'none'; }, 3000);
     } else {
       errMsg.textContent = data.error || 'Save failed'; errMsg.style.display = 'inline-flex';
     }
@@ -345,7 +339,7 @@ async function saveDesc(featureId) {
   btn.disabled = false;
 }
 
-function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 </script>
 </body>
 </html>

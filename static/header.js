@@ -84,6 +84,9 @@
       '<nav class="app-header__nav">' + navHTML + '</nav>' +
       '<div class="app-header__spacer"></div>' +
       '<div class="app-header__cluster">' +
+        '<a href="/admin" class="icon-btn" title="Admin" style="text-decoration:none">' +
+          '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.2 3.2l1.4 1.4M11.4 11.4l1.4 1.4M3.2 12.8l1.4-1.4M11.4 4.6l1.4-1.4"/></svg>' +
+        '</a>' +
         '<button class="icon-btn" id="themeToggleBtn" onclick="window.__toggleTheme()" title="Toggle theme"></button>' +
         '<div class="auth-area" id="authArea">' +
           '<button class="btn btn--primary btn--sm" onclick="openAuthModal()">Sign in to vote</button>' +

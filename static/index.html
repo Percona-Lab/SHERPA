@@ -12,154 +12,78 @@
 <link rel="stylesheet" href="/static/components.css">
 <link rel="stylesheet" href="/static/header.css">
 <style>
-/* Compat shims for old tech-badge vars */
-:root {
-  --mysql-bg: var(--tint-purple); --mysql-text: var(--tech-mysql);
-  --pg-bg: var(--tint-info); --pg-text: var(--tech-postgres);
-  --mongo-bg: var(--tint-green); --mongo-text: var(--tech-mongo);
-  --valkey-bg: var(--tint-amber); --valkey-text: var(--tech-valkey);
+/* ─── Portal Hero ─── */
+.portal-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1px;
+  margin-bottom: 24px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
-
-/* Toolbar */
-.toolbar { max-width: 1200px; margin: 0 auto; padding: 24px 32px 0; }
-.toolbar-top { margin-bottom: 24px; }
-.toolbar-top h2 { font-size: 22px; font-weight: 400; letter-spacing: -0.4px; margin-bottom: 4px; }
-.toolbar-top h2 b { font-weight: 700; color: var(--accent-light); }
-.toolbar-top p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; font-style: italic; }
-
-.filters {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  padding-bottom: 20px; border-bottom: 1px solid var(--border);
+.portal-hero__stats {
+  background: var(--bg-card);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
 }
-.filter-btn {
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  padding: 7px 14px; border-radius: 100px;
-  border: 1px solid var(--border); background: transparent;
-  color: var(--text-secondary); cursor: pointer;
-  transition: all var(--transition); white-space: nowrap;
+.portal-hero__stats .stat-grid-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 4px;
 }
-.filter-btn:hover { border-color: var(--border-brand); color: var(--text-primary); background: var(--tint-purple); }
-.filter-btn.active { border-color: var(--brand-purple); background: var(--tint-purple); color: var(--brand-purple); }
-.filter-group { display: flex; align-items: center; gap: 6px; }
-.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-right: 4px; }
-.filter-sep { width: 1px; height: 24px; background: var(--border); margin: 0 8px; }
-.filter-select {
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  padding: 7px 30px 7px 14px; border-radius: 100px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-secondary); cursor: pointer;
-  transition: all var(--transition); outline: none;
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 10px center;
+.portal-hero__stats .stat-item .t-eyebrow { margin-bottom: 4px; }
+.portal-hero__stats .stat-item .big-num {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
-.filter-select:hover { border-color: var(--border-accent); color: var(--text-primary); }
-.filter-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-.filter-select option { background: var(--bg-surface); color: var(--text-primary); }
-.search-input {
-  font-family: inherit; font-size: 13px; font-weight: 400;
-  padding: 7px 14px 7px 32px; border-radius: 100px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-primary); outline: none;
-  transition: all var(--transition); width: 220px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: 12px center;
+.portal-hero__stats .stat-item .sub-line {
+  font-size: 11px;
+  font-family: var(--font-mono);
 }
-.search-input::placeholder { color: var(--text-muted); }
-.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); width: 280px; }
-
-/* Board */
-.board { max-width: 1200px; margin: 0 auto; padding: 28px 32px 80px; }
-.status-section { margin-bottom: 40px; animation: fade-up 0.5s ease both; }
-.status-section:nth-child(2) { animation-delay: 80ms; }
-.status-section:nth-child(3) { animation-delay: 160ms; }
-.status-section:nth-child(4) { animation-delay: 240ms; }
-@keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
-.status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-.status-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.status-indicator.under-consideration { background: var(--amber); }
-.status-indicator.planned { background: var(--purple); }
-.status-indicator.in-progress { background: var(--accent-light); }
-.status-indicator.shipped { background: var(--green); }
-.status-label { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
-.status-count { font-size: 12px; font-weight: 500; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 2px 8px; border-radius: 100px; }
-
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
-
-/* Card */
-.card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px;
-  transition: all var(--transition); position: relative; overflow: hidden; cursor: pointer;
+.portal-hero__chart {
+  background: var(--bg-card);
+  padding: 20px 22px;
+  display: none; /* hidden per instructions: skip chart */
 }
-.card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--brand-purple), var(--brand-yellow-deep, #D9EE2E));
-  opacity: 0; transition: opacity var(--transition);
+/* When chart is hidden, make stats full-width */
+.portal-hero--no-chart { grid-template-columns: 1fr; }
+
+/* ─── Feature cards with gradient stripe on hover ─── */
+.card--feature {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
-.card:hover { border-color: var(--border-accent); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
-.card:hover::before { opacity: 1; }
-
-.card-title { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.4; margin-bottom: 10px; }
-.badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-.badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 100px; white-space: nowrap; }
-.badge-mysql { background: var(--mysql-bg); color: var(--mysql-text); }
-.badge-postgresql { background: var(--pg-bg); color: var(--pg-text); }
-.badge-mongodb { background: var(--mongo-bg); color: var(--mongo-text); }
-.badge-valkey { background: var(--valkey-bg); color: var(--valkey-text); }
-
-.card-desc {
-  font-size: 13.5px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 16px;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+.card--feature::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand-purple), var(--brand-yellow-deep));
+  opacity: 0;
+  transition: opacity 180ms;
 }
+.card--feature:hover::before { opacity: 1; }
 
-.card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.card-actions { display: flex; align-items: center; gap: 8px; }
-
-.vote-btn {
-  font-family: inherit; display: flex; align-items: center; gap: 6px;
-  padding: 7px 12px; border-radius: var(--radius-xs);
-  border: 1px solid var(--border); background: transparent;
-  color: var(--text-secondary); font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: all var(--transition); user-select: none;
-}
-.vote-btn:hover { border-color: var(--brand-purple); color: var(--brand-purple); background: var(--tint-purple); }
-.vote-btn.voted { border-color: var(--brand-purple); background: var(--tint-purple); color: var(--brand-purple); }
-.vote-btn .arrow { font-size: 14px; line-height: 1; transition: transform var(--transition); }
-.vote-btn:hover .arrow, .vote-btn.voted .arrow { transform: translateY(-1px); }
-
-.vote-count {
-  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
-  color: var(--text-primary); min-width: 24px; text-align: center;
-}
-
-.comment-btn {
-  font-family: inherit; display: flex; align-items: center; gap: 5px;
-  padding: 7px 10px; border-radius: var(--radius-xs);
-  border: 1px solid var(--border); background: transparent;
-  color: var(--text-muted); font-size: 12px; cursor: pointer;
-  transition: all var(--transition);
-}
-.comment-btn:hover { border-color: var(--border-accent); color: var(--text-secondary); }
-
-.importance-bar {
+/* ─── Importance bar (inline in old card layout) ─── */
+.importance-bar-inline {
   display: flex; height: 4px; border-radius: 2px; overflow: hidden;
   background: rgba(255,255,255,0.04); margin-top: 14px;
 }
-.importance-bar .seg-critical { background: var(--red); }
-.importance-bar .seg-important { background: var(--amber); }
-.importance-bar .seg-nice { background: var(--green); }
-.importance-legend { display: flex; gap: 12px; margin-top: 6px; }
-.importance-legend span { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
-.importance-legend .dot-critical { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
-.importance-legend .dot-important { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
-.importance-legend .dot-nice { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+[data-theme="light"] .importance-bar-inline { background: rgba(0,0,0,0.04); }
 
 /* ─── Modal ─── */
-/* Modal + Form styles in header.css */
-
-/* Importance picker */
 .importance-picker { display: flex; gap: 8px; margin-bottom: 16px; }
 .imp-option {
   flex: 1; padding: 10px; border-radius: var(--radius-sm);
@@ -167,7 +91,7 @@
   cursor: pointer; transition: all var(--transition); text-align: center;
   font-family: inherit; color: var(--text-secondary); font-size: 12px; font-weight: 500;
 }
-.imp-option:hover { border-color: var(--border-accent); }
+.imp-option:hover { border-color: var(--border-brand); }
 .imp-option.selected { border-width: 2px; }
 .imp-option.sel-nice { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
 .imp-option.sel-important { border-color: var(--amber); color: var(--amber); background: rgba(245,158,11,0.08); }
@@ -193,92 +117,14 @@
 }
 .comment-form button:hover { background: color-mix(in oklab, var(--brand-purple) 16%, transparent); }
 
-.notion-link {
-  font-size: 12px; color: var(--accent-light); text-decoration: none;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.notion-link:hover { text-decoration: underline; }
-
 .loading-state, .error-state, .empty-state { text-align: center; padding: 80px 32px; color: var(--text-muted); }
-.loading-spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+.loading-spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--brand-purple); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.empty-section-msg { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border); border-radius: var(--radius); }
-
-/* View toggle */
-.view-toggle {
-  display: flex; gap: 2px; background: var(--bg-surface); border-radius: var(--radius-sm);
-  padding: 3px; border: 1px solid var(--border);
-}
-.view-toggle-btn {
-  font-family: inherit; font-size: 13px; font-weight: 600;
-  padding: 8px 20px; border-radius: var(--radius-xs); border: none;
-  background: transparent; color: var(--text-muted); cursor: pointer;
-  transition: all var(--transition); display: flex; align-items: center; gap: 6px;
-}
-.view-toggle-btn:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
-.view-toggle-btn.active { background: var(--brand-purple); color: white; box-shadow: 0 2px 8px color-mix(in oklab, var(--brand-purple) 35%, transparent); }
-.view-toggle-btn svg { width: 15px; height: 15px; }
-
-/* ─── Ranked Table ─── */
-.ranked-table { width: 100%; border-collapse: separate; border-spacing: 0; }
-.ranked-table th {
-  text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted);
-  border-bottom: 1px solid var(--border); position: sticky; top: 68px;
-  background: var(--bg-root); z-index: 10;
-}
-.ranked-table th.sortable { cursor: pointer; user-select: none; }
-.ranked-table th.sortable:hover { color: var(--text-secondary); }
-.ranked-table th .sort-arrow { margin-left: 4px; font-size: 10px; opacity: 0.4; }
-.ranked-table th.sort-active .sort-arrow { opacity: 1; color: var(--orange); }
-.ranked-table td {
-  padding: 14px 16px; border-bottom: 1px solid var(--border);
-  color: var(--text-secondary); vertical-align: middle;
-}
-.ranked-table tbody tr { cursor: pointer; transition: background var(--transition); }
-.ranked-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
-.ranked-row-rank {
-  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
-  color: var(--text-muted); width: 48px; text-align: center;
-}
-.ranked-row-name { font-size: 14px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.2px; }
-.ranked-row-desc {
-  font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.4;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px;
-}
-.ranked-row-votes {
-  font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700;
-  color: var(--orange); text-align: center; width: 80px;
-}
-.ranked-row-votes .votes-label { font-size: 10px; font-weight: 500; color: var(--text-muted); display: block; margin-top: 1px; }
-.ranked-row-demand { width: 140px; }
-.ranked-demand-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: rgba(255,255,255,0.04); }
-.ranked-demand-labels { display: flex; gap: 8px; margin-top: 4px; }
-.ranked-demand-labels span { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 3px; }
-.ranked-demand-labels .d-c { width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
-.ranked-demand-labels .d-i { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); }
-.ranked-demand-labels .d-n { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
-.ranked-row-status { width: 140px; }
-.status-pill {
-  display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px;
-  border-radius: 100px; white-space: nowrap;
-}
-.status-pill.sp-in-progress { background: rgba(75,123,255,0.14); color: var(--accent-light); }
-.status-pill.sp-planned { background: rgba(168,85,247,0.14); color: var(--purple); }
-.status-pill.sp-under-consideration { background: rgba(245,158,11,0.14); color: var(--amber); }
-.status-pill.sp-shipped { background: rgba(34,197,94,0.14); color: var(--green); }
-.ranked-row-comments { font-size: 13px; color: var(--text-muted); text-align: center; width: 60px; }
 
 @media (max-width: 768px) {
-  .header-inner { padding: 0 16px; }
-  .toolbar { padding: 16px 16px 0; }
-  .board { padding: 20px 16px 60px; }
-  .cards-grid { grid-template-columns: 1fr; }
-  .toolbar-top h2 { font-size: 18px; }
+  .portal-hero { grid-template-columns: 1fr; }
+  .portal-hero__stats .stat-grid-inner { grid-template-columns: 1fr 1fr; gap: 10px; }
   .importance-picker { flex-direction: column; }
-  .ranked-row-desc { max-width: 180px; }
-  .ranked-row-demand, .ranked-row-status { display: none; }
-  th.col-demand, th.col-status { display: none; }
 }
 </style>
 <script>
@@ -290,44 +136,64 @@ document.head.appendChild(s);})();
 <body>
 <script src="/static/header.js"></script>
 
-<div class="toolbar">
-  <div class="filters" id="filters">
-    <div class="view-toggle">
-      <button class="view-toggle-btn" data-view="board" onclick="setView('board', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+<main class="page" id="portalPage">
+  <!-- Page head (injected by JS after data loads) -->
+  <div id="pageHead"></div>
+
+  <!-- Hero stats (injected by JS after data loads) -->
+  <div id="heroSection"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar" id="toolbar">
+    <div class="seg">
+      <button class="seg__btn" data-view="board" onclick="setView('board')">
+        <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="3" width="4" height="10" rx="1"/><rect x="7" y="3" width="3" height="6" rx="1"/><rect x="11" y="3" width="3" height="8" rx="1"/></svg>
         Board
       </button>
-      <button class="view-toggle-btn" data-view="ranked" onclick="setView('ranked', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+      <button class="seg__btn" data-view="ranked" onclick="setView('ranked')">
+        <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h7M3 12h4"/></svg>
         Ranked
       </button>
     </div>
-    <div class="filter-sep"></div>
-    <input type="text" class="search-input" id="searchInput" placeholder="Search features…" oninput="onSearch()">
-    <div class="filter-sep"></div>
-    <div class="filter-group">
-      <span class="filter-label">Product Area</span>
-      <select class="filter-select" id="techFilter" onchange="activeTech = this.value; localStorage.setItem('sherpa_tech', this.value); render()">
-        <option value="all">All</option>
-      </select>
+
+    <div class="input search" style="width:260px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5"/><path d="m14 14-3-3"/></svg>
+      <input id="searchInput" placeholder="Search features..." oninput="onSearch()">
+      <span class="kbd" style="pointer-events:none">&#8984;K</span>
     </div>
-    <div class="filter-sep"></div>
-    <div class="filter-group">
-      <span class="filter-label">Status</span>
-      <button class="filter-btn active" data-filter="status" data-value="all">All</button>
-      <button class="filter-btn" data-filter="status" data-value="In Progress">In Progress</button>
-      <button class="filter-btn" data-filter="status" data-value="Planned">Planned</button>
-      <button class="filter-btn" data-filter="status" data-value="Under Consideration">Under Consideration</button>
-      <button class="filter-btn" data-filter="status" data-value="Shipped">Shipped</button>
+
+    <div class="toolbar__sep"></div>
+
+    <div class="input" style="width:168px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11l-4 5v4l-3-1V9l-4-5Z"/></svg>
+      <select id="techFilter" onchange="activeTech = this.value; localStorage.setItem('sherpa_tech', this.value); render()">
+        <option value="all">All products</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
+
+    <div class="toolbar__sep"></div>
+
+    <div class="toolbar__group" id="statusFilters">
+      <button class="chip" data-active="true" data-filter="status" data-value="all">All statuses</button>
+      <button class="chip" data-filter="status" data-value="In Progress"><span class="chip__dot" style="background:#005ED6"></span>In Progress</button>
+      <button class="chip" data-filter="status" data-value="Planned"><span class="chip__dot" style="background:#A83FEF"></span>Planned</button>
+      <button class="chip" data-filter="status" data-value="Under Consideration"><span class="chip__dot" style="background:#E89407"></span>Under Consideration</button>
+      <button class="chip" data-filter="status" data-value="Shipped"><span class="chip__dot" style="background:#1FA23A"></span>Shipped</button>
     </div>
   </div>
-</div>
 
-<main class="board" id="board">
-  <div class="loading-state" id="loading"><div class="loading-spinner"></div><p>Loading features…</p></div>
+  <!-- Filter info row -->
+  <div id="filterInfo" style="display:none; align-items:center; gap:10px; font-size:12px; color:var(--text-muted); margin:-4px 0 14px; letter-spacing:0.02em">
+    <span id="filterInfoText"></span>
+    <button onclick="clearFilters()" style="background:transparent; border:none; padding:2px 6px; color:var(--brand-purple); font-size:12px; cursor:pointer; font-weight:500">Clear filters</button>
+  </div>
+
+  <!-- Board / ranked content -->
+  <div id="board">
+    <div class="loading-state" id="loading"><div class="loading-spinner"></div><p>Loading features...</p></div>
+  </div>
 </main>
-
-<!-- Auth modal injected by header.js -->
 
 <!-- Feature Detail Modal -->
 <div class="modal-overlay" id="featureModal">
@@ -347,8 +213,13 @@ let rankSort = localStorage.getItem('sherpa_rankSort') || 'demand';
 let rankSortDir = localStorage.getItem('sherpa_rankSortDir') || 'desc';
 
 const STATUS_ORDER = ['In Progress', 'Planned', 'Under Consideration', 'Shipped'];
+const STATUS_COLORS = {
+  'In Progress': '#005ED6',
+  'Planned': '#A83FEF',
+  'Under Consideration': '#E89407',
+  'Shipped': '#1FA23A'
+};
 
-// Product area display names (shorten long Notion values)
 const PRODUCT_DISPLAY = {
   'Percona Server for MySQL': 'MySQL',
   'PostgreSQL': 'PostgreSQL',
@@ -359,48 +230,131 @@ const PRODUCT_DISPLAY = {
 };
 function productLabel(t) { return PRODUCT_DISPLAY[t] || t; }
 
-// Auth state comes from header.js (currentUser, esc, loadSession, etc.)
-// Notify header.js to reload features on auth change
+function techBadgeHTML(tech) {
+  var tc = TECH_COLORS[productLabel(tech)] || TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
+  var label = productLabel(tech);
+  return '<span class="tech-badge" style="--_color:' + tc.color + '; --_tint:' + tc.tint + '">' +
+    '<svg viewBox="0 0 12 11" fill="none" class="tech-badge__tri"><path d="M6 1.2 11.2 9.8 H0.8 Z" stroke="' + tc.color + '" stroke-width="1.4" stroke-linejoin="round" fill="' + tc.color + '" fill-opacity="0.18"/></svg>' +
+    label + '</span>';
+}
+
+function statusPillHTML(status) {
+  var c = STATUS_COLORS[status] || '#E89407';
+  return '<span class="status-pill" style="background:color-mix(in oklab,' + c + ' 12%,transparent); color:' + c + '; border:1px solid color-mix(in oklab,' + c + ' 28%,transparent)">' +
+    '<span class="status-pill__dot" style="background:' + c + '"></span>' + status + '</span>';
+}
+
+function fmtMRR(n) {
+  if (n >= 1000000) return '$' + (n / 1000000).toFixed(n >= 10000000 ? 0 : 1) + 'M';
+  if (n >= 1000) return '$' + Math.round(n / 1000) + 'K';
+  return '$' + n;
+}
+
+// Auth state comes from header.js
 window.onAuthChange = function() { loadFeatures(); };
 
 function headers() {
-  const h = { 'Content-Type': 'application/json' };
+  var h = { 'Content-Type': 'application/json' };
   if (currentUser) h['X-Voter-Token'] = String(currentUser.voter_id);
   return h;
 }
 
 async function api(path, opts = {}) {
-  const resp = await fetch(path, { ...opts, headers: { ...headers(), ...(opts.headers || {}) } });
+  var resp = await fetch(path, { ...opts, headers: { ...headers(), ...(opts.headers || {}) } });
   return resp.json();
 }
 
-// ─── Modals (feature detail) ───
+// ─── Modals ───
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-overlay').forEach(el => {
   el.addEventListener('click', (e) => { if (e.target === el) el.classList.remove('open'); });
 });
 
+// ─── Page head ───
+function renderPageHead() {
+  document.getElementById('pageHead').innerHTML =
+    '<div class="page-head">' +
+      '<div class="page-head__title">' +
+        '<span class="t-eyebrow" style="color:var(--brand-purple)">The expedition</span>' +
+        '<h1 class="t-display">What customers want next</h1>' +
+      '</div>' +
+    '</div>';
+}
+
+// ─── Hero stats ───
+function renderHero() {
+  var totalVotes = allFeatures.reduce(function(s, f) { return s + f.votes; }, 0);
+  var totalMRR = allFeatures.reduce(function(s, f) { return s + (f.market_mrr || 0); }, 0);
+  var totalAccts = allFeatures.reduce(function(s, f) { return s + (f.market_customer_count || 0); }, 0);
+  var totalEvidence = allFeatures.reduce(function(s, f) { return s + (f.market_evidence_count || 0); }, 0);
+  var totalSignals = allFeatures.reduce(function(s, f) { return s + ((f.market_signals || []).length || 0); }, 0);
+
+  document.getElementById('heroSection').innerHTML =
+    '<div class="portal-hero portal-hero--no-chart">' +
+      '<div class="portal-hero__stats">' +
+        '<span class="t-eyebrow">Basecamp &middot; this week</span>' +
+        '<div class="stat-grid-inner">' +
+          '<div class="stat-item">' +
+            '<div class="t-eyebrow" style="margin-bottom:4px">Votes cast</div>' +
+            '<div class="big-num" style="font-family:var(--font-mono); font-size:26px; font-weight:650; letter-spacing:-0.02em">' + totalVotes + '</div>' +
+            '<div style="font-size:11px; color:var(--green); font-family:var(--font-mono)">&#8593; active this week</div>' +
+          '</div>' +
+          '<div class="stat-item">' +
+            '<div class="t-eyebrow" style="margin-bottom:4px">Pipeline at risk</div>' +
+            '<div class="big-num" style="font-family:var(--font-mono); font-size:26px; font-weight:650; letter-spacing:-0.02em">' + fmtMRR(totalMRR) + '</div>' +
+            '<div style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono)">' + totalAccts + ' accounts</div>' +
+          '</div>' +
+          '<div class="stat-item">' +
+            '<div class="t-eyebrow" style="margin-bottom:4px">Active signals</div>' +
+            '<div class="big-num" style="font-family:var(--font-mono); font-size:26px; font-weight:650; letter-spacing:-0.02em">' + allFeatures.length + '</div>' +
+            '<div style="font-size:11px; color:var(--amber); font-family:var(--font-mono)">' + allFeatures.filter(function(f){return f.status==="In Progress"}).length + ' in progress</div>' +
+          '</div>' +
+          '<div class="stat-item">' +
+            '<div class="t-eyebrow" style="margin-bottom:4px">Evidence records</div>' +
+            '<div class="big-num" style="font-family:var(--font-mono); font-size:26px; font-weight:650; letter-spacing:-0.02em">' + totalEvidence + '</div>' +
+            '<div style="font-size:11px; color:var(--green); font-family:var(--font-mono)">&#8593; tracking</div>' +
+          '</div>' +
+        '</div>' +
+        '<a href="/signals" style="display:inline-flex; align-items:center; gap:6px; color:var(--text-secondary); font-size:13px; font-weight:500; padding:4px 0; transition:180ms"' +
+          ' onmouseover="this.style.color=\'var(--brand-purple)\'" onmouseout="this.style.color=\'var(--text-secondary)\'">' +
+          'See all signals <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10m-4-4 4 4-4 4"/></svg>' +
+        '</a>' +
+      '</div>' +
+    '</div>';
+}
+
 // ─── Features ───
 async function loadFeatures() {
-  const board = document.getElementById('board');
+  var board = document.getElementById('board');
   try {
-    const data = await api('/api/features');
+    var data = await api('/api/features');
     if (data.error) throw new Error(data.error);
     allFeatures = data;
+
+    renderPageHead();
+    renderHero();
+
     // Populate product area filter dynamically
-    const techSel = document.getElementById('techFilter');
-    const techs = [...new Set(data.flatMap(f => f.db_tech))].sort();
-    techSel.innerHTML = '<option value="all">All</option>';
-    techs.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = productLabel(t); techSel.appendChild(o); });
-    // Restore saved filter states
+    var techSel = document.getElementById('techFilter');
+    var techs = [...new Set(data.flatMap(f => f.db_tech))].sort();
+    techSel.innerHTML = '<option value="all">All products</option>';
+    techs.forEach(t => { var o = document.createElement('option'); o.value = t; o.textContent = productLabel(t); techSel.appendChild(o); });
     techSel.value = activeTech;
-    document.querySelectorAll('.filter-btn[data-filter="status"]').forEach(b => {
-      b.classList.toggle('active', b.dataset.value === activeStatus);
+
+    // Restore saved filter states
+    document.querySelectorAll('.chip[data-filter="status"]').forEach(b => {
+      b.setAttribute('data-active', b.dataset.value === activeStatus);
     });
     if (searchQuery) document.getElementById('searchInput').value = searchQuery;
+
+    // Sync view toggle
+    document.querySelectorAll('.seg__btn[data-view]').forEach(b => {
+      b.setAttribute('data-active', b.dataset.view === activeView);
+    });
+
     render();
   } catch (err) {
-    board.innerHTML = `<div class="error-state"><p>Failed to load features.</p><p style="margin-top:8px;font-size:13px;opacity:.6">${esc(err.message)}</p></div>`;
+    board.innerHTML = '<div class="error-state"><p>Failed to load features.</p><p style="margin-top:8px;font-size:13px;opacity:.6">' + esc(err.message) + '</p></div>';
   }
 }
 
@@ -409,8 +363,8 @@ function getFiltered() {
     if (activeTech !== 'all' && !f.db_tech.includes(activeTech)) return false;
     if (activeStatus !== 'all' && f.status !== activeStatus) return false;
     if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const haystack = (f.name + ' ' + (f.description || '') + ' ' + f.db_tech.join(' ')).toLowerCase();
+      var q = searchQuery.toLowerCase();
+      var haystack = (f.name + ' ' + (f.description || '') + ' ' + f.db_tech.join(' ')).toLowerCase();
       if (!haystack.includes(q)) return false;
     }
     return true;
@@ -418,47 +372,65 @@ function getFiltered() {
 }
 
 function render() {
+  // Show/hide filter info
+  var hasFilters = searchQuery || activeStatus !== 'all' || activeTech !== 'all';
+  var filtered = getFiltered();
+  var filterInfo = document.getElementById('filterInfo');
+  if (hasFilters) {
+    filterInfo.style.display = 'flex';
+    document.getElementById('filterInfoText').innerHTML = '<b style="color:var(--text-secondary);font-weight:600">' + filtered.length + '</b> of ' + allFeatures.length + ' features';
+  } else {
+    filterInfo.style.display = 'none';
+  }
+
   if (activeView === 'ranked') renderRanked();
   else renderBoard();
 }
 
 function renderBoard() {
-  const board = document.getElementById('board');
-  const filtered = getFiltered();
+  var board = document.getElementById('board');
+  var filtered = getFiltered();
 
-  const grouped = {};
+  var grouped = {};
   STATUS_ORDER.forEach(s => grouped[s] = []);
   filtered.forEach(f => { if (grouped[f.status]) grouped[f.status].push(f); });
   Object.values(grouped).forEach(arr => arr.sort((a, b) => b.votes - a.votes));
 
-  let html = '';
-  STATUS_ORDER.forEach(status => {
-    const items = grouped[status];
+  var html = '';
+  STATUS_ORDER.forEach(function(status) {
+    var items = grouped[status];
     if (activeStatus !== 'all' && status !== activeStatus) return;
-    const cssClass = status.toLowerCase().replace(/ /g, '-');
-    html += `
-      <section class="status-section">
-        <div class="status-header">
-          <div class="status-indicator ${cssClass}"></div>
-          <span class="status-label">${status}</span>
-          <span class="status-count">${items.length}</span>
-        </div>
-        <div class="cards-grid">
-          ${items.length ? items.map(cardHTML).join('') : `<div class="empty-section-msg">No features here${activeTech !== 'all' ? ` for ${activeTech}` : ''}.</div>`}
-        </div>
-      </section>`;
+    if (!items.length && activeStatus === 'all') return;
+
+    html += '<section>' +
+      '<div class="section-head">' +
+        '<span class="section-head__dot" style="background:' + (STATUS_COLORS[status] || '#E89407') + '"></span>' +
+        '<span class="section-head__title">' + status + '</span>' +
+        '<span class="section-head__count">' + items.length + '</span>' +
+        '<span class="section-head__rule"></span>' +
+      '</div>' +
+      '<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:var(--density-card-gap)">';
+
+    if (items.length) {
+      items.forEach(function(f, i) {
+        html += '<div style="animation:fade-up 0.4s cubic-bezier(0.4,0,0.2,1) backwards; animation-delay:' + (i * 40) + 'ms">' + cardHTML(f) + '</div>';
+      });
+    } else {
+      html += '<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:13px; border:1px dashed var(--border); border-radius:var(--radius)">No features here.</div>';
+    }
+
+    html += '</div></section>';
   });
 
   board.innerHTML = html || '<div class="empty-state"><p>No features match the current filters.</p></div>';
 }
 
 function renderRanked() {
-  const board = document.getElementById('board');
-  const filtered = getFiltered();
+  var board = document.getElementById('board');
+  var filtered = getFiltered();
 
-  // Sort
-  const sorted = [...filtered].sort((a, b) => {
-    let va, vb;
+  var sorted = [...filtered].sort(function(a, b) {
+    var va, vb;
     if (rankSort === 'votes') { va = a.votes; vb = b.votes; }
     else if (rankSort === 'critical') { va = a.importance.critical; vb = b.importance.critical; }
     else if (rankSort === 'demand') { va = a.market_demand_score || 0; vb = b.market_demand_score || 0; }
@@ -469,78 +441,80 @@ function renderRanked() {
     return rankSortDir === 'desc' ? vb - va : va - vb;
   });
 
-  const thSort = (col, label, extraClass) => {
-    const active = rankSort === col;
-    const arrow = active ? (rankSortDir === 'desc' ? '▼' : '▲') : '▼';
-    return `<th class="sortable ${active ? 'sort-active' : ''} ${extraClass || ''}" onclick="toggleRankSort('${col}')">${label}<span class="sort-arrow">${arrow}</span></th>`;
-  };
-
-  let html = `<table class="ranked-table">
-    <thead><tr>
-      <th style="width:48px">#</th>
-      ${thSort('name', 'Feature')}
-      ${thSort('votes', 'Votes')}
-      ${thSort('demand', 'Market Demand', 'col-demand')}
-      ${thSort('evidence', 'Evidence')}
-      <th class="col-status">Status</th>
-      ${thSort('comments', '💬')}
-    </tr></thead><tbody>`;
+  var html = '<div class="table-wrap"><table class="table">' +
+    '<thead><tr>' +
+      '<th style="width:56px">#</th>' +
+      '<th>Feature</th>' +
+      '<th style="width:110px" data-sortable="true" onclick="toggleRankSort(\'votes\')">Votes</th>' +
+      '<th style="width:240px" data-sortable="true" onclick="toggleRankSort(\'demand\')">Market demand</th>' +
+      '<th style="width:170px">Status</th>' +
+      '<th style="width:60px"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H8l-3 2v-2H5a2 2 0 0 1-2-2V5Z"/></svg></th>' +
+    '</tr></thead><tbody>';
 
   if (!sorted.length) {
-    html += `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No features match the current filters.</td></tr>`;
+    html += '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No features match the current filters.</td></tr>';
   }
 
-  sorted.forEach((f, i) => {
-    const badges = f.db_tech.map(t => `<span class="badge badge-${productLabel(t).toLowerCase()}">${productLabel(t)}</span>`).join(' ');
-    const total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
-    const pc = v => total > 0 ? (v / total * 100).toFixed(1) : 0;
-    const statusCls = 'sp-' + f.status.toLowerCase().replace(/ /g, '-');
+  sorted.forEach(function(f, i) {
+    var badges = f.db_tech.slice(0, 3).map(techBadgeHTML).join('');
+    var extra = f.db_tech.length > 3 ? '<span style="font-size:11px;color:var(--text-muted)">+' + (f.db_tech.length - 3) + '</span>' : '';
+    var total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
+    var pc = function(v) { return total > 0 ? (v / total * 100).toFixed(1) : 0; };
 
-    html += `<tr onclick="openFeatureModal('${f.id}')">
-      <td class="ranked-row-rank">${i + 1}</td>
-      <td>
-        <div class="ranked-row-name">${esc(f.name)}</div>
-        <div style="display:flex;gap:4px;margin-top:4px">${badges}</div>
-        ${f.description ? `<div class="ranked-row-desc">${esc(f.description)}</div>` : ''}
-      </td>
-      <td class="ranked-row-votes">${f.votes}<span class="votes-label">vote${f.votes !== 1 ? 's' : ''}</span></td>
-      <td class="ranked-row-demand col-demand">
-        ${f.market_demand_score > 0 ? `
-          <div style="display:flex;align-items:center;gap:8px">
-            <div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden">
-              <div style="height:100%;width:${Math.min(100, f.market_demand_score)}%;background:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'};border-radius:3px"></div>
-            </div>
-            <span style="font-size:13px;font-weight:600;color:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'}">${Math.round(f.market_demand_score)}</span>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:3px">
-            <span style="font-size:10px;color:var(--text-muted)">${f.market_customer_count || 0} accounts</span>
-            ${f.market_mrr ? `<span style="font-size:10px;color:var(--green)">$${(f.market_mrr/1000).toFixed(0)}k MRR</span>` : ''}
-          </div>` : '<span style="color:var(--text-muted);font-size:12px">No data</span>'}
-      </td>
-      <td style="text-align:center">
-        ${f.market_evidence_count > 0 ? `<span style="font-size:14px;font-weight:600;color:var(--accent-light)">${f.market_evidence_count}</span><br><span style="font-size:10px;color:var(--text-muted)">${(f.market_signals || []).length} signals</span>` : '<span style="color:var(--text-muted);font-size:12px">—</span>'}
-      </td>
-      <td class="ranked-row-status col-status"><span class="status-pill ${statusCls}">${f.status}</span></td>
-      <td class="ranked-row-comments">${f.comment_count || '—'}</td>
-    </tr>`;
+    // Market demand bar
+    var demandBar = '';
+    if (f.market_demand_score > 0) {
+      demandBar = '<div style="display:flex;align-items:center;gap:10px">' +
+        '<div style="flex:1;height:4px;background:var(--bg-muted);border-radius:999px;overflow:hidden">' +
+          '<div style="height:100%;width:' + Math.min(100, f.market_demand_score) + '%;background:linear-gradient(90deg,var(--brand-purple),var(--brand-yellow-deep))"></div>' +
+        '</div>' +
+        '<span class="t-mono" style="font-size:12px;color:var(--text-secondary);min-width:88px">' +
+          fmtMRR(f.market_mrr || 0) + ' &middot; ' + (f.market_customer_count || 0) +
+        '</span></div>';
+    } else {
+      demandBar = '<span style="color:var(--text-muted);font-size:12px">No data</span>';
+    }
+
+    // Importance bar for votes column
+    var impBar = '';
+    if (total > 0) {
+      impBar = '<div style="flex:1;max-width:50px"><div class="importance-bar"><div class="importance-bar__track">' +
+        (f.importance.critical ? '<div class="importance-bar__seg importance-bar__seg--critical" style="width:' + pc(f.importance.critical) + '%"></div>' : '') +
+        (f.importance.important ? '<div class="importance-bar__seg importance-bar__seg--important" style="width:' + pc(f.importance.important) + '%"></div>' : '') +
+        (f.importance.nice_to_have ? '<div class="importance-bar__seg importance-bar__seg--nice" style="width:' + pc(f.importance.nice_to_have) + '%"></div>' : '') +
+        '</div></div></div>';
+    }
+
+    html += '<tr data-clickable="true" onclick="openFeatureModal(\'' + f.id + '\')">' +
+      '<td class="num" style="color:var(--text-muted);font-weight:600">' + String(i + 1).padStart(2, '0') + '</td>' +
+      '<td>' +
+        '<div style="display:flex;flex-direction:column;gap:6px;max-width:480px">' +
+          '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' + badges + extra + '</div>' +
+          '<div style="font-weight:600;color:var(--text-primary)">' + esc(f.name) + '</div>' +
+        '</div>' +
+      '</td>' +
+      '<td><div style="display:flex;align-items:center;gap:8px">' +
+        '<span class="t-mono" style="font-weight:600;font-size:14px">' + f.votes + '</span>' +
+        impBar +
+      '</div></td>' +
+      '<td>' + demandBar + '</td>' +
+      '<td>' + statusPillHTML(f.status) + '</td>' +
+      '<td class="num" style="color:var(--text-muted)">' + (f.comment_count || 0) + '</td>' +
+    '</tr>';
   });
 
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   board.innerHTML = html;
 }
 
-function setView(view, btn) {
+function setView(view) {
   activeView = view;
   localStorage.setItem('sherpa_view', view);
-  document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('.seg__btn[data-view]').forEach(b => {
+    b.setAttribute('data-active', b.dataset.view === view);
+  });
   render();
 }
-
-// Sync toggle buttons with persisted view on load
-document.querySelectorAll('.view-toggle-btn').forEach(b => {
-  b.classList.toggle('active', b.dataset.view === activeView);
-});
 
 function toggleRankSort(col) {
   if (rankSort === col) { rankSortDir = rankSortDir === 'desc' ? 'asc' : 'desc'; }
@@ -551,58 +525,66 @@ function toggleRankSort(col) {
 }
 
 function cardHTML(f) {
-  const voted = !!f.my_vote;
-  const badges = f.db_tech.map(t => `<span class="badge badge-${productLabel(t).toLowerCase()}">${productLabel(t)}</span>`).join('');
-  const total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
-  let impBar = '';
+  var voted = !!f.my_vote;
+  var badges = f.db_tech.map(techBadgeHTML).join('');
+  var total = f.importance.critical + f.importance.important + f.importance.nice_to_have;
+
+  var impBar = '';
   if (total > 0) {
-    const pc = v => (v / total * 100).toFixed(1);
-    impBar = `
-      <div class="importance-bar">
-        ${f.importance.critical ? `<div class="seg-critical" style="width:${pc(f.importance.critical)}%"></div>` : ''}
-        ${f.importance.important ? `<div class="seg-important" style="width:${pc(f.importance.important)}%"></div>` : ''}
-        ${f.importance.nice_to_have ? `<div class="seg-nice" style="width:${pc(f.importance.nice_to_have)}%"></div>` : ''}
-      </div>
-      <div class="importance-legend">
-        ${f.importance.critical ? `<span><span class="dot-critical"></span>${f.importance.critical} critical</span>` : ''}
-        ${f.importance.important ? `<span><span class="dot-important"></span>${f.importance.important} important</span>` : ''}
-        ${f.importance.nice_to_have ? `<span><span class="dot-nice"></span>${f.importance.nice_to_have} nice to have</span>` : ''}
-      </div>`;
+    var pc = function(v) { return (v / total * 100).toFixed(1); };
+    impBar = '<div class="importance-bar">' +
+      '<div class="importance-bar__track">' +
+        (f.importance.critical ? '<div class="importance-bar__seg importance-bar__seg--critical" style="width:' + pc(f.importance.critical) + '%"></div>' : '') +
+        (f.importance.important ? '<div class="importance-bar__seg importance-bar__seg--important" style="width:' + pc(f.importance.important) + '%"></div>' : '') +
+        (f.importance.nice_to_have ? '<div class="importance-bar__seg importance-bar__seg--nice" style="width:' + pc(f.importance.nice_to_have) + '%"></div>' : '') +
+      '</div>' +
+      '<div class="importance-bar__legend">' +
+        (f.importance.critical ? '<span><i style="background:var(--vote-critical)"></i>' + f.importance.critical + '</span>' : '') +
+        (f.importance.important ? '<span><i style="background:var(--vote-important)"></i>' + f.importance.important + '</span>' : '') +
+        (f.importance.nice_to_have ? '<span><i style="background:var(--vote-nice)"></i>' + f.importance.nice_to_have + '</span>' : '') +
+      '</div>' +
+    '</div>';
   }
 
-  return `
-    <article class="card" onclick="openFeatureModal('${f.id}')">
-      <h3 class="card-title">${esc(f.name)}</h3>
-      ${badges ? `<div class="badge-row">${badges}</div>` : ''}
-      ${f.description ? `<p class="card-desc">${esc(f.description)}</p>` : ''}
-      <div class="card-footer">
-        <div class="card-actions">
-          <button class="vote-btn ${voted ? 'voted' : ''}" onclick="handleVote('${f.id}', event)">
-            <span class="arrow">▲</span><span>${voted ? f.my_vote.replace(/_/g, ' ') : 'Vote'}</span>
-          </button>
-          <span class="vote-count">${f.votes}</span>
-        </div>
-        <button class="comment-btn" onclick="event.stopPropagation();openFeatureModal('${f.id}')">
-          💬 ${f.comment_count || ''}
-        </button>
-      </div>
-      ${impBar}
-      ${f.market_evidence_count > 0 ? `
-      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">
-        <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden">
-          <div style="height:100%;width:${Math.min(100, f.market_demand_score)}%;background:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'};border-radius:2px"></div>
-        </div>
-        <span style="font-size:11px;font-weight:600;color:${f.market_demand_score >= 70 ? 'var(--red)' : f.market_demand_score >= 40 ? 'var(--amber)' : 'var(--green)'}">⚡ ${Math.round(f.market_demand_score)}</span>
-        <span style="font-size:10px;color:var(--text-muted)">${f.market_evidence_count} evidence</span>
-      </div>` : ''}
-    </article>`;
+  var demandBar = '';
+  if (f.market_evidence_count > 0) {
+    demandBar = '<div class="demand-bar">' +
+      '<div class="demand-bar__head"><span>Market demand</span><span class="demand-bar__score">' + Math.round(f.market_demand_score) + '</span></div>' +
+      '<div class="demand-bar__track"><div class="demand-bar__fill" style="width:' + Math.min(100, f.market_demand_score) + '%"></div></div>' +
+      '<div class="demand-bar__meta">' +
+        '<span>' + (f.market_customer_count || 0) + ' accounts</span>' +
+        '<span>' + fmtMRR(f.market_mrr || 0) + ' MRR</span>' +
+        '<span>' + f.market_evidence_count + ' signals</span>' +
+      '</div></div>';
+  }
+
+  return '<article class="card card--feature" onclick="openFeatureModal(\'' + f.id + '\')">' +
+    '<div class="card__head">' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">' + badges + '</div>' +
+      '<h3 class="card__title">' + esc(f.name) + '</h3>' +
+      (f.description ? '<p class="card__desc">' + esc(f.description) + '</p>' : '') +
+    '</div>' +
+    impBar +
+    demandBar +
+    '<div class="card__footer">' +
+      '<button class="vote-btn' + (voted ? '" data-voted="true"' : '"') + ' onclick="handleVote(\'' + f.id + '\', event)">' +
+        '<span class="vote-btn__arrow"><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V3M4 7l4-4 4 4"/></svg></span>' +
+        '<span class="vote-btn__count">' + f.votes + '</span>' +
+      '</button>' +
+      '<div style="display:flex;align-items:center;gap:12px">' +
+        '<span style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:12px">' +
+          '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H8l-3 2v-2H5a2 2 0 0 1-2-2V5Z"/></svg> ' + (f.comment_count || 0) +
+        '</span>' +
+      '</div>' +
+    '</div>' +
+  '</article>';
 }
 
 // ─── Voting ───
 function handleVote(featureId, event) {
   event.stopPropagation();
   if (!currentUser) { openAuthModal(); return; }
-  const feature = allFeatures.find(f => f.id === featureId);
+  var feature = allFeatures.find(f => f.id === featureId);
   if (feature.my_vote) {
     removeVote(featureId);
   } else {
@@ -611,106 +593,96 @@ function handleVote(featureId, event) {
 }
 
 async function submitVote(featureId) {
-  const importance = document.getElementById('selImp').value;
-  const customer = document.getElementById('customerInput')?.value?.trim() || '';
-  const data = await api('/api/vote', {
-    method: 'POST', body: JSON.stringify({ feature_id: featureId, importance, customer_name: customer })
+  var importance = document.getElementById('selImp').value;
+  var customer = document.getElementById('customerInput')?.value?.trim() || '';
+  var data = await api('/api/vote', {
+    method: 'POST', body: JSON.stringify({ feature_id: featureId, importance: importance, customer_name: customer })
   });
   if (data.ok) { closeModal('featureModal'); loadFeatures(); }
 }
 
 async function removeVote(featureId) {
-  const data = await api('/api/vote', { method: 'POST', body: JSON.stringify({ feature_id: featureId, action: 'remove' }) });
+  var data = await api('/api/vote', { method: 'POST', body: JSON.stringify({ feature_id: featureId, action: 'remove' }) });
   if (data.ok) { closeModal('featureModal'); loadFeatures(); }
 }
 
 // ─── Feature Modal ───
 async function openFeatureModal(featureId) {
-  const feature = allFeatures.find(f => f.id === featureId);
+  var feature = allFeatures.find(f => f.id === featureId);
   if (!feature) return;
 
-  const badges = feature.db_tech.map(t => `<span class="badge badge-${productLabel(t).toLowerCase()}">${productLabel(t)}</span>`).join('');
-  const voted = !!feature.my_vote;
+  var badges = feature.db_tech.map(techBadgeHTML).join('');
+  var voted = !!feature.my_vote;
 
-  let voteSection = '';
+  var voteSection = '';
   if (currentUser && !voted) {
-    voteSection = `
-      <div style="margin:20px 0">
-        <label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">How important is this to you?</label>
-        <div class="importance-picker">
-          <button class="imp-option" onclick="pickImp(this,'nice_to_have','sel-nice')">
-            <span class="imp-emoji">👍</span>Nice to have
-          </button>
-          <button class="imp-option selected sel-important" onclick="pickImp(this,'important','sel-important')">
-            <span class="imp-emoji">⭐</span>Important
-          </button>
-          <button class="imp-option" onclick="pickImp(this,'critical','sel-critical')">
-            <span class="imp-emoji">🔥</span>Critical
-          </button>
-        </div>
-        <input type="hidden" id="selImp" value="important">
-        <div class="form-group">
-          <label>Customer impacted <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
-          <input class="form-input" type="text" id="customerInput" placeholder="e.g. Acme Corp, internal request…">
-        </div>
-        <button class="btn-primary" onclick="submitVote('${feature.id}')">Submit vote</button>
-      </div>`;
+    voteSection =
+      '<div style="margin:20px 0">' +
+        '<label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">How important is this to you?</label>' +
+        '<div class="importance-picker">' +
+          '<button class="imp-option" onclick="pickImp(this,\'nice_to_have\',\'sel-nice\')"><span class="imp-emoji">&#128077;</span>Nice to have</button>' +
+          '<button class="imp-option selected sel-important" onclick="pickImp(this,\'important\',\'sel-important\')"><span class="imp-emoji">&#11088;</span>Important</button>' +
+          '<button class="imp-option" onclick="pickImp(this,\'critical\',\'sel-critical\')"><span class="imp-emoji">&#128293;</span>Critical</button>' +
+        '</div>' +
+        '<input type="hidden" id="selImp" value="important">' +
+        '<div class="form-group">' +
+          '<label style="display:block;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Customer impacted <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>' +
+          '<input class="form-input" type="text" id="customerInput" placeholder="e.g. Acme Corp, internal request...">' +
+        '</div>' +
+        '<button class="btn-primary" onclick="submitVote(\'' + feature.id + '\')" style="margin-top:12px">Submit vote</button>' +
+      '</div>';
   } else if (currentUser && voted) {
-    voteSection = `
-      <div style="margin:20px 0;padding:14px;border-radius:var(--radius-sm);background:var(--tint-purple);border:1px solid var(--border-brand);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-        <div>
-          <span style="font-size:13px;color:var(--orange)">✓ You voted: <strong>${feature.my_vote.replace(/_/g, ' ')}</strong></span>
-          ${feature.my_customer ? `<span style="font-size:12px;color:var(--text-muted);margin-left:8px">for ${esc(feature.my_customer)}</span>` : ''}
-        </div>
-        <button style="font-family:inherit;font-size:12px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer"
-                onclick="removeVote('${feature.id}')">Remove vote</button>
-      </div>`;
+    voteSection =
+      '<div style="margin:20px 0;padding:14px;border-radius:var(--radius-sm);background:var(--tint-purple);border:1px solid var(--border-brand);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
+        '<div><span style="font-size:13px;color:var(--brand-purple)">&#10003; You voted: <strong>' + feature.my_vote.replace(/_/g, ' ') + '</strong></span>' +
+          (feature.my_customer ? '<span style="font-size:12px;color:var(--text-muted);margin-left:8px">for ' + esc(feature.my_customer) + '</span>' : '') +
+        '</div>' +
+        '<button style="font-family:inherit;font-size:12px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer" onclick="removeVote(\'' + feature.id + '\')">Remove vote</button>' +
+      '</div>';
   } else {
-    voteSection = `
-      <div style="margin:20px 0">
-        <button class="btn-primary" onclick="openAuthModal()">Sign in to vote</button>
-      </div>`;
+    voteSection =
+      '<div style="margin:20px 0"><button class="btn-primary" onclick="openAuthModal()">Sign in to vote</button></div>';
   }
 
-  const total = feature.importance.critical + feature.importance.important + feature.importance.nice_to_have;
-  let impStats = '';
+  var total = feature.importance.critical + feature.importance.important + feature.importance.nice_to_have;
+  var impStats = '';
   if (total > 0) {
-    const pc = v => (v / total * 100).toFixed(0);
-    impStats = `
-      <div style="margin-bottom:20px">
-        <div class="importance-bar" style="height:6px">
-          ${feature.importance.critical ? `<div class="seg-critical" style="width:${pc(feature.importance.critical)}%"></div>` : ''}
-          ${feature.importance.important ? `<div class="seg-important" style="width:${pc(feature.importance.important)}%"></div>` : ''}
-          ${feature.importance.nice_to_have ? `<div class="seg-nice" style="width:${pc(feature.importance.nice_to_have)}%"></div>` : ''}
-        </div>
-        <div class="importance-legend" style="margin-top:8px">
-          <span><span class="dot-critical"></span>${feature.importance.critical} critical</span>
-          <span><span class="dot-important"></span>${feature.importance.important} important</span>
-          <span><span class="dot-nice"></span>${feature.importance.nice_to_have} nice to have</span>
-        </div>
-      </div>`;
+    var pc = function(v) { return (v / total * 100).toFixed(0); };
+    impStats =
+      '<div style="margin-bottom:20px">' +
+        '<div class="importance-bar"><div class="importance-bar__track" style="height:6px">' +
+          (feature.importance.critical ? '<div class="importance-bar__seg importance-bar__seg--critical" style="width:' + pc(feature.importance.critical) + '%"></div>' : '') +
+          (feature.importance.important ? '<div class="importance-bar__seg importance-bar__seg--important" style="width:' + pc(feature.importance.important) + '%"></div>' : '') +
+          (feature.importance.nice_to_have ? '<div class="importance-bar__seg importance-bar__seg--nice" style="width:' + pc(feature.importance.nice_to_have) + '%"></div>' : '') +
+        '</div></div>' +
+        '<div class="importance-bar__legend" style="margin-top:8px">' +
+          '<span><i style="background:var(--vote-critical)"></i>' + feature.importance.critical + ' critical</span>' +
+          '<span><i style="background:var(--vote-important)"></i>' + feature.importance.important + ' important</span>' +
+          '<span><i style="background:var(--vote-nice)"></i>' + feature.importance.nice_to_have + ' nice to have</span>' +
+        '</div>' +
+      '</div>';
   }
 
-  document.getElementById('featureModalContent').innerHTML = `
-    <h2>${esc(feature.name)}</h2>
-    ${badges ? `<div class="badge-row" style="margin-top:8px">${badges}</div>` : ''}
-    <p class="subtitle" style="margin-top:12px">${esc(feature.description)}</p>
-    <a href="${feature.notion_url}" target="_blank" rel="noopener" class="notion-link" onclick="event.stopPropagation()">View on Roadmap ↗</a>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span class="vote-count" style="font-size:24px">${feature.votes}</span>
-      <span style="font-size:13px;color:var(--text-muted)">vote${feature.votes !== 1 ? 's' : ''}</span>
-    </div>
-    ${impStats}
-    ${voteSection}
-    <div class="comments-section">
-      <h3>Comments</h3>
-      <div id="commentsList"><div class="comment-empty">Loading comments…</div></div>
-      ${currentUser ? `
-        <div class="comment-form">
-          <input class="form-input" id="commentInput" placeholder="Add a comment…" onkeydown="if(event.key==='Enter')postComment('${feature.id}')">
-          <button onclick="postComment('${feature.id}')">Post</button>
-        </div>` : `<p style="font-size:12px;color:var(--text-muted);margin-top:12px"><a href="#" onclick="openAuthModal();return false" style="color:var(--orange)">Sign in</a> to comment.</p>`}
-    </div>`;
+  document.getElementById('featureModalContent').innerHTML =
+    '<h2 style="font-size:18px;font-weight:650;letter-spacing:-0.01em">' + esc(feature.name) + '</h2>' +
+    (badges ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' + badges + '</div>' : '') +
+    '<p style="margin-top:12px;font-size:14px;color:var(--text-secondary);line-height:1.55">' + esc(feature.description) + '</p>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-top:16px;margin-bottom:8px">' +
+      '<span style="font-family:var(--font-mono);font-size:24px;font-weight:700">' + feature.votes + '</span>' +
+      '<span style="font-size:13px;color:var(--text-muted)">vote' + (feature.votes !== 1 ? 's' : '') + '</span>' +
+    '</div>' +
+    impStats +
+    voteSection +
+    '<div class="comments-section">' +
+      '<h3>Comments</h3>' +
+      '<div id="commentsList"><div class="comment-empty">Loading comments...</div></div>' +
+      (currentUser ?
+        '<div class="comment-form">' +
+          '<input class="form-input" id="commentInput" placeholder="Add a comment..." onkeydown="if(event.key===\'Enter\')postComment(\'' + feature.id + '\')">' +
+          '<button onclick="postComment(\'' + feature.id + '\')">Post</button>' +
+        '</div>'
+      : '<p style="font-size:12px;color:var(--text-muted);margin-top:12px"><a href="#" onclick="openAuthModal();return false" style="color:var(--brand-purple)">Sign in</a> to comment.</p>') +
+    '</div>';
 
   document.getElementById('featureModal').classList.add('open');
   loadComments(featureId);
@@ -718,37 +690,35 @@ async function openFeatureModal(featureId) {
 
 function pickImp(btn, value, cls) {
   btn.parentNode.querySelectorAll('.imp-option').forEach(b => b.className = 'imp-option');
-  btn.className = `imp-option selected ${cls}`;
+  btn.className = 'imp-option selected ' + cls;
   document.getElementById('selImp').value = value;
 }
 
 // ─── Comments ───
 async function loadComments(featureId) {
-  const data = await api(`/api/comments/${featureId}`);
-  const container = document.getElementById('commentsList');
+  var data = await api('/api/comments/' + featureId);
+  var container = document.getElementById('commentsList');
   if (!data.length) {
     container.innerHTML = '<div class="comment-empty">No comments yet. Be the first!</div>';
     return;
   }
-  container.innerHTML = data.map(c => `
-    <div class="comment-item">
-      <div class="comment-meta">
-        <span>${esc(c.display_name)}</span>
-        <span>${timeAgo(c.created_at)}</span>
-      </div>
-      <div class="comment-body">${esc(c.body)}</div>
-    </div>`).join('');
+  container.innerHTML = data.map(c =>
+    '<div class="comment-item">' +
+      '<div class="comment-meta"><span>' + esc(c.display_name) + '</span><span>' + timeAgo(c.created_at) + '</span></div>' +
+      '<div class="comment-body">' + esc(c.body) + '</div>' +
+    '</div>'
+  ).join('');
 }
 
 async function postComment(featureId) {
-  const input = document.getElementById('commentInput');
-  const body = input.value.trim();
+  var input = document.getElementById('commentInput');
+  var body = input.value.trim();
   if (!body) return;
-  const data = await api('/api/comments', { method: 'POST', body: JSON.stringify({ feature_id: featureId, body }) });
+  var data = await api('/api/comments', { method: 'POST', body: JSON.stringify({ feature_id: featureId, body: body }) });
   if (data.ok) {
     input.value = '';
     loadComments(featureId);
-    const f = allFeatures.find(f => f.id === featureId);
+    var f = allFeatures.find(f => f.id === featureId);
     if (f) f.comment_count++;
     render();
   }
@@ -761,27 +731,42 @@ function onSearch() {
   render();
 }
 
-// ─── Filters ───
-document.getElementById('filters').addEventListener('click', (e) => {
-  const btn = e.target.closest('.filter-btn');
+function clearFilters() {
+  searchQuery = '';
+  activeStatus = 'all';
+  activeTech = 'all';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('techFilter').value = 'all';
+  localStorage.setItem('sherpa_search', '');
+  localStorage.setItem('sherpa_status', 'all');
+  localStorage.setItem('sherpa_tech', 'all');
+  document.querySelectorAll('.chip[data-filter="status"]').forEach(b => {
+    b.setAttribute('data-active', b.dataset.value === 'all');
+  });
+  render();
+}
+
+// ─── Status Filters ───
+document.getElementById('statusFilters').addEventListener('click', function(e) {
+  var btn = e.target.closest('.chip[data-filter]');
   if (!btn) return;
-  btn.closest('.filter-group').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (btn.dataset.filter === 'status') { activeStatus = btn.dataset.value; localStorage.setItem('sherpa_status', btn.dataset.value); }
+  document.querySelectorAll('.chip[data-filter="status"]').forEach(b => b.setAttribute('data-active', 'false'));
+  btn.setAttribute('data-active', 'true');
+  activeStatus = btn.dataset.value;
+  localStorage.setItem('sherpa_status', btn.dataset.value);
   render();
 });
 
-// ─── Helpers ─── (esc() provided by header.js)
+// ─── Helpers ───
 function timeAgo(ts) {
-  const diff = Date.now() / 1000 - ts;
+  var diff = Date.now() / 1000 - ts;
   if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  if (diff < 2592000) return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+  if (diff < 2592000) return Math.floor(diff / 86400) + 'd ago';
   return new Date(ts * 1000).toLocaleDateString();
 }
 
-// Session loaded by header.js
 loadFeatures();
 </script>
 </body>

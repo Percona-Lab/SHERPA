@@ -12,118 +12,24 @@
 <link rel="stylesheet" href="/static/components.css">
 <link rel="stylesheet" href="/static/header.css">
 <style>
-
-/* Stats bar */
-.stats-bar {
-  max-width: 1400px; margin: 24px auto 0; padding: 0 32px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+/* Purple accent stat card */
+.stat--accent {
+  background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-purple-600) 100%);
+  border-color: transparent;
+  color: white;
+  position: relative;
+  overflow: hidden;
 }
-.stat-card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px 24px;
+.stat--accent .stat__label { color: rgba(255,255,255,0.75); }
+.stat--accent .stat__value { color: white; }
+.stat--accent .stat__delta { color: var(--brand-yellow); }
+.stat--accent .mountain-deco {
+  position: absolute;
+  right: -10px; bottom: -10px;
+  width: 110px; height: 70px;
+  opacity: 0.18;
+  pointer-events: none;
 }
-.stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
-.stat-value { font-size: 28px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
-.stat-value.accent { color: var(--accent-light); }
-.stat-value.green { color: var(--green); }
-.stat-value.amber { color: var(--amber); }
-.stat-value.orange { color: var(--orange); }
-
-/* Toolbar */
-.toolbar {
-  max-width: 1400px; margin: 20px auto 0; padding: 0 32px;
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-}
-.filter-group { display: flex; align-items: center; gap: 6px; }
-.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-right: 2px; }
-.filter-select {
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  padding: 7px 30px 7px 14px; border-radius: 100px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-secondary); cursor: pointer;
-  transition: all var(--transition); outline: none;
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 12px center;
-}
-.filter-select:hover { border-color: var(--border-accent); color: var(--text-primary); }
-.filter-sep { width: 1px; height: 24px; background: var(--border); margin: 0 6px; }
-.search-input {
-  font-family: inherit; font-size: 13px;
-  padding: 7px 14px; border-radius: 100px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-primary); outline: none; width: 220px;
-  transition: all var(--transition);
-}
-.search-input::placeholder { color: var(--text-muted); }
-.search-input:focus { border-color: var(--accent); }
-.sort-btn {
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  padding: 7px 14px; border-radius: 100px;
-  border: 1px solid var(--border); background: transparent;
-  color: var(--text-secondary); cursor: pointer;
-  transition: all var(--transition);
-}
-.sort-btn:hover { border-color: var(--border-accent); color: var(--text-primary); }
-.sort-btn.active { border-color: var(--brand-purple); color: var(--brand-purple); background: var(--tint-purple); }
-
-/* Table */
-.table-wrap {
-  max-width: 1400px; margin: 16px auto 48px; padding: 0 32px;
-}
-table {
-  width: 100%; border-collapse: collapse;
-  background: var(--bg-card); border-radius: var(--radius);
-  overflow: hidden; border: 1px solid var(--border);
-}
-thead th {
-  text-align: left; padding: 12px 16px;
-  font-size: 11px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.8px; color: var(--text-muted);
-  background: var(--bg-surface); border-bottom: 1px solid var(--border);
-  white-space: nowrap; cursor: pointer; user-select: none;
-}
-thead th:hover { color: var(--text-secondary); }
-thead th.sorted { color: var(--accent-light); }
-tbody tr { border-bottom: 1px solid var(--border); transition: background var(--transition); }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--bg-card-hover); }
-tbody td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
-.signal-link { color: var(--text-primary); font-weight: 500; }
-.signal-link:hover { color: var(--accent-light); }
-
-/* Badges */
-.badge {
-  display: inline-block; font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 100px; white-space: nowrap;
-}
-.badge-product {
-  background: rgba(139,92,246,0.14); color: #A78BFA;
-}
-.badge-product[data-p="Binlog Server"] { background: rgba(34,197,94,0.14); color: #4ADE80; }
-.badge-product[data-p="XtraBackup"] { background: rgba(245,158,11,0.14); color: #FBBF24; }
-.badge-product[data-p="Vector"] { background: rgba(6,182,212,0.14); color: #22D3EE; }
-.badge-category {
-  background: rgba(59,130,246,0.10); color: #60A5FA;
-}
-.badge-category[data-c="Bug"] { background: rgba(239,68,68,0.12); color: #F87171; }
-.badge-category[data-c="Pain Point"] { background: rgba(245,158,11,0.12); color: #FBBF24; }
-.badge-category[data-c="Use Case"] { background: rgba(34,197,94,0.12); color: #4ADE80; }
-.badge-urgency { font-size: 12px; font-weight: 600; }
-.badge-urgency[data-u="Deal Blocker"] { color: var(--red); }
-.badge-urgency[data-u="High"] { color: var(--amber); }
-.badge-urgency[data-u="Medium"] { color: var(--text-secondary); }
-.badge-urgency[data-u="Low"] { color: var(--text-muted); }
-.badge-source {
-  display: inline-block; font-size: 10px; font-weight: 600;
-  padding: 2px 8px; border-radius: 100px;
-  background: rgba(255,255,255,0.04); color: var(--text-muted);
-  margin-right: 3px;
-}
-.mrr { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: var(--green); }
-.customer-count { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
-.date-cell { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
-.customers-cell { font-size: 12px; color: var(--text-secondary); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Loading / empty */
 .loading, .empty {
@@ -132,16 +38,10 @@ tbody td { padding: 14px 16px; font-size: 14px; vertical-align: middle; }
 }
 .loading .spinner {
   width: 32px; height: 32px; border: 3px solid var(--border);
-  border-top-color: var(--accent); border-radius: 50%;
+  border-top-color: var(--brand-purple); border-radius: 50%;
   animation: spin 0.8s linear infinite; margin: 0 auto 16px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-@media (max-width: 900px) {
-  .stats-bar { grid-template-columns: repeat(2, 1fr); }
-  .header-inner { padding: 0 16px; }
-  .toolbar, .table-wrap, .stats-bar { padding-left: 16px; padding-right: 16px; }
-}
 </style>
 <script>
 (function(){var s=document.createElement('script');s.src='/rybbit/script.js';s.defer=true;
@@ -152,78 +52,102 @@ document.head.appendChild(s);})();
 <body>
 <script src="/static/header.js"></script>
 
-<div class="stats-bar">
-  <div class="stat-card">
-    <div class="stat-label">Total Signals</div>
-    <div class="stat-value accent" id="stat-signals">—</div>
+<main class="page page--wide">
+  <!-- Page head -->
+  <div class="page-head">
+    <div class="page-head__title">
+      <span class="t-eyebrow" style="color:var(--brand-purple)">The terrain</span>
+      <h1 class="t-display">Signals from the field</h1>
+      <p class="t-body" style="margin:0; max-width:640px">
+        Aggregated demand themes from sales calls, support tickets, CRM signals, and partner Slack channels.
+      </p>
+    </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Evidence Records</div>
-    <div class="stat-value" id="stat-evidence">—</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Total MRR Impact</div>
-    <div class="stat-value green" id="stat-mrr">—</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Named Accounts</div>
-    <div class="stat-value orange" id="stat-accounts">—</div>
-  </div>
-</div>
 
-<div class="toolbar">
-  <div class="filter-group">
-    <span class="filter-label">Product</span>
-    <select class="filter-select" id="filter-product">
-      <option value="">All Products</option>
-    </select>
+  <!-- Stats grid -->
+  <div class="stat-grid" style="margin-bottom:18px" id="statsGrid">
+    <div class="stat">
+      <span class="stat__label">Total signals</span>
+      <span class="stat__value" id="stat-signals">&mdash;</span>
+      <span class="stat__delta stat__delta--up">&#8593; tracking</span>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Evidence records</span>
+      <span class="stat__value" id="stat-evidence">&mdash;</span>
+      <span class="stat__delta stat__delta--up">&#8593; tracking</span>
+    </div>
+    <div class="stat stat--accent">
+      <span class="stat__label">Total MRR impact</span>
+      <span class="stat__value" id="stat-mrr">&mdash;</span>
+      <span class="stat__delta" id="stat-mrr-sub">across accounts</span>
+      <svg class="mountain-deco" viewBox="0 0 100 60"><path d="M0 60 L30 15 L50 40 L75 5 L100 60 Z" fill="white"/></svg>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Named accounts</span>
+      <span class="stat__value" id="stat-accounts">&mdash;</span>
+      <span class="stat__delta" style="color:var(--text-muted)">tracking churn-risk</span>
+    </div>
   </div>
-  <div class="filter-group">
-    <span class="filter-label">Category</span>
-    <select class="filter-select" id="filter-category">
-      <option value="">All Categories</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">Urgency</span>
-    <select class="filter-select" id="filter-urgency">
-      <option value="">All</option>
-      <option value="Deal Blocker">Deal Blocker</option>
-      <option value="High">High</option>
-      <option value="Medium">Medium</option>
-      <option value="Low">Low</option>
-    </select>
-  </div>
-  <div class="filter-sep"></div>
-  <input type="text" class="search-input" id="search" placeholder="Search signals...">
-  <div style="flex:1"></div>
-  <button class="sort-btn active" data-sort="mrr">MRR ↓</button>
-  <button class="sort-btn" data-sort="customers">Customers</button>
-  <button class="sort-btn" data-sort="activity">Activity</button>
-</div>
 
-<div class="table-wrap">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="input search" style="width:280px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5"/><path d="m14 14-3-3"/></svg>
+      <input id="search" placeholder="Search signals...">
+    </div>
+    <div class="input" style="width:168px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11l-4 5v4l-3-1V9l-4-5Z"/></svg>
+      <select id="filter-product">
+        <option value="">All products</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
+    <div class="input" style="width:158px">
+      <select id="filter-urgency">
+        <option value="">All urgency</option>
+        <option value="Deal Blocker">Deal Blocker</option>
+        <option value="Critical">Critical</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
+    <div class="toolbar__sep"></div>
+    <div class="seg">
+      <button class="seg__btn" data-active="true" data-sort="mrr">MRR</button>
+      <button class="seg__btn" data-sort="customers">Customers</button>
+      <button class="seg__btn" data-sort="score">Demand score</button>
+      <button class="seg__btn" data-sort="activity">Activity</button>
+    </div>
+  </div>
+
+  <!-- Table -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    Loading demand signals from Notion...
+    Loading demand signals...
   </div>
-  <table id="signals-table" style="display:none">
-    <thead>
-      <tr>
-        <th>Signal</th>
-        <th>Product</th>
-        <th>Category</th>
-        <th>Urgency</th>
-        <th>Customers</th>
-        <th>MRR Impact</th>
-        <th>Sources</th>
-        <th>Last Activity</th>
-      </tr>
-    </thead>
-    <tbody id="signals-body"></tbody>
-  </table>
+  <div id="tableContainer" style="display:none">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Signal</th>
+            <th style="width:150px">Product</th>
+            <th style="width:120px">Urgency</th>
+            <th style="width:200px">Customers</th>
+            <th style="width:130px">MRR impact</th>
+            <th style="width:130px">Demand</th>
+            <th style="width:130px">Sources</th>
+            <th style="width:110px">Last activity</th>
+          </tr>
+        </thead>
+        <tbody id="signals-body"></tbody>
+      </table>
+    </div>
+  </div>
   <div class="empty" id="empty" style="display:none">No signals match your filters.</div>
-</div>
+</main>
 
 <script>
 let allSignals = [];
@@ -231,52 +155,63 @@ let allEvidence = [];
 let currentSort = 'mrr';
 let sortDir = 'desc';
 
+const URGENCY_COLORS = {
+  'Deal Blocker': 'var(--red)',
+  'Critical': 'var(--red)',
+  'High': 'var(--amber)',
+  'Medium': 'var(--info)',
+  'Low': 'var(--text-muted)',
+};
+
+function techBadgeHTML(tech) {
+  var tc = TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
+  return '<span class="tech-badge" style="--_color:' + tc.color + '; --_tint:' + tc.tint + '">' +
+    '<svg viewBox="0 0 12 11" fill="none" class="tech-badge__tri"><path d="M6 1.2 11.2 9.8 H0.8 Z" stroke="' + tc.color + '" stroke-width="1.4" stroke-linejoin="round" fill="' + tc.color + '" fill-opacity="0.18"/></svg>' +
+    tech + '</span>';
+}
+
 async function loadData() {
   try {
-    const [sigRes, evRes] = await Promise.all([
+    var [sigRes, evRes] = await Promise.all([
       fetch('/api/sherpa/demand-signals'),
       fetch('/api/sherpa/customer-evidence'),
     ]);
-    const sigData = await sigRes.json();
-    const evData = await evRes.json();
+    var sigData = await sigRes.json();
+    var evData = await evRes.json();
     allSignals = sigData.signals || [];
     allEvidence = evData.evidence || [];
     populateFilters();
     updateStats();
     renderTable();
   } catch (e) {
-    document.getElementById('loading').innerHTML = `<p style="color:var(--red)">Failed to load: ${e.message}</p>`;
+    document.getElementById('loading').innerHTML = '<p style="color:var(--red)">Failed to load: ' + e.message + '</p>';
   }
 }
 
 function populateFilters() {
-  const products = [...new Set(allSignals.map(s => s.product_line).filter(Boolean))].sort();
-  const categories = [...new Set(allSignals.map(s => s.category).filter(Boolean))].sort();
-  const pSel = document.getElementById('filter-product');
-  const cSel = document.getElementById('filter-category');
-  products.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; pSel.appendChild(o); });
-  categories.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; cSel.appendChild(o); });
+  var products = [...new Set(allSignals.map(s => s.product_line).filter(Boolean))].sort();
+  var pSel = document.getElementById('filter-product');
+  products.forEach(p => { var o = document.createElement('option'); o.value = p; o.textContent = p; pSel.appendChild(o); });
 }
 
 function updateStats() {
   document.getElementById('stat-signals').textContent = allSignals.length;
   document.getElementById('stat-evidence').textContent = allEvidence.length;
-  const totalMrr = allSignals.reduce((sum, s) => sum + (s.total_mrr || 0), 0);
-  document.getElementById('stat-mrr').textContent = '$' + Math.round(totalMrr).toLocaleString();
-  const accounts = new Set();
+  var totalMrr = allSignals.reduce((sum, s) => sum + (s.total_mrr || 0), 0);
+  document.getElementById('stat-mrr').textContent = formatMrr(totalMrr);
+  var accounts = new Set();
   allEvidence.forEach(e => { if (e.account_name) accounts.add(e.account_name); });
   allSignals.forEach(s => { (s.customers || []).forEach(c => accounts.add(c)); });
   document.getElementById('stat-accounts').textContent = accounts.size;
+  document.getElementById('stat-mrr-sub').textContent = 'across ' + accounts.size + ' accounts';
 }
 
 function getFiltered() {
-  const product = document.getElementById('filter-product').value;
-  const category = document.getElementById('filter-category').value;
-  const urgency = document.getElementById('filter-urgency').value;
-  const search = document.getElementById('search').value.toLowerCase();
+  var product = document.getElementById('filter-product').value;
+  var urgency = document.getElementById('filter-urgency').value;
+  var search = document.getElementById('search').value.toLowerCase();
   return allSignals.filter(s => {
     if (product && s.product_line !== product) return false;
-    if (category && s.category !== category) return false;
     if (urgency && s.urgency !== urgency) return false;
     if (search && !s.title.toLowerCase().includes(search) && !(s.customers || []).join(' ').toLowerCase().includes(search)) return false;
     return true;
@@ -284,82 +219,118 @@ function getFiltered() {
 }
 
 function getSorted(list) {
-  const dir = sortDir === 'desc' ? 1 : -1;
-  return [...list].sort((a, b) => {
+  var dir = sortDir === 'desc' ? 1 : -1;
+  return [...list].sort(function(a, b) {
     if (currentSort === 'mrr') return ((b.total_mrr || 0) - (a.total_mrr || 0)) * dir;
     if (currentSort === 'customers') return ((b.customer_count || 0) - (a.customer_count || 0)) * dir;
+    if (currentSort === 'score') return ((b.demand_score || 0) - (a.demand_score || 0)) * dir;
     if (currentSort === 'activity') return ((b.last_activity || '') > (a.last_activity || '') ? 1 : -1) * dir;
     return 0;
   });
 }
 
 function formatMrr(v) {
-  if (v == null || v === 0) return '<span style="color:var(--text-muted)">—</span>';
-  return '$' + Math.round(v).toLocaleString();
+  if (v == null || v === 0) return '$0';
+  if (v >= 1000000) return '$' + (v / 1000000).toFixed(v >= 10000000 ? 0 : 1) + 'M';
+  if (v >= 1000) return '$' + Math.round(v / 1000) + 'K';
+  return '$' + v;
 }
 
 function relativeDate(dateStr) {
   if (!dateStr) return '—';
-  const d = new Date(dateStr);
-  const now = new Date();
-  const days = Math.floor((now - d) / 86400000);
-  if (days === 0) return 'Today';
-  if (days === 1) return 'Yesterday';
-  if (days < 30) return days + 'd ago';
+  var d = new Date(dateStr);
+  var now = new Date();
+  var days = Math.floor((now - d) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return '1d ago';
+  if (days < 7) return days + 'd ago';
+  if (days < 30) return Math.floor(days / 7) + 'w ago';
   if (days < 365) return Math.floor(days / 30) + 'mo ago';
   return Math.floor(days / 365) + 'y ago';
 }
 
 function renderTable() {
-  const filtered = getSorted(getFiltered());
-  const tbody = document.getElementById('signals-body');
-  const table = document.getElementById('signals-table');
-  const loading = document.getElementById('loading');
-  const empty = document.getElementById('empty');
+  var filtered = getSorted(getFiltered());
+  var tbody = document.getElementById('signals-body');
+  var loading = document.getElementById('loading');
+  var empty = document.getElementById('empty');
+  var container = document.getElementById('tableContainer');
 
   loading.style.display = 'none';
   if (filtered.length === 0) {
-    table.style.display = 'none';
+    container.style.display = 'none';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
-  table.style.display = 'table';
+  container.style.display = '';
 
-  tbody.innerHTML = filtered.map(s => `
-    <tr>
-      <td><a href="/signals/${s.id}" class="signal-link">${esc(s.title)}</a></td>
-      <td>${s.product_line ? `<span class="badge badge-product" data-p="${esc(s.product_line)}">${esc(s.product_line)}</span>` : ''}</td>
-      <td>${s.category ? `<span class="badge badge-category" data-c="${esc(s.category)}">${esc(s.category)}</span>` : ''}</td>
-      <td><span class="badge-urgency" data-u="${esc(s.urgency)}">${esc(s.urgency)}</span></td>
-      <td>
-        <span class="customer-count">${s.customer_count || 0}</span>
-        ${(s.customers || []).length ? `<div class="customers-cell" title="${esc((s.customers||[]).join(', '))}">${esc((s.customers||[]).join(', '))}</div>` : ''}
-      </td>
-      <td><span class="mrr">${formatMrr(s.total_mrr)}</span></td>
-      <td>${(s.sources || []).map(src => `<span class="badge-source">${esc(src)}</span>`).join('')}</td>
-      <td><span class="date-cell">${relativeDate(s.last_activity)}</span></td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = filtered.map(function(s) {
+    var urgColor = URGENCY_COLORS[s.urgency] || 'var(--text-muted)';
+
+    // Product badge
+    var productCell = s.product_line ? techBadgeHTML(s.product_line) : '';
+
+    // Urgency with dot
+    var urgencyCell = '<span style="color:' + urgColor + ';font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px">' +
+      '<span style="width:6px;height:6px;border-radius:999px;background:' + urgColor + '"></span>' +
+      esc(s.urgency) + '</span>';
+
+    // Customers
+    var custNames = (s.customers || []).slice(0, 2).join(', ');
+    var customersCell = '<div style="display:flex;align-items:center;gap:8px">' +
+      '<span class="t-mono" style="font-weight:600">' + (s.customer_count || 0) + '</span>' +
+      '<span style="font-size:11px;color:var(--text-muted)">' + esc(custNames) + '</span></div>';
+
+    // MRR
+    var mrrCell = '<span class="t-mono" style="color:var(--green);font-weight:600">' + formatMrr(s.total_mrr) + '</span>';
+
+    // Demand bar
+    var demandScore = s.demand_score || 0;
+    var demandCell = '<div style="display:flex;align-items:center;gap:8px">' +
+      '<div style="flex:1;height:4px;background:var(--bg-muted);border-radius:999px;overflow:hidden">' +
+        '<div style="height:100%;width:' + demandScore + '%;background:linear-gradient(90deg,var(--brand-purple),var(--brand-yellow-deep))"></div>' +
+      '</div>' +
+      '<span class="t-mono" style="font-size:12px">' + demandScore + '</span></div>';
+
+    // Sources
+    var sourcesCell = (s.sources || []).map(function(src) {
+      return '<span class="chip" style="font-size:10px;padding:2px 7px">' + esc(src) + '</span>';
+    }).join('');
+
+    return '<tr>' +
+      '<td><div style="display:flex;flex-direction:column;gap:4px;max-width:480px">' +
+        '<div style="font-weight:600;color:var(--text-primary)">' + esc(s.title) + '</div>' +
+      '</div></td>' +
+      '<td>' + productCell + '</td>' +
+      '<td>' + urgencyCell + '</td>' +
+      '<td>' + customersCell + '</td>' +
+      '<td>' + mrrCell + '</td>' +
+      '<td>' + demandCell + '</td>' +
+      '<td><div style="display:flex;gap:4px;flex-wrap:wrap">' + sourcesCell + '</div></td>' +
+      '<td style="font-size:12px;color:var(--text-muted)">' + relativeDate(s.last_activity) + '</td>' +
+    '</tr>';
+  }).join('');
 }
 
-function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 // Event listeners
-document.querySelectorAll('.filter-select').forEach(el => el.addEventListener('change', renderTable));
+document.querySelectorAll('#filter-product, #filter-urgency').forEach(el => el.addEventListener('change', renderTable));
 document.getElementById('search').addEventListener('input', renderTable);
-document.querySelectorAll('.sort-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const sort = btn.dataset.sort;
+
+// Sort buttons
+document.querySelectorAll('.seg__btn[data-sort]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var sort = btn.dataset.sort;
     if (currentSort === sort) {
       sortDir = sortDir === 'desc' ? 'asc' : 'desc';
     } else {
       currentSort = sort;
       sortDir = 'desc';
     }
-    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    btn.textContent = btn.textContent.replace(/ [↑↓]$/, '') + (sortDir === 'desc' ? ' ↓' : ' ↑');
+    document.querySelectorAll('.seg__btn[data-sort]').forEach(b => b.setAttribute('data-active', 'false'));
+    btn.setAttribute('data-active', 'true');
     renderTable();
   });
 });

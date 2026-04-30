@@ -12,91 +12,61 @@
 <link rel="stylesheet" href="/static/components.css">
 <link rel="stylesheet" href="/static/header.css">
 <style>
-
-/* Toolbar */
-.toolbar {
-  max-width: 1400px; margin: 24px auto 0; padding: 0 32px;
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+/* Account group row */
+.account-group-row {
+  background: var(--bg-muted);
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 120ms;
 }
-.toolbar h2 {
-  font-size: 20px; font-weight: 600; letter-spacing: -0.3px; margin-right: 16px;
+.account-group-row:hover { background: var(--bg-card-hover); }
+.account-group-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
 }
-.toolbar h2 span { color: var(--text-muted); font-weight: 400; font-size: 14px; margin-left: 8px; }
-.filter-group { display: flex; align-items: center; gap: 6px; }
-.filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-right: 2px; }
-.filter-select {
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  padding: 7px 30px 7px 14px; border-radius: 100px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-secondary); cursor: pointer;
-  transition: all var(--transition); outline: none;
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A6478' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 12px center;
+.account-chevron {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  transition: transform 180ms;
+  color: var(--text-muted);
 }
-.filter-select:hover { border-color: var(--border-accent); color: var(--text-primary); }
-.filter-sep { width: 1px; height: 24px; background: var(--border); margin: 0 6px; }
-.search-input {
-  font-family: inherit; font-size: 13px;
-  padding: 7px 14px; border-radius: 100px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text-primary); outline: none; width: 260px;
-  transition: all var(--transition);
+.account-chevron.expanded { transform: rotate(90deg); }
+.account-avatar {
+  width: 28px; height: 28px;
+  border-radius: 999px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 700;
+  color: white;
+  flex-shrink: 0;
 }
-.search-input::placeholder { color: var(--text-muted); }
-.search-input:focus { border-color: var(--accent); }
-
-/* Table */
-.table-wrap {
-  max-width: 1400px; margin: 16px auto 48px; padding: 0 32px;
-  overflow-x: auto;
+.evidence-indent td:first-child { padding-left: 56px; }
+.evidence-quote {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 4px;
+  padding-left: 10px;
+  border-left: 2px solid var(--border-brand);
 }
-table {
-  width: 100%; border-collapse: collapse;
-  background: var(--bg-card); border-radius: var(--radius);
-  overflow: hidden; border: 1px solid var(--border);
-  table-layout: fixed;
+.churn-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--tint-red);
+  color: var(--red);
+  border: 1px solid color-mix(in oklab, var(--red) 28%, transparent);
 }
-/* Column widths */
-table th:nth-child(1) { width: 14%; }  /* Account */
-table th:nth-child(2) { width: 28%; }  /* Summary */
-table th:nth-child(3) { width: 12%; }  /* Product */
-table th:nth-child(4) { width: 9%; }   /* MRR */
-table th:nth-child(5) { width: 8%; }   /* Source */
-table th:nth-child(6) { width: 8%; }   /* Sentiment */
-table th:nth-child(7) { width: 9%; }   /* Date */
-table th:nth-child(8) { width: 12%; }  /* Contact */
-tbody td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-thead th {
-  text-align: left; padding: 12px 16px;
-  font-size: 11px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.8px; color: var(--text-muted);
-  background: var(--bg-surface); border-bottom: 1px solid var(--border);
-  white-space: nowrap;
+.churn-chip__dot {
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: var(--red);
 }
-tbody tr { border-bottom: 1px solid var(--border); transition: background var(--transition); }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--bg-card-hover); }
-tbody td { padding: 12px 16px; font-size: 13px; vertical-align: top; }
-.mrr { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); }
-.badge {
-  display: inline-block; font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 100px; white-space: nowrap;
-}
-.badge-product { background: rgba(139,92,246,0.14); color: #A78BFA; }
-.badge-source {
-  display: inline-block; font-size: 10px; font-weight: 600;
-  padding: 2px 8px; border-radius: 100px;
-  background: rgba(255,255,255,0.04); color: var(--text-muted);
-}
-.sentiment-badge { font-size: 11px; font-weight: 600; }
-.sentiment-badge[data-s="Positive"] { color: var(--green); }
-.sentiment-badge[data-s="Neutral"] { color: var(--text-muted); }
-.sentiment-badge[data-s="Negative"] { color: var(--red); }
-.sentiment-badge[data-s="Churn Signal"] { color: var(--red); }
-.source-link { color: var(--accent-light); }
-.source-link:hover { text-decoration: underline; }
-.summary-cell { max-width: 350px; color: var(--text-secondary); }
 
 /* Loading / empty */
 .loading, .empty {
@@ -105,7 +75,7 @@ tbody td { padding: 12px 16px; font-size: 13px; vertical-align: top; }
 }
 .loading .spinner {
   width: 32px; height: 32px; border: 3px solid var(--border);
-  border-top-color: var(--accent); border-radius: 50%;
+  border-top-color: var(--brand-purple); border-radius: 50%;
   animation: spin 0.8s linear infinite; margin: 0 auto 16px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -119,137 +89,299 @@ document.head.appendChild(s);})();
 <body>
 <script src="/static/header.js"></script>
 
-<div class="toolbar">
-  <h2>Customer Evidence <span id="evidence-count"></span></h2>
-  <div style="flex:1"></div>
-  <div class="filter-group">
-    <span class="filter-label">Product</span>
-    <select class="filter-select" id="filter-product">
-      <option value="">All Products</option>
-    </select>
+<main class="page page--wide">
+  <!-- Page head -->
+  <div class="page-head">
+    <div class="page-head__title">
+      <span class="t-eyebrow" style="color:var(--brand-purple)">The trail log</span>
+      <h1 class="t-display">
+        Evidence
+        <span id="evidence-count" style="font-size:14px; font-weight:500; color:var(--text-muted); letter-spacing:0; margin-left:12px"></span>
+      </h1>
+    </div>
   </div>
-  <div class="filter-group">
-    <span class="filter-label">Source</span>
-    <select class="filter-select" id="filter-source">
-      <option value="">All Sources</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">Sentiment</span>
-    <select class="filter-select" id="filter-sentiment">
-      <option value="">All</option>
-      <option value="Positive">Positive</option>
-      <option value="Neutral">Neutral</option>
-      <option value="Negative">Negative</option>
-      <option value="Churn Signal">Churn Signal</option>
-    </select>
-  </div>
-  <div class="filter-sep"></div>
-  <input type="text" class="search-input" id="search" placeholder="Search by summary or account...">
-</div>
 
-<div class="table-wrap">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="input search" style="width:280px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5"/><path d="m14 14-3-3"/></svg>
+      <input id="search" placeholder="Search summaries, quotes, accounts...">
+    </div>
+    <div class="input" style="width:158px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11l-4 5v4l-3-1V9l-4-5Z"/></svg>
+      <select id="filter-product">
+        <option value="">All products</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
+    <div class="input" style="width:168px">
+      <select id="filter-sentiment">
+        <option value="">All sentiment</option>
+        <option value="Positive">Positive</option>
+        <option value="Neutral">Neutral</option>
+        <option value="Negative">Negative</option>
+        <option value="Churn Signal">Churn Signal</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
+    <div class="toolbar__sep"></div>
+    <div class="seg">
+      <button class="seg__btn" data-active="true" data-group="account">By account</button>
+      <button class="seg__btn" data-group="flat">Flat list</button>
+    </div>
+    <button class="btn btn--subtle btn--sm" id="expandAllBtn" onclick="expandAll()">Expand all</button>
+    <button class="btn btn--subtle btn--sm" id="collapseAllBtn" onclick="collapseAll()">Collapse all</button>
+  </div>
+
+  <!-- Table -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
     Loading customer evidence...
   </div>
-  <table id="evidence-table" style="display:none">
-    <thead>
-      <tr>
-        <th>Account</th>
-        <th>Summary</th>
-        <th>Product</th>
-        <th>MRR</th>
-        <th>Source</th>
-        <th>Sentiment</th>
-        <th>Date</th>
-        <th>Contact</th>
-      </tr>
-    </thead>
-    <tbody id="evidence-body"></tbody>
-  </table>
+  <div id="tableContainer" style="display:none">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th id="th-first">Summary</th>
+            <th style="width:140px">Product</th>
+            <th style="width:110px">MRR</th>
+            <th style="width:150px">Source</th>
+            <th style="width:140px">Sentiment</th>
+            <th style="width:100px">Date</th>
+            <th style="width:130px">Contact</th>
+          </tr>
+        </thead>
+        <tbody id="evidence-body"></tbody>
+      </table>
+    </div>
+  </div>
   <div class="empty" id="empty" style="display:none">No evidence matches your filters.</div>
-</div>
+</main>
 
 <script>
 let allEvidence = [];
+let groupBy = 'account';
+let expandedAccounts = new Set();
+
+const SENTIMENT_COLORS = {
+  'Positive': 'var(--green)',
+  'Neutral': 'var(--text-muted)',
+  'Negative': 'var(--amber)',
+  'Churn Signal': 'var(--red)',
+};
+
+function techBadgeHTML(tech) {
+  var tc = TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
+  return '<span class="tech-badge" style="--_color:' + tc.color + '; --_tint:' + tc.tint + '">' +
+    '<svg viewBox="0 0 12 11" fill="none" class="tech-badge__tri"><path d="M6 1.2 11.2 9.8 H0.8 Z" stroke="' + tc.color + '" stroke-width="1.4" stroke-linejoin="round" fill="' + tc.color + '" fill-opacity="0.18"/></svg>' +
+    tech + '</span>';
+}
+
+function sentimentHTML(value) {
+  var color = SENTIMENT_COLORS[value] || 'var(--text-muted)';
+  return '<span class="sentiment" style="color:' + color + '">' +
+    '<span class="sentiment__dot" style="background:' + color + '"></span> ' + esc(value) +
+  '</span>';
+}
+
+function formatMrr(v) {
+  if (v == null || v === 0) return '<span style="color:var(--text-muted)">&mdash;</span>';
+  if (v >= 1000000) return '$' + (v / 1000000).toFixed(v >= 10000000 ? 0 : 1) + 'M';
+  if (v >= 1000) return '$' + Math.round(v / 1000) + 'K';
+  return '$' + v;
+}
+
+function relativeDate(dateStr) {
+  if (!dateStr) return '—';
+  var d = new Date(dateStr);
+  var now = new Date();
+  var days = Math.floor((now - d) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return '1d ago';
+  if (days < 7) return days + 'd ago';
+  if (days < 30) return Math.floor(days / 7) + 'w ago';
+  if (days < 365) return Math.floor(days / 30) + 'mo ago';
+  return Math.floor(days / 365) + 'y ago';
+}
 
 async function loadData() {
   try {
-    const res = await fetch('/api/sherpa/customer-evidence');
-    const data = await res.json();
+    var res = await fetch('/api/sherpa/customer-evidence');
+    var data = await res.json();
     allEvidence = (data.evidence || []).sort((a, b) => (b.mrr || 0) - (a.mrr || 0));
     populateFilters();
     renderTable();
   } catch (e) {
-    document.getElementById('loading').innerHTML = `<p style="color:var(--red)">Failed to load: ${e.message}</p>`;
+    document.getElementById('loading').innerHTML = '<p style="color:var(--red)">Failed to load: ' + e.message + '</p>';
   }
 }
 
 function populateFilters() {
-  const products = [...new Set(allEvidence.map(e => e.product_line).filter(Boolean))].sort();
-  const sources = [...new Set(allEvidence.map(e => e.source).filter(Boolean))].sort();
-  const pSel = document.getElementById('filter-product');
-  const sSel = document.getElementById('filter-source');
-  products.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; pSel.appendChild(o); });
-  sources.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sSel.appendChild(o); });
+  var products = [...new Set(allEvidence.map(e => e.product_line).filter(Boolean))].sort();
+  var pSel = document.getElementById('filter-product');
+  products.forEach(p => { var o = document.createElement('option'); o.value = p; o.textContent = p; pSel.appendChild(o); });
 }
 
 function getFiltered() {
-  const product = document.getElementById('filter-product').value;
-  const source = document.getElementById('filter-source').value;
-  const sentiment = document.getElementById('filter-sentiment').value;
-  const search = document.getElementById('search').value.toLowerCase();
+  var product = document.getElementById('filter-product').value;
+  var sentiment = document.getElementById('filter-sentiment').value;
+  var search = document.getElementById('search').value.toLowerCase();
   return allEvidence.filter(e => {
     if (product && e.product_line !== product) return false;
-    if (source && e.source !== source) return false;
     if (sentiment && e.sentiment !== sentiment) return false;
-    if (search && !(e.summary || '').toLowerCase().includes(search) && !(e.account_name || '').toLowerCase().includes(search)) return false;
+    if (search && !(e.summary || '').toLowerCase().includes(search) && !(e.account_name || '').toLowerCase().includes(search) && !(e.quote || '').toLowerCase().includes(search)) return false;
     return true;
   });
 }
 
-function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-function formatMrr(v) {
-  if (v == null || v === 0) return '<span style="color:var(--text-muted)">—</span>';
-  return '$' + Math.round(v).toLocaleString();
+function groupByAccount(filtered) {
+  var m = new Map();
+  filtered.forEach(function(e) {
+    var key = e.account_name || 'Unknown';
+    if (!m.has(key)) m.set(key, []);
+    m.get(key).push(e);
+  });
+  return Array.from(m, function(entry) { return { account: entry[0], items: entry[1] }; })
+    .sort(function(a, b) { return (b.items[0].mrr || 0) - (a.items[0].mrr || 0); });
 }
 
 function renderTable() {
-  const filtered = getFiltered();
-  const tbody = document.getElementById('evidence-body');
-  const table = document.getElementById('evidence-table');
-  const loading = document.getElementById('loading');
-  const empty = document.getElementById('empty');
+  var filtered = getFiltered();
+  var loading = document.getElementById('loading');
+  var empty = document.getElementById('empty');
+  var container = document.getElementById('tableContainer');
 
   loading.style.display = 'none';
-  document.getElementById('evidence-count').textContent = `(${filtered.length})`;
+  document.getElementById('evidence-count').textContent = filtered.length + ' of ' + allEvidence.length;
+
+  // Show/hide expand/collapse buttons
+  document.getElementById('expandAllBtn').style.display = groupBy === 'account' ? '' : 'none';
+  document.getElementById('collapseAllBtn').style.display = groupBy === 'account' ? '' : 'none';
+
+  // Update first th
+  document.getElementById('th-first').textContent = groupBy === 'account' ? 'Summary' : 'Account / Summary';
 
   if (filtered.length === 0) {
-    table.style.display = 'none';
+    container.style.display = 'none';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
-  table.style.display = 'table';
+  container.style.display = '';
 
-  tbody.innerHTML = filtered.map(e => `
-    <tr>
-      <td style="font-weight:500; white-space:nowrap">${esc(e.account_name)}</td>
-      <td class="summary-cell">${esc(e.summary)}</td>
-      <td>${e.product_line ? `<span class="badge badge-product">${esc(e.product_line)}</span>` : ''}</td>
-      <td><span class="mrr">${formatMrr(e.mrr)}</span></td>
-      <td>${e.source_url ? `<a href="${esc(e.source_url)}" target="_blank" class="source-link">${esc(e.source)}</a>` : `<span class="badge-source">${esc(e.source)}</span>`}</td>
-      <td><span class="sentiment-badge" data-s="${esc(e.sentiment)}">${esc(e.sentiment)}</span></td>
-      <td style="white-space:nowrap; color:var(--text-muted); font-size:12px">${esc(e.date_captured)}</td>
-      <td style="color:var(--text-secondary); font-size:12px">${esc(e.contact)}</td>
-    </tr>
-  `).join('');
+  var tbody = document.getElementById('evidence-body');
+
+  if (groupBy === 'account') {
+    var groups = groupByAccount(filtered);
+    tbody.innerHTML = groups.map(function(g) {
+      var totalMRR = g.items[0].mrr || 0;
+      var products = [...new Set(g.items.map(i => i.product_line).filter(Boolean))];
+      var hasChurn = g.items.some(i => i.sentiment === 'Churn Signal');
+      var isExpanded = expandedAccounts.has(g.account);
+      var initials = g.account.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+      // Group header row
+      var html = '<tr class="account-group-row" onclick="toggleAccount(\'' + esc(g.account).replace(/'/g, "\\'") + '\')">' +
+        '<td colspan="7" style="padding:0"><div class="account-group-inner">' +
+          '<svg class="account-chevron' + (isExpanded ? ' expanded' : '') + '" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 4 4 4-4 4"/></svg>' +
+          '<span class="account-avatar" style="background:' + (hasChurn ? 'var(--red)' : 'var(--brand-purple)') + '">' + initials + '</span>' +
+          '<span style="font-weight:650;font-size:14px">' + esc(g.account) + '</span>' +
+          '<span style="font-size:12px;color:var(--text-muted)">' + g.items.length + ' record' + (g.items.length === 1 ? '' : 's') + '</span>' +
+          '<div style="display:flex;gap:4px;margin-left:8px">' +
+            products.slice(0, 3).map(function(p) { return techBadgeHTML(p); }).join('') +
+          '</div>' +
+          '<span style="flex:1"></span>' +
+          (hasChurn ? '<span class="churn-chip"><span class="churn-chip__dot"></span>Churn risk</span>' : '') +
+          '<span class="t-mono" style="color:var(--green);font-weight:600;font-size:14px">' + formatMrr(totalMRR) + '</span>' +
+          '<span style="font-size:12px;color:var(--text-muted)">' + relativeDate(g.items[0].date_captured) + '</span>' +
+        '</div></td></tr>';
+
+      // Evidence rows (if expanded)
+      if (isExpanded) {
+        g.items.forEach(function(e) {
+          html += evidenceRowHTML(e, true);
+        });
+      }
+
+      return html;
+    }).join('');
+  } else {
+    // Flat list
+    tbody.innerHTML = filtered.map(function(e) {
+      return '<tr>' +
+        '<td>' +
+          '<div style="font-weight:600">' + esc(e.account_name) + '</div>' +
+          '<div style="font-size:13px;color:var(--text-secondary)">' + esc(e.summary) + '</div>' +
+        '</td>' +
+        '<td>' + (e.product_line ? techBadgeHTML(e.product_line) : '') + '</td>' +
+        '<td><span class="t-mono" style="color:var(--green);font-weight:600">' + formatMrr(e.mrr) + '</span></td>' +
+        '<td><span style="font-size:12px">' + esc(e.source) + '</span></td>' +
+        '<td>' + sentimentHTML(e.sentiment) + '</td>' +
+        '<td style="font-size:12px;color:var(--text-muted)">' + relativeDate(e.date_captured) + '</td>' +
+        '<td style="font-size:12px">' + esc(e.contact) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
 }
 
-document.querySelectorAll('.filter-select').forEach(el => el.addEventListener('change', renderTable));
+function evidenceRowHTML(e, indented) {
+  var quoteHTML = e.quote ? '<div class="evidence-quote">"' + esc(e.quote) + '"</div>' : '';
+  var sourceHTML = e.source_url
+    ? '<a href="' + esc(e.source_url) + '" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary)" onclick="event.stopPropagation()">' + esc(e.source) +
+      ' <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3 7 9"/></svg></a>'
+    : '<span style="font-size:12px;color:var(--text-secondary)">' + esc(e.source) + '</span>';
+
+  return '<tr class="' + (indented ? 'evidence-indent' : '') + '">' +
+    '<td' + (indented ? ' style="padding-left:56px"' : '') + '>' +
+      '<div style="font-size:13px;color:var(--text-primary);margin-bottom:2px">' + esc(e.summary) + '</div>' +
+      quoteHTML +
+    '</td>' +
+    '<td>' + (e.product_line ? techBadgeHTML(e.product_line) : '') + '</td>' +
+    '<td><span class="t-mono" style="color:var(--green);font-weight:600">' + formatMrr(e.mrr) + '</span></td>' +
+    '<td>' + sourceHTML + '</td>' +
+    '<td>' + sentimentHTML(e.sentiment) + '</td>' +
+    '<td style="font-size:12px;color:var(--text-muted)">' + relativeDate(e.date_captured) + '</td>' +
+    '<td style="font-size:12px;color:var(--text-secondary)">' + esc(e.contact) + '</td>' +
+  '</tr>';
+}
+
+function toggleAccount(account) {
+  if (expandedAccounts.has(account)) {
+    expandedAccounts.delete(account);
+  } else {
+    expandedAccounts.add(account);
+  }
+  renderTable();
+}
+
+function expandAll() {
+  var filtered = getFiltered();
+  var groups = groupByAccount(filtered);
+  groups.forEach(g => expandedAccounts.add(g.account));
+  renderTable();
+}
+
+function collapseAll() {
+  expandedAccounts.clear();
+  renderTable();
+}
+
+function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Event listeners
+document.querySelectorAll('#filter-product, #filter-sentiment').forEach(el => el.addEventListener('change', renderTable));
 document.getElementById('search').addEventListener('input', renderTable);
+
+// Group toggle
+document.querySelectorAll('.seg__btn[data-group]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    groupBy = btn.dataset.group;
+    document.querySelectorAll('.seg__btn[data-group]').forEach(b => b.setAttribute('data-active', 'false'));
+    btn.setAttribute('data-active', 'true');
+    renderTable();
+  });
+});
 
 loadData();
 </script>
