@@ -33,12 +33,22 @@
 
   // ─── Tech badge colors (Percona brand) ───
   window.TECH_COLORS = {
-    'MySQL':      { color: 'var(--tech-mysql)',      tint: 'rgba(230,90,21,0.10)' },
-    'PostgreSQL': { color: 'var(--tech-postgres)',    tint: 'rgba(0,94,214,0.10)' },
-    'MongoDB':    { color: 'var(--tech-mongo)',       tint: 'rgba(31,162,58,0.10)' },
-    'Valkey':     { color: 'var(--tech-valkey)',      tint: 'rgba(168,63,239,0.10)' },
-    'PMM':        { color: 'var(--tech-pmm)',         tint: 'rgba(110,63,243,0.10)' },
-    'Operators':  { color: 'var(--tech-kubernetes)',   tint: 'rgba(42,166,223,0.10)' },
+    'MySQL':      { color: 'var(--tech-mysql)',      tint: 'rgba(230,90,21,0.10)', icon: '/static/icons/mysql.svg' },
+    'PostgreSQL': { color: 'var(--tech-postgres)',    tint: 'rgba(0,94,214,0.10)',  icon: '/static/icons/postgresql.svg' },
+    'MongoDB':    { color: 'var(--tech-mongo)',       tint: 'rgba(31,162,58,0.10)', icon: '/static/icons/mongodb.svg' },
+    'Valkey':     { color: 'var(--tech-valkey)',      tint: 'rgba(168,63,239,0.10)', icon: '/static/icons/valkey.svg' },
+    'PMM':        { color: 'var(--tech-pmm)',         tint: 'rgba(110,63,243,0.10)', icon: '/static/icons/pmm.svg' },
+    'Operators':  { color: 'var(--tech-kubernetes)',   tint: 'rgba(42,166,223,0.10)', icon: '/static/icons/operators.svg' },
+  };
+
+  // Global tech badge helper with product logo
+  window.techBadgeHTML = function(tech) {
+    var tc = TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
+    var iconHTML = tc.icon
+      ? '<img src="' + tc.icon + '" width="14" height="14" style="flex-shrink:0" alt="">'
+      : '';
+    return '<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;font-family:var(--font-mono);background:' + tc.tint + ';color:' + tc.color + ';white-space:nowrap">' +
+      iconHTML + tech + '</span>';
   };
 
   // Determine active page from URL

@@ -165,9 +165,11 @@ const URGENCY_COLORS = {
 
 function techBadgeHTML(tech) {
   var tc = TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
-  return '<span class="tech-badge" style="--_color:' + tc.color + '; --_tint:' + tc.tint + '">' +
-    '<svg viewBox="0 0 12 11" fill="none" class="tech-badge__tri"><path d="M6 1.2 11.2 9.8 H0.8 Z" stroke="' + tc.color + '" stroke-width="1.4" stroke-linejoin="round" fill="' + tc.color + '" fill-opacity="0.18"/></svg>' +
-    tech + '</span>';
+  var iconHTML = tc.icon
+    ? '<img src="' + tc.icon + '" width="14" height="14" style="flex-shrink:0" alt="">'
+    : '';
+  return '<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;font-family:var(--font-mono);background:' + tc.tint + ';color:' + tc.color + ';white-space:nowrap">' +
+    iconHTML + tech + '</span>';
 }
 
 async function loadData() {
