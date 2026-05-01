@@ -105,8 +105,7 @@ document.head.appendChild(s);})();
     <div class="input" style="width:158px">
       <select id="filter-urgency">
         <option value="">All urgency</option>
-        <option value="Deal Blocker">Deal Blocker</option>
-        <option value="Critical">Critical</option>
+        <option value="Churn Risk">Churn Risk</option>
         <option value="High">High</option>
         <option value="Medium">Medium</option>
         <option value="Low">Low</option>
@@ -132,14 +131,14 @@ document.head.appendChild(s);})();
       <table class="table">
         <thead>
           <tr>
-            <th>Signal</th>
+            <th onclick="setSort('title')" style="cursor:pointer">Signal <span class="sort-arrow" data-col="title"></span></th>
             <th style="width:150px">Product</th>
-            <th style="width:120px">Urgency</th>
-            <th style="width:200px">Customers</th>
-            <th style="width:130px">MRR impact</th>
-            <th style="width:130px">Demand</th>
-            <th style="width:130px">Sources</th>
-            <th style="width:110px">Last activity</th>
+            <th onclick="setSort('urgency')" style="width:120px;cursor:pointer">Urgency <span class="sort-arrow" data-col="urgency"></span></th>
+            <th onclick="setSort('customers')" style="width:140px;cursor:pointer">Customers <span class="sort-arrow" data-col="customers"></span></th>
+            <th onclick="setSort('mrr')" style="width:130px;cursor:pointer">MRR impact <span class="sort-arrow" data-col="mrr"></span></th>
+            <th onclick="setSort('score')" style="width:130px;cursor:pointer">Demand <span class="sort-arrow" data-col="score"></span></th>
+            <th onclick="setSort('evidence')" style="width:100px;cursor:pointer">Evidence <span class="sort-arrow" data-col="evidence"></span></th>
+            <th onclick="setSort('activity')" style="width:110px;cursor:pointer">Last activity <span class="sort-arrow" data-col="activity"></span></th>
           </tr>
         </thead>
         <tbody id="signals-body"></tbody>
@@ -156,12 +155,33 @@ let currentSort = 'mrr';
 let sortDir = 'desc';
 
 const URGENCY_COLORS = {
+  'Churn Risk': 'var(--red)',
   'Deal Blocker': 'var(--red)',
   'Critical': 'var(--red)',
   'High': 'var(--amber)',
   'Medium': 'var(--info)',
   'Low': 'var(--text-muted)',
 };
+
+function setSort(col) {
+  if (currentSort === col) {
+    sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    currentSort = col;
+    sortDir = col === 'title' ? 'asc' : 'desc';
+  }
+  // Update sort arrow indicators
+  document.querySelectorAll('.sort-arrow').forEach(function(el) {
+    var isActive = el.dataset.col === col;
+    el.textContent = isActive ? (sortDir === 'desc' ? ' ▼' : ' ▲') : '';
+    el.style.color = isActive ? 'var(--brand-purple)' : '';
+  });
+  // Also update the seg buttons
+  document.querySelectorAll('.seg__btn[data-sort]').forEach(function(btn) {
+    btn.setAttribute('data-active', btn.dataset.sort === col);
+  });
+  renderTable();
+}
 
 var PRODUCT_SHORT = {'Percona Server for MySQL':'MySQL','Percona Server for MongoDB':'MongoDB'};
 function techBadgeHTML(tech) {
@@ -228,7 +248,13 @@ function getSorted(list) {
     if (currentSort === 'mrr') return ((b.total_mrr || 0) - (a.total_mrr || 0)) * dir;
     if (currentSort === 'customers') return ((b.customer_count || 0) - (a.customer_count || 0)) * dir;
     if (currentSort === 'score') return ((b.demand_score || 0) - (a.demand_score || 0)) * dir;
+    if (currentSort === 'evidence') return ((b.evidence_count || 0) - (a.evidence_count || 0)) * dir;
     if (currentSort === 'activity') return ((b.last_activity || '') > (a.last_activity || '') ? 1 : -1) * dir;
+    if (currentSort === 'title') return (a.title || '').localeCompare(b.title || '') * dir;
+    if (currentSort === 'urgency') {
+      var order = {'Churn Risk':4,'High':3,'Medium':2,'Low':1};
+      return ((order[b.urgency]||0) - (order[a.urgency]||0)) * dir;
+    }
     return 0;
   });
 }
@@ -297,10 +323,8 @@ function renderTable() {
       '</div>' +
       '<span class="t-mono" style="font-size:12px">' + demandScore + '</span></div>';
 
-    // Sources
-    var sourcesCell = (s.sources || []).map(function(src) {
-      return '<span class="chip" style="font-size:10px;padding:2px 7px">' + esc(src) + '</span>';
-    }).join('');
+    // Evidence count
+    var evidenceCell = '<span class="t-mono" style="font-weight:600">' + (s.evidence_count || 0) + '</span>';
 
     return '<tr>' +
       '<td><div style="display:flex;flex-direction:column;gap:4px;max-width:480px">' +
@@ -311,7 +335,7 @@ function renderTable() {
       '<td>' + customersCell + '</td>' +
       '<td>' + mrrCell + '</td>' +
       '<td>' + demandCell + '</td>' +
-      '<td><div style="display:flex;gap:4px;flex-wrap:wrap">' + sourcesCell + '</div></td>' +
+      '<td>' + evidenceCell + '</td>' +
       '<td style="font-size:12px;color:var(--text-muted)">' + relativeDate(s.last_activity) + '</td>' +
     '</tr>';
   }).join('');
@@ -326,16 +350,7 @@ document.getElementById('search').addEventListener('input', renderTable);
 // Sort buttons
 document.querySelectorAll('.seg__btn[data-sort]').forEach(function(btn) {
   btn.addEventListener('click', function() {
-    var sort = btn.dataset.sort;
-    if (currentSort === sort) {
-      sortDir = sortDir === 'desc' ? 'asc' : 'desc';
-    } else {
-      currentSort = sort;
-      sortDir = 'desc';
-    }
-    document.querySelectorAll('.seg__btn[data-sort]').forEach(b => b.setAttribute('data-active', 'false'));
-    btn.setAttribute('data-active', 'true');
-    renderTable();
+    setSort(btn.dataset.sort);
   });
 });
 
