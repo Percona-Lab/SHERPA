@@ -45,9 +45,9 @@
   window.techBadgeHTML = function(tech) {
     var tc = TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
     var iconHTML = tc.icon
-      ? '<span style="display:inline-block;width:14px;height:14px;flex-shrink:0;background:url(' + tc.icon + ') center/contain no-repeat"></span>'
+      ? '<img src="' + tc.icon + '" width="14" height="14" style="display:block;flex-shrink:0">'
       : '';
-    return '<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;font-family:var(--font-mono);background:' + tc.tint + ';color:' + tc.color + ';white-space:nowrap">' +
+    return '<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;font-family:var(--font-mono);background:' + tc.tint + ';color:' + tc.color + ';white-space:nowrap;line-height:1">' +
       iconHTML + tech + '</span>';
   };
 
