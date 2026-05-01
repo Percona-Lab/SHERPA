@@ -177,13 +177,15 @@ const SENTIMENT_COLORS = {
   'Churn Signal': 'var(--red)',
 };
 
+var PRODUCT_SHORT = {'Percona Server for MySQL':'MySQL','Percona Server for MongoDB':'MongoDB'};
 function techBadgeHTML(tech) {
-  var tc = TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
+  var label = PRODUCT_SHORT[tech] || tech;
+  var tc = TECH_COLORS[label] || TECH_COLORS[tech] || { color: 'var(--brand-purple)', tint: 'rgba(110,63,243,0.10)' };
   var iconHTML = tc.icon
     ? '<img src="' + tc.icon + '" width="14" height="14" style="flex-shrink:0" alt="">'
     : '';
   return '<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;font-family:var(--font-mono);background:' + tc.tint + ';color:' + tc.color + ';white-space:nowrap">' +
-    iconHTML + tech + '</span>';
+    iconHTML + label + '</span>';
 }
 
 function sentimentHTML(value) {
