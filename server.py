@@ -190,6 +190,10 @@ def init_db():
             servicenow_kb_count INTEGER DEFAULT 0,
             evidence_score REAL DEFAULT 0,
             evidence_summary TEXT DEFAULT '',
+            evidence_items TEXT DEFAULT '{}',
+            search_footprint TEXT DEFAULT '{}',
+            frozen_at TEXT,
+            frozen_by TEXT DEFAULT '',
             last_swept_at TEXT,
             created_at REAL DEFAULT (unixepoch()),
             updated_at REAL DEFAULT (unixepoch())
@@ -202,6 +206,17 @@ def init_db():
         db.execute("ALTER TABLE votes ADD COLUMN customer_name TEXT DEFAULT ''")
     except sqlite3.OperationalError:
         pass  # already exists
+    # Migration: add cut/keep detail fields
+    for col, default in [
+        ("evidence_items", "'{}'"),
+        ("search_footprint", "'{}'"),
+        ("frozen_at", "NULL"),
+        ("frozen_by", "''"),
+    ]:
+        try:
+            db.execute(f"ALTER TABLE cut_keep_features ADD COLUMN {col} TEXT DEFAULT {default}")
+        except sqlite3.OperationalError:
+            pass
     db.close()
 
 
@@ -1146,14 +1161,20 @@ def sherpa_cut_keep_list():
             "servicenow_kb_count": r["servicenow_kb_count"],
             "evidence_score": r["evidence_score"],
             "evidence_summary": r["evidence_summary"],
+            "frozen_at": r["frozen_at"],
             "last_swept_at": r["last_swept_at"],
         })
     return jsonify({"count": len(features), "features": features}), 200
 
 
+@app.route("/cut-keep/<feature_id>")
+def cut_keep_detail_page(feature_id):
+    return send_from_directory("static", "cut-keep-detail.html")
+
+
 @app.route("/api/sherpa/cut-keep/<feature_id>")
 def sherpa_cut_keep_detail(feature_id):
-    """Get a single cut/keep feature."""
+    """Get a single cut/keep feature with full evidence detail."""
     db = get_db()
     r = db.execute("SELECT * FROM cut_keep_features WHERE id=?", (feature_id,)).fetchone()
     if not r:
@@ -1173,8 +1194,54 @@ def sherpa_cut_keep_detail(feature_id):
         "servicenow_kb_count": r["servicenow_kb_count"],
         "evidence_score": r["evidence_score"],
         "evidence_summary": r["evidence_summary"],
+        "evidence_items": json.loads(r["evidence_items"] or "{}"),
+        "search_footprint": json.loads(r["search_footprint"] or "{}"),
+        "frozen_at": r["frozen_at"],
+        "frozen_by": r["frozen_by"],
         "last_swept_at": r["last_swept_at"],
     }), 200
+
+
+@app.route("/api/sherpa/cut-keep/<feature_id>/freeze", methods=["POST"])
+def sherpa_cut_keep_freeze(feature_id):
+    """Freeze a feature's evidence state and mark for removal."""
+    voter = get_verified_voter()
+    if not voter:
+        return jsonify({"error": "auth_required"}), 401
+    body = request.get_json(silent=True) or {}
+    status = body.get("status", "Cut")
+    verdict = body.get("verdict", "")
+    if status not in ("Cut", "Keep", "Improve"):
+        return jsonify({"error": "status must be Cut, Keep, or Improve"}), 400
+    db = get_db()
+    existing = db.execute("SELECT id FROM cut_keep_features WHERE id=?", (feature_id,)).fetchone()
+    if not existing:
+        return jsonify({"error": "Feature not found"}), 404
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    db.execute("""
+        UPDATE cut_keep_features SET
+            status=?, verdict=?, frozen_at=?, frozen_by=?, updated_at=unixepoch()
+        WHERE id=?
+    """, (status, verdict, now, voter["display_name"] or voter["email"], feature_id))
+    db.commit()
+    return jsonify({"ok": True, "status": status, "frozen_at": now}), 200
+
+
+@app.route("/api/sherpa/cut-keep/<feature_id>/unfreeze", methods=["POST"])
+@require_admin
+def sherpa_cut_keep_unfreeze(feature_id):
+    """Unfreeze a feature to allow re-evaluation."""
+    db = get_db()
+    existing = db.execute("SELECT id FROM cut_keep_features WHERE id=?", (feature_id,)).fetchone()
+    if not existing:
+        return jsonify({"error": "Feature not found"}), 404
+    db.execute("""
+        UPDATE cut_keep_features SET
+            status='Unknown', frozen_at=NULL, frozen_by='', updated_at=unixepoch()
+        WHERE id=?
+    """, (feature_id,))
+    db.commit()
+    return jsonify({"ok": True}), 200
 
 
 @app.route("/api/sherpa/cut-keep", methods=["POST"])
@@ -1275,7 +1342,8 @@ def sherpa_cut_keep_update_status(feature_id):
     for field in ("status", "verdict", "evidence_score", "evidence_summary",
                   "telemetry_status", "telemetry_instances", "docs_pageviews_24m",
                   "jira_ticket_count", "clari_mention_count", "slack_mention_count",
-                  "servicenow_kb_count", "last_swept_at"):
+                  "servicenow_kb_count", "evidence_items", "search_footprint",
+                  "frozen_at", "frozen_by", "last_swept_at"):
         if field in body:
             updates.append(f"{field}=?")
             params.append(body[field])

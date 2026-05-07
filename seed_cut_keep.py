@@ -1,11 +1,12 @@
 """Seed the cut_keep_features table with v0 scope from the Evidence Sweep methodology doc."""
 
 import json
+import os
 import sqlite3
 import hashlib
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "portal.db"
+DB_PATH = Path(os.environ.get("SHERPA_DATA_DIR", str(Path(__file__).parent))) / "portal.db"
 
 V0_FEATURES = [
     {

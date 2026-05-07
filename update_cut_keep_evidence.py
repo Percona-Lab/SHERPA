@@ -2,11 +2,12 @@
 
 import json
 import math
+import os
 import sqlite3
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
-DB_PATH = Path(__file__).parent / "portal.db"
+DB_PATH = Path(os.environ.get("SHERPA_DATA_DIR", str(Path(__file__).parent))) / "portal.db"
 
 EVIDENCE = {
     "LOCK TABLES FOR BACKUP": {
@@ -96,6 +97,198 @@ EVIDENCE = {
     },
 }
 
+SEARCH_FOOTPRINT = {
+    "LOCK TABLES FOR BACKUP": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects (all issues)", "date_range": "May 2024 – May 2026 (24 months)", "query_terms": ["backup locks", "LOCK TABLES FOR BACKUP", "LOCK BINLOG FOR BACKUP", "have_backup_locks"]},
+        "clari": {"corpus": "461 MySQL-tagged Clari Copilot calls (~18 transcripts sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["backup locks", "LOCK TABLES FOR BACKUP"]},
+        "posthog": {"corpus": "docs.percona.com pageview events (PostHog EU)", "date_range": "May 2024 – May 2026 (24 months)", "query_terms": ["backup-locks.html"]},
+        "telemetry": {"corpus": "Percona install telemetry (vista-data)", "date_range": "24 months", "query_terms": ["have_backup_locks"]},
+        "slack": {"corpus": "Not yet searched", "date_range": "N/A", "query_terms": []},
+    },
+    "Slow query log rotation and expiration": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["slow log rotation", "slowlog rotation", "max_slowlog_size", "max_slowlog_files"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["slow log rotation", "slowlog"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["slowlog-rotation.html"]},
+    },
+    "PXB estimate memory": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["estimate memory", "xtrabackup memory", "--estimate-memory"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["estimate memory", "xtrabackup memory"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["estimate-memory.html", "xtrabackup-option-reference.html#estimate-memory"]},
+    },
+    "Utility user": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["utility user", "utility_user", "utility_user_password"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["utility user"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["utility-user.html"]},
+    },
+    "JS stored procedure": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["JavaScript stored", "JS stored", "JS language plugin", "component_percona_language_service"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["JavaScript stored procedure", "JS stored"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "Jan 2025 – May 2026 (page created Jan 2025)", "query_terms": ["js-lang-overview.html"]},
+    },
+    "Adaptive network buffers": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["adaptive network buffers", "net_buffer_length_dynamic"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["adaptive network buffers", "network buffer"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["adaptive-network-buffers.html"]},
+    },
+    "Extended SELECT INTO OUTFILE/DUMPFILE": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["SELECT INTO OUTFILE", "extended OUTFILE", "INTO OUTFILE COMPRESSION"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["SELECT INTO OUTFILE", "OUTFILE compression"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["extended-select-into-outfile.html"]},
+    },
+    "LDAP Plugin": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["LDAP plugin", "LDAP authentication"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["LDAP"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["ldap-authentication.html"]},
+    },
+    "MeCAB Plugin": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["MeCAB", "mecab plugin", "mecab phrase"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["MeCAB"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["mecab"]},
+    },
+    "Audit Log Plugin (Old)": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["audit log plugin", "audit_log", "audit log filter"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["audit log"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["audit-log-plugin.html (8.0)", "audit_log_plugin.html (5.7)"]},
+    },
+    "Keyring plugins/components": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["keyring plugin", "keyring component", "keyring_file", "keyring_vault", "KMIP"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["keyring", "KMIP"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["using-keyring-plugin.html"]},
+    },
+    "GCache and WS Encryption": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["gcache", "wsrep encryption", "WS encryption"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["gcache", "wsrep encryption"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["gcache"]},
+    },
+    "MyRocks": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["MyRocks", "RocksDB"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["MyRocks", "RocksDB"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["install-myrocks.html", "myrocks-index.html"]},
+    },
+    "NBO (non-blocking DDLs)": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["non-blocking DDL", "NBO", "non-blocking operations"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["non-blocking DDL", "NBO"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["nbo"]},
+    },
+    "PXC Scheduler Handler": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["scheduler handler", "pxc_scheduler_handler"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["scheduler handler"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["pxc-scheduler"]},
+    },
+    "ProxySQL Admin Scripts": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["proxysql admin", "proxysql-admin"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["proxysql admin"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["proxysql/index.html"]},
+    },
+    "Reduced Lock": {
+        "jira": {"corpus": "PS, MYR, K8SPS, DISTMYSQL projects", "date_range": "May 2024 – May 2026", "query_terms": ["reduced lock", "LOCK TABLES backup reduced"]},
+        "clari": {"corpus": "461 MySQL-tagged calls (~18 sampled)", "date_range": "Sep 2025 – May 2026", "query_terms": ["reduced lock"]},
+        "posthog": {"corpus": "docs.percona.com pageviews", "date_range": "May 2024 – May 2026", "query_terms": ["reduced-lock"]},
+    },
+}
+
+EVIDENCE_ITEMS = {
+    "LOCK TABLES FOR BACKUP": {
+        "jira": [
+            {"id": "PS-9668", "url": "https://perconadev.atlassian.net/browse/PS-9668", "desc": "Crash with audit + LTFB"},
+            {"id": "PS-9699", "url": "https://perconadev.atlassian.net/browse/PS-9699", "desc": "Code refresh"},
+            {"id": "PS-9559", "url": "https://perconadev.atlassian.net/browse/PS-9559", "desc": "Page tracking"},
+        ],
+        "posthog": [{"id": "backup-locks.html", "desc": "2,234 pageviews (~93/mo avg)"}],
+    },
+    "Slow query log rotation and expiration": {
+        "jira": [
+            {"id": "PS-10128", "url": "https://perconadev.atlassian.net/browse/PS-10128", "desc": "Slow log rotation crash bug"},
+            {"id": "PS-9349", "url": "https://perconadev.atlassian.net/browse/PS-9349", "desc": "max_slowlog_size doc improvement"},
+            {"id": "PS-9348", "url": "https://perconadev.atlassian.net/browse/PS-9348", "desc": "Doc improvement"},
+            {"id": "PS-9347", "url": "https://perconadev.atlassian.net/browse/PS-9347", "desc": "Doc improvement"},
+        ],
+        "posthog": [{"id": "slowlog-rotation.html", "desc": "1,263 pageviews (~53/mo avg)"}],
+    },
+    "JS stored procedure": {
+        "jira": [
+            {"id": "PS-10160", "url": "https://perconadev.atlassian.net/browse/PS-10160", "desc": "Epic: JS Stored Routines GA"},
+            {"id": "PS-10113", "url": "https://perconadev.atlassian.net/browse/PS-10113", "desc": "Crash bug"},
+            {"id": "PS-10417", "url": "https://perconadev.atlassian.net/browse/PS-10417", "desc": "Memory crash"},
+            {"id": "PS-9672", "url": "https://perconadev.atlassian.net/browse/PS-9672", "desc": "Signal 11"},
+            {"id": "PS-10427", "url": "https://perconadev.atlassian.net/browse/PS-10427", "desc": "Docs"},
+            {"id": "PS-9825", "url": "https://perconadev.atlassian.net/browse/PS-9825", "desc": "Telemetry"},
+            {"id": "PS-9826", "url": "https://perconadev.atlassian.net/browse/PS-9826", "desc": "Telemetry"},
+            {"id": "MYR-300", "url": "https://perconadev.atlassian.net/browse/MYR-300", "desc": "Idea"},
+        ],
+        "clari": [{"id": "Coupa call", "desc": "Customer requested JS stored procedures (transcribed as 'Gs start procedures')"}],
+        "posthog": [{"id": "js-lang-overview.html", "desc": "202 pageviews since Jan 2025, trending up (39 in Apr 2026)"}],
+    },
+    "LDAP Plugin": {
+        "jira": [
+            {"id": "PS-9704", "url": "https://perconadev.atlassian.net/browse/PS-9704", "desc": "LDAP plugin double quotes bug"},
+            {"id": "PS-9629", "url": "https://perconadev.atlassian.net/browse/PS-9629", "desc": "LDAP docs review"},
+            {"id": "PS-9678", "url": "https://perconadev.atlassian.net/browse/PS-9678", "desc": "Okta auth extension"},
+        ],
+        "clari": [{"id": "Spinnaker call", "desc": "LDAP mentioned in enterprise authentication requirements"}],
+        "posthog": [{"id": "ldap-authentication.html", "desc": "2,027 pageviews (~84/mo avg)"}],
+    },
+    "MeCAB Plugin": {
+        "jira": [
+            {"id": "PS-10385", "url": "https://perconadev.atlassian.net/browse/PS-10385", "desc": "Mecab phrase search PR"},
+            {"id": "PS-10383", "url": "https://perconadev.atlassian.net/browse/PS-10383", "desc": "Mecab phrase adjacency bug"},
+            {"id": "PS-10378", "url": "https://perconadev.atlassian.net/browse/PS-10378", "desc": "Mecab boolean mode optimization bug"},
+        ],
+    },
+    "Audit Log Plugin (Old)": {
+        "jira": [
+            {"id": "PS-9369", "url": "https://perconadev.atlassian.net/browse/PS-9369", "desc": "Memory leak"},
+            {"id": "PS-9668", "url": "https://perconadev.atlassian.net/browse/PS-9668", "desc": "Crash with LTFB"},
+            {"id": "PS-10129", "url": "https://perconadev.atlassian.net/browse/PS-10129", "desc": "Crash with validate_password"},
+            {"id": "PS-10873", "url": "https://perconadev.atlassian.net/browse/PS-10873", "desc": "Charset test failure"},
+            {"title": "+ 82 more", "desc": "Filter improvements, JSONL format, regex filters, docs"},
+        ],
+        "clari": [
+            {"id": "Coupa call", "desc": "Detailed discussion of audit log plugin deprecation and workarounds for 8.4"},
+            {"id": "Arista Networks call", "desc": "Audit log mentioned in onboarding"},
+            {"id": "Choice Home call", "desc": "Audit log exclusion settings ticket"},
+        ],
+        "posthog": [{"id": "audit-log-plugin.html", "desc": "12,913 pageviews (~538/mo avg across 8.0 + 5.7 pages)"}],
+    },
+    "Keyring plugins/components": {
+        "jira": [
+            {"id": "PS-9673", "url": "https://perconadev.atlassian.net/browse/PS-9673", "desc": "KMIP crash"},
+            {"id": "PS-10080", "url": "https://perconadev.atlassian.net/browse/PS-10080", "desc": "KMIP backup tests"},
+            {"id": "DISTMYSQL-510", "url": "https://perconadev.atlassian.net/browse/DISTMYSQL-510", "desc": "Vault backup error"},
+            {"title": "+ 30 more", "desc": "Encryption work, KMIP, vault, component migration"},
+        ],
+        "clari": [{"id": "UHG/Optum call", "desc": "Extensive KMIP discussion — MySQL KMIP working, requesting KMIP for Postgres"}],
+        "posthog": [{"id": "using-keyring-plugin.html", "desc": "1,808 pageviews (~75/mo avg)"}],
+    },
+    "MyRocks": {
+        "jira": [
+            {"id": "PS-9846", "url": "https://perconadev.atlassian.net/browse/PS-9846", "desc": "Signal 11 crash"},
+            {"id": "PS-9842", "url": "https://perconadev.atlassian.net/browse/PS-9842", "desc": "Assertion failure"},
+            {"id": "PS-10596", "url": "https://perconadev.atlassian.net/browse/PS-10596", "desc": "Docs part 3"},
+            {"id": "PS-10098", "url": "https://perconadev.atlassian.net/browse/PS-10098", "desc": "Gap lock detection"},
+            {"id": "PS-9664", "url": "https://perconadev.atlassian.net/browse/PS-9664", "desc": "Memory instrumentation"},
+            {"title": "+ 58 more", "desc": "Bugs, improvements, RocksDB tag merges"},
+        ],
+        "posthog": [{"id": "myrocks pages", "desc": "2,129 pageviews across install-myrocks.html + myrocks-index.html"}],
+    },
+    "NBO (non-blocking DDLs)": {
+        "jira": [
+            {"title": "~2 tangential", "desc": "No issues directly about NBO; matches on 'non-blocking' in lock/DDL contexts"},
+        ],
+    },
+    "PXC Scheduler Handler": {
+        "jira": [
+            {"id": "DISTMYSQL-476", "url": "https://perconadev.atlassian.net/browse/DISTMYSQL-476", "desc": "pxc_scheduler_handler DoS vulnerability in logrus dependency"},
+        ],
+    },
+    "Reduced Lock": {
+        "clari": [{"id": "Coupa call", "desc": "Summary references 'Txp reduced log times' — likely transcription of 'reduced lock times'"}],
+    },
+    "ProxySQL Admin Scripts": {
+        "posthog": [{"id": "proxysql pages", "desc": "3,357 pageviews across ProxySQL doc pages (not specific to admin scripts)"}],
+    },
+}
+
 EVIDENCE_SUMMARIES = {
     "LOCK TABLES FOR BACKUP": "Strong docs signal (2,234 views, ~93/mo). 3 Jira tickets (crash bug, code refresh). No Clari mentions. Backup-adjacent feature with sustained docs interest.",
     "Slow query log rotation and expiration": "Moderate docs traffic (1,263 views, ~53/mo). 4 Jira tickets including a crash bug (PS-10128) and doc improvements. Actively maintained.",
@@ -152,11 +345,13 @@ def compute_evidence_score(data):
 def update():
     db = sqlite3.connect(str(DB_PATH))
     db.row_factory = sqlite3.Row
-    now = datetime.utcnow().isoformat() + "Z"
+    now = datetime.now(timezone.utc).isoformat()
 
     for name, data in EVIDENCE.items():
         score = compute_evidence_score(data)
         summary = EVIDENCE_SUMMARIES.get(name, "")
+        footprint = SEARCH_FOOTPRINT.get(name, {})
+        items = EVIDENCE_ITEMS.get(name, {})
 
         db.execute("""
             UPDATE cut_keep_features SET
@@ -165,6 +360,8 @@ def update():
                 docs_pageviews_24m = ?,
                 evidence_score = ?,
                 evidence_summary = ?,
+                evidence_items = ?,
+                search_footprint = ?,
                 last_swept_at = ?,
                 updated_at = unixepoch()
             WHERE name = ?
@@ -174,6 +371,8 @@ def update():
             data.get("docs_pageviews_24m"),
             score,
             summary,
+            json.dumps(items),
+            json.dumps(footprint),
             now,
             name,
         ))

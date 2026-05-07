@@ -370,9 +370,11 @@ function renderTable() {
   tbody.innerHTML = filtered.map(function(f) {
     var statusCls = STATUS_CLASSES[f.status] || 'verdict--unknown';
 
-    // Feature name with doc link and aliases
+    // Feature name with detail link and aliases
     var nameCell = '<div style="display:flex;flex-direction:column;gap:3px">' +
-      '<div style="font-weight:600;color:var(--text-primary)">' + esc(f.name) + '</div>';
+      '<a href="/cut-keep/' + esc(f.id) + '" style="font-weight:600;color:var(--text-primary);text-decoration:none">' + esc(f.name) +
+      (f.frozen_at ? ' <span style="font-size:10px;opacity:0.5" title="Evidence frozen">&#x1f9ca;</span>' : '') +
+      '</a>';
     if (f.doc_url) {
       nameCell += '<a href="' + esc(f.doc_url) + '" target="_blank" class="doc-link">docs &rarr;</a>';
     }
