@@ -56,6 +56,7 @@
   var activePage = (path === '/' || path === '/portal') ? 'portal'
     : path.startsWith('/signals') ? 'signals'
     : path.startsWith('/evidence') ? 'evidence'
+    : path.startsWith('/cut-keep') ? 'cut-keep'
     : path.startsWith('/admin') ? 'admin' : '';
 
   // Nav items
@@ -66,6 +67,8 @@
       icon: '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v3M8 11v3M2 8h3M11 8h3M3.8 3.8l2.1 2.1M10.1 10.1l2.1 2.1M3.8 12.2l2.1-2.1M10.1 5.9l2.1-2.1"/></svg>' },
     { id: 'evidence', label: 'Evidence', href: '/evidence',
       icon: '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2h6l4 4v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z"/><path d="M9 2v4h4"/><path d="M5 9h6M5 12h4"/></svg>' },
+    { id: 'cut-keep', label: 'Cut/Keep', href: '/cut-keep',
+      icon: '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3H3v4h3V3ZM13 3h-3v4h3V3ZM6 9H3v4h3V9Z"/><path d="M10 11h3M10 13h3"/></svg>' },
   ];
 
   // Build nav pills

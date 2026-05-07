@@ -168,6 +168,34 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_votes_feature ON votes(feature_id);
         CREATE INDEX IF NOT EXISTS idx_comments_feature ON comments(feature_id);
         CREATE INDEX IF NOT EXISTS idx_voters_email ON voters(email);
+
+        -- Cut/Keep Evidence Sweep
+        CREATE TABLE IF NOT EXISTS cut_keep_features (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            area TEXT DEFAULT 'PS',
+            tech TEXT DEFAULT 'MySQL',
+            status TEXT DEFAULT 'Unknown',
+            verdict TEXT DEFAULT '',
+            doc_url TEXT DEFAULT '',
+            aliases TEXT DEFAULT '[]',
+            variables TEXT DEFAULT '[]',
+            negative_terms TEXT DEFAULT '[]',
+            telemetry_status TEXT DEFAULT 'Unknown',
+            telemetry_instances INTEGER,
+            docs_pageviews_24m INTEGER,
+            jira_ticket_count INTEGER DEFAULT 0,
+            clari_mention_count INTEGER DEFAULT 0,
+            slack_mention_count INTEGER DEFAULT 0,
+            servicenow_kb_count INTEGER DEFAULT 0,
+            evidence_score REAL DEFAULT 0,
+            evidence_summary TEXT DEFAULT '',
+            last_swept_at TEXT,
+            created_at REAL DEFAULT (unixepoch()),
+            updated_at REAL DEFAULT (unixepoch())
+        );
+        CREATE INDEX IF NOT EXISTS idx_cut_keep_tech ON cut_keep_features(tech);
+        CREATE INDEX IF NOT EXISTS idx_cut_keep_status ON cut_keep_features(status);
     """)
     # Migration: add customer_name if missing (for existing DBs)
     try:
@@ -1080,6 +1108,184 @@ def sherpa_clari_status():
         }), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ─── Routes: Cut/Keep Evidence Sweep ───
+@app.route("/cut-keep")
+def cut_keep_page():
+    return send_from_directory("static", "cut-keep.html")
+
+
+@app.route("/api/sherpa/cut-keep")
+def sherpa_cut_keep_list():
+    """List all cut/keep features."""
+    db = get_db()
+    tech = request.args.get("tech", "")
+    if tech:
+        rows = db.execute(
+            "SELECT * FROM cut_keep_features WHERE tech=? ORDER BY evidence_score DESC", (tech,)
+        ).fetchall()
+    else:
+        rows = db.execute(
+            "SELECT * FROM cut_keep_features ORDER BY evidence_score DESC"
+        ).fetchall()
+    features = []
+    for r in rows:
+        features.append({
+            "id": r["id"], "name": r["name"], "area": r["area"], "tech": r["tech"],
+            "status": r["status"], "verdict": r["verdict"], "doc_url": r["doc_url"],
+            "aliases": json.loads(r["aliases"] or "[]"),
+            "variables": json.loads(r["variables"] or "[]"),
+            "negative_terms": json.loads(r["negative_terms"] or "[]"),
+            "telemetry_status": r["telemetry_status"],
+            "telemetry_instances": r["telemetry_instances"],
+            "docs_pageviews_24m": r["docs_pageviews_24m"],
+            "jira_ticket_count": r["jira_ticket_count"],
+            "clari_mention_count": r["clari_mention_count"],
+            "slack_mention_count": r["slack_mention_count"],
+            "servicenow_kb_count": r["servicenow_kb_count"],
+            "evidence_score": r["evidence_score"],
+            "evidence_summary": r["evidence_summary"],
+            "last_swept_at": r["last_swept_at"],
+        })
+    return jsonify({"count": len(features), "features": features}), 200
+
+
+@app.route("/api/sherpa/cut-keep/<feature_id>")
+def sherpa_cut_keep_detail(feature_id):
+    """Get a single cut/keep feature."""
+    db = get_db()
+    r = db.execute("SELECT * FROM cut_keep_features WHERE id=?", (feature_id,)).fetchone()
+    if not r:
+        return jsonify({"error": "Feature not found"}), 404
+    return jsonify({
+        "id": r["id"], "name": r["name"], "area": r["area"], "tech": r["tech"],
+        "status": r["status"], "verdict": r["verdict"], "doc_url": r["doc_url"],
+        "aliases": json.loads(r["aliases"] or "[]"),
+        "variables": json.loads(r["variables"] or "[]"),
+        "negative_terms": json.loads(r["negative_terms"] or "[]"),
+        "telemetry_status": r["telemetry_status"],
+        "telemetry_instances": r["telemetry_instances"],
+        "docs_pageviews_24m": r["docs_pageviews_24m"],
+        "jira_ticket_count": r["jira_ticket_count"],
+        "clari_mention_count": r["clari_mention_count"],
+        "slack_mention_count": r["slack_mention_count"],
+        "servicenow_kb_count": r["servicenow_kb_count"],
+        "evidence_score": r["evidence_score"],
+        "evidence_summary": r["evidence_summary"],
+        "last_swept_at": r["last_swept_at"],
+    }), 200
+
+
+@app.route("/api/sherpa/cut-keep", methods=["POST"])
+@require_admin
+def sherpa_cut_keep_create():
+    """Create or update a cut/keep feature."""
+    body = request.get_json(silent=True) or {}
+    fid = body.get("id", "")
+    if not fid or not body.get("name"):
+        return jsonify({"error": "id and name required"}), 400
+    db = get_db()
+    db.execute("""
+        INSERT INTO cut_keep_features
+        (id, name, area, tech, status, verdict, doc_url, aliases, variables,
+         negative_terms, telemetry_status, telemetry_instances, docs_pageviews_24m,
+         jira_ticket_count, clari_mention_count, slack_mention_count,
+         servicenow_kb_count, evidence_score, evidence_summary, last_swept_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(id) DO UPDATE SET
+            name=excluded.name, area=excluded.area, tech=excluded.tech,
+            status=excluded.status, verdict=excluded.verdict, doc_url=excluded.doc_url,
+            aliases=excluded.aliases, variables=excluded.variables,
+            negative_terms=excluded.negative_terms,
+            telemetry_status=excluded.telemetry_status,
+            telemetry_instances=excluded.telemetry_instances,
+            docs_pageviews_24m=excluded.docs_pageviews_24m,
+            jira_ticket_count=excluded.jira_ticket_count,
+            clari_mention_count=excluded.clari_mention_count,
+            slack_mention_count=excluded.slack_mention_count,
+            servicenow_kb_count=excluded.servicenow_kb_count,
+            evidence_score=excluded.evidence_score,
+            evidence_summary=excluded.evidence_summary,
+            last_swept_at=excluded.last_swept_at,
+            updated_at=unixepoch()
+    """, (
+        fid, body.get("name", ""), body.get("area", "PS"), body.get("tech", "MySQL"),
+        body.get("status", "Unknown"), body.get("verdict", ""), body.get("doc_url", ""),
+        json.dumps(body.get("aliases", [])), json.dumps(body.get("variables", [])),
+        json.dumps(body.get("negative_terms", [])),
+        body.get("telemetry_status", "Unknown"), body.get("telemetry_instances"),
+        body.get("docs_pageviews_24m"), body.get("jira_ticket_count", 0),
+        body.get("clari_mention_count", 0), body.get("slack_mention_count", 0),
+        body.get("servicenow_kb_count", 0), body.get("evidence_score", 0),
+        body.get("evidence_summary", ""), body.get("last_swept_at"),
+    ))
+    db.commit()
+    return jsonify({"ok": True, "id": fid}), 200
+
+
+@app.route("/api/sherpa/cut-keep/bulk", methods=["POST"])
+@require_admin
+def sherpa_cut_keep_bulk():
+    """Bulk-insert cut/keep features."""
+    body = request.get_json(silent=True) or {}
+    records = body.get("features", [])
+    if not records:
+        return jsonify({"error": "No features provided"}), 400
+    db = get_db()
+    created = 0
+    for rec in records:
+        fid = rec.get("id", "")
+        if not fid:
+            import hashlib
+            fid = "ck-" + hashlib.sha256(rec.get("name", "").encode()).hexdigest()[:12]
+            rec["id"] = fid
+        try:
+            db.execute("""
+                INSERT OR IGNORE INTO cut_keep_features
+                (id, name, area, tech, status, doc_url, aliases, variables,
+                 negative_terms, telemetry_status)
+                VALUES (?,?,?,?,?,?,?,?,?,?)
+            """, (
+                fid, rec.get("name", ""), rec.get("area", "PS"),
+                rec.get("tech", "MySQL"), rec.get("status", "Unknown"),
+                rec.get("doc_url", ""), json.dumps(rec.get("aliases", [])),
+                json.dumps(rec.get("variables", [])),
+                json.dumps(rec.get("negative_terms", [])),
+                rec.get("telemetry_status", "Unknown"),
+            ))
+            created += 1
+        except Exception as e:
+            app.logger.warning(f"Cut/keep insert failed: {e}")
+    db.commit()
+    return jsonify({"created": created, "total": len(records)}), 200
+
+
+@app.route("/api/sherpa/cut-keep/<feature_id>/status", methods=["PATCH"])
+@require_admin
+def sherpa_cut_keep_update_status(feature_id):
+    """Update status/verdict for a cut/keep feature."""
+    body = request.get_json(silent=True) or {}
+    db = get_db()
+    existing = db.execute("SELECT id FROM cut_keep_features WHERE id=?", (feature_id,)).fetchone()
+    if not existing:
+        return jsonify({"error": "Feature not found"}), 404
+    updates = []
+    params = []
+    for field in ("status", "verdict", "evidence_score", "evidence_summary",
+                  "telemetry_status", "telemetry_instances", "docs_pageviews_24m",
+                  "jira_ticket_count", "clari_mention_count", "slack_mention_count",
+                  "servicenow_kb_count", "last_swept_at"):
+        if field in body:
+            updates.append(f"{field}=?")
+            params.append(body[field])
+    if not updates:
+        return jsonify({"error": "No fields to update"}), 400
+    updates.append("updated_at=unixepoch()")
+    params.append(feature_id)
+    db.execute(f"UPDATE cut_keep_features SET {', '.join(updates)} WHERE id=?", params)
+    db.commit()
+    return jsonify({"ok": True}), 200
 
 
 @app.route("/api/sherpa/notion-status")
