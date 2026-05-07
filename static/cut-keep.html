@@ -338,9 +338,6 @@ function renderTable() {
       '<a href="/cut-keep/' + esc(f.id) + '" style="font-weight:600;color:var(--text-primary);text-decoration:none">' + esc(f.name) +
       (f.frozen_at ? ' <span style="font-size:10px;opacity:0.5" title="Evidence frozen">&#x1f9ca;</span>' : '') +
       '</a>';
-    if (f.doc_url) {
-      nameCell += '<a href="' + esc(f.doc_url) + '" target="_blank" class="doc-link">docs &rarr;</a>';
-    }
     if (f.aliases && f.aliases.length > 0) {
       nameCell += '<div>' + f.aliases.map(function(a) { return '<span class="alias-chip">' + esc(a) + '</span>'; }).join('') + '</div>';
     }
