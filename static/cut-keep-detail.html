@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cut/Keep Detail — SHERPA</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg"><link rel="icon" type="image/png" href="/static/favicon.png">
+<link rel="preload" as="image" href="/static/logo-small.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/tokens.css">
+<link rel="stylesheet" href="/static/components.css">
+<link rel="stylesheet" href="/static/header.css">
+<style>
+.content { max-width: 1100px; margin: 0 auto; padding: 32px; }
+.back-link { font-size: 13px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; text-decoration: none; }
+.back-link:hover { color: var(--text-secondary); }
+
+/* Feature header */
+.feat-header { margin-bottom: 28px; }
+.feat-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 10px; }
+.feat-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 100px; white-space: nowrap;
+}
+.badge-area { background: var(--bg-muted); color: var(--text-secondary); font-family: var(--font-mono); }
+.badge-status { font-size: 12px; font-weight: 700; }
+.badge-status[data-s="Keep"] { background: rgba(34,197,94,0.12); color: var(--green); }
+.badge-status[data-s="Cut"] { background: rgba(239,68,68,0.12); color: var(--red); }
+.badge-status[data-s="Improve"] { background: rgba(59,130,246,0.12); color: var(--info); }
+.badge-status[data-s="Unknown"] { background: var(--bg-muted); color: var(--text-muted); }
+.feat-summary { font-size: 15px; color: var(--text-secondary); line-height: 1.6; max-width: 800px; margin-bottom: 4px; }
+
+/* Frozen banner */
+.frozen-banner {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08));
+  border: 1px solid rgba(59,130,246,0.25);
+  border-radius: 10px; padding: 14px 20px; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 12px; font-size: 13px;
+}
+.frozen-banner__icon { font-size: 20px; }
+.frozen-banner strong { color: var(--text-primary); }
+
+/* Score ring */
+.score-section { margin-bottom: 28px; }
+.score-ring {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 80px; height: 80px; border-radius: 50%;
+  font-size: 28px; font-weight: 800; font-family: var(--font-mono);
+  position: relative;
+}
+.score-ring::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  border: 5px solid var(--bg-muted);
+}
+.score-ring::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  border: 5px solid transparent;
+}
+.score-ring--high { color: var(--green); }
+.score-ring--high::after { border-top-color: var(--green); border-right-color: var(--green); border-bottom-color: var(--green); }
+.score-ring--medium { color: var(--amber); }
+.score-ring--medium::after { border-top-color: var(--amber); border-right-color: var(--amber); }
+.score-ring--low { color: var(--red); }
+.score-ring--low::after { border-top-color: var(--red); }
+
+/* Evidence kit */
+.kit-section {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px; margin-bottom: 24px;
+}
+.kit-section h3 {
+  font-size: 14px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 14px;
+}
+.kit-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.kit-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); min-width: 110px; padding-top: 3px; }
+.kit-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.kit-chip {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-family: var(--font-mono); background: var(--bg-muted);
+  color: var(--text-secondary);
+}
+.kit-chip--neg { background: rgba(239,68,68,0.08); color: var(--red); }
+.kit-empty { font-size: 12px; color: var(--text-muted); font-style: italic; }
+
+/* Source cards grid */
+.sources-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px; margin-bottom: 28px;
+}
+.source-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px; position: relative;
+}
+.source-card--found { border-left: 3px solid var(--green); }
+.source-card--empty { border-left: 3px solid var(--red); }
+.source-card--pending { border-left: 3px solid var(--text-muted); opacity: 0.6; }
+.source-card__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.source-card__title { font-size: 14px; font-weight: 700; }
+.source-card__count {
+  font-size: 22px; font-weight: 800; font-family: var(--font-mono);
+}
+.source-card__count--found { color: var(--green); }
+.source-card__count--zero { color: var(--red); }
+.source-card__meta { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+.source-card__meta strong { color: var(--text-secondary); }
+.source-card__items { margin-top: 12px; }
+.source-item {
+  display: flex; align-items: baseline; gap: 8px; padding: 5px 0;
+  border-top: 1px solid var(--border); font-size: 12px;
+}
+.source-item:first-child { border-top: none; }
+.source-item__link { color: var(--brand-purple); text-decoration: none; font-weight: 500; }
+.source-item__link:hover { text-decoration: underline; }
+.source-item__desc { color: var(--text-secondary); }
+
+/* Negative evidence callout */
+.neg-evidence {
+  background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.15);
+  border-radius: 8px; padding: 10px 14px; margin-top: 10px; font-size: 12px;
+  color: var(--text-secondary); line-height: 1.5;
+}
+.neg-evidence strong { color: var(--red); }
+
+/* Verdict section */
+.verdict-section {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 24px; margin-bottom: 24px;
+}
+.verdict-section h3 {
+  font-size: 14px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 14px;
+}
+.verdict-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.verdict-btn {
+  padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  background: var(--bg-card); color: var(--text-primary);
+  transition: all 0.15s;
+}
+.verdict-btn:hover { border-color: var(--brand-purple); }
+.verdict-btn--cut { border-color: var(--red); color: var(--red); }
+.verdict-btn--cut:hover { background: rgba(239,68,68,0.08); }
+.verdict-btn--keep { border-color: var(--green); color: var(--green); }
+.verdict-btn--keep:hover { background: rgba(34,197,94,0.08); }
+.verdict-btn--improve { border-color: var(--info); color: var(--info); }
+.verdict-btn--improve:hover { background: rgba(59,130,246,0.08); }
+.verdict-textarea {
+  width: 100%; min-height: 70px; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg-primary);
+  color: var(--text-primary); font-size: 13px; font-family: var(--font-body);
+  resize: vertical; margin-top: 10px;
+}
+.verdict-textarea:focus { outline: none; border-color: var(--brand-purple); }
+.verdict-msg {
+  margin-top: 10px; font-size: 13px; padding: 8px 12px; border-radius: 6px;
+}
+.verdict-msg--ok { background: rgba(34,197,94,0.08); color: var(--green); }
+.verdict-msg--err { background: rgba(239,68,68,0.08); color: var(--red); }
+
+/* Loading */
+.loading {
+  text-align: center; padding: 80px 32px;
+  color: var(--text-muted); font-size: 15px;
+}
+.loading .spinner {
+  width: 32px; height: 32px; border: 3px solid var(--border);
+  border-top-color: var(--brand-purple); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script>
+(function(){var s=document.createElement('script');s.src='/rybbit/script.js';s.defer=true;
+s.dataset.siteId=location.hostname.includes('staging')?'a0aeed07d55a':'7ecde10714bd';
+document.head.appendChild(s);})();
+</script>
+</head>
+<body>
+<script src="/static/header.js"></script>
+
+<main class="content" id="main">
+  <a href="/cut-keep" class="back-link">
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m10 3-5 5 5 5"/></svg>
+    Back to Cut/Keep
+  </a>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Loading feature detail...
+  </div>
+</main>
+
+<script>
+var featureId = window.location.pathname.split('/').pop();
+var feature = null;
+
+function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+async function loadFeature() {
+  try {
+    var resp = await fetch('/api/sherpa/cut-keep/' + featureId);
+    if (!resp.ok) throw new Error('Not found');
+    feature = await resp.json();
+    render();
+  } catch (e) {
+    document.getElementById('loading').innerHTML = '<p style="color:var(--red)">Feature not found.</p>';
+  }
+}
+
+function render() {
+  var f = feature;
+  document.title = f.name + ' — Cut/Keep — SHERPA';
+  document.getElementById('loading').style.display = 'none';
+
+  var isFrozen = !!f.frozen_at;
+  var fp = f.search_footprint || {};
+  var items = f.evidence_items || {};
+
+  var html = '';
+
+  // Frozen banner
+  if (isFrozen) {
+    html += '<div class="frozen-banner">' +
+      '<span class="frozen-banner__icon">&#x1f9ca;</span>' +
+      '<div><strong>Evidence frozen</strong> — Verdict locked by ' + esc(f.frozen_by) +
+      ' on ' + esc(f.frozen_at.split('T')[0]) +
+      '. Status: <strong>' + esc(f.status) + '</strong>.' +
+      (f.verdict ? ' Reason: ' + esc(f.verdict) : '') +
+      '</div></div>';
+  }
+
+  // Header
+  html += '<div class="feat-header">' +
+    '<h1 class="feat-title">' + esc(f.name) + '</h1>' +
+    '<div class="feat-meta">' +
+      '<span class="badge badge-area">' + esc(f.area) + '</span>' +
+      '<span class="badge badge-status" data-s="' + esc(f.status) + '">' +
+        '<span style="width:6px;height:6px;border-radius:999px;background:currentColor"></span> ' +
+        esc(f.status) + '</span>' +
+      (f.doc_url ? '<a href="' + esc(f.doc_url) + '" target="_blank" style="font-size:12px;color:var(--brand-purple)">docs &rarr;</a>' : '') +
+    '</div>' +
+    (f.evidence_summary ? '<p class="feat-summary">' + esc(f.evidence_summary) + '</p>' : '') +
+    (f.last_swept_at ? '<div style="font-size:11px;color:var(--text-muted)">Last swept: ' + esc(f.last_swept_at.split('T')[0]) + '</div>' : '') +
+  '</div>';
+
+  // Score + Evidence kit side by side
+  var scoreClass = f.evidence_score >= 60 ? 'score-ring--high' : f.evidence_score >= 30 ? 'score-ring--medium' : 'score-ring--low';
+  html += '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:24px">' +
+    '<div style="text-align:center">' +
+      '<div class="score-ring ' + scoreClass + '">' + Math.round(f.evidence_score) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:6px">Evidence score</div>' +
+    '</div>' +
+    '<div class="kit-section" style="flex:1;margin-bottom:0">' +
+      '<h3>Evidence kit</h3>' +
+      kitRow('Aliases', f.aliases, '') +
+      kitRow('Variables', f.variables, '') +
+      kitRow('Negative terms', f.negative_terms, 'kit-chip--neg') +
+    '</div>' +
+  '</div>';
+
+  // Source cards
+  html += '<h2 style="font-size:16px;font-weight:700;margin-bottom:14px">Evidence by source</h2>';
+  html += '<div class="sources-grid">';
+  html += sourceCard('Jira', f.jira_ticket_count, fp.jira, items.jira);
+  html += sourceCard('Clari Copilot', f.clari_mention_count, fp.clari, items.clari);
+  html += sourceCard('PostHog (docs)', f.docs_pageviews_24m, fp.posthog, items.posthog);
+  html += sourceCard('Telemetry', f.telemetry_status === 'Yes' ? (f.telemetry_instances || 1) : 0, fp.telemetry, items.telemetry, f.telemetry_status);
+  html += sourceCard('Slack', f.slack_mention_count, fp.slack, items.slack);
+  html += sourceCardPending('ServiceNow');
+  html += '</div>';
+
+  // Verdict section (only if not frozen)
+  if (!isFrozen) {
+    html += '<div class="verdict-section">' +
+      '<h3>Set verdict</h3>' +
+      '<p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">Freeze the evidence state and mark this feature. Once frozen, evidence counts are locked as the official record.</p>' +
+      '<textarea class="verdict-textarea" id="verdictText" placeholder="Reason for decision (visible to all reviewers)..."></textarea>' +
+      '<div class="verdict-actions">' +
+        '<button class="verdict-btn verdict-btn--cut" onclick="setVerdict(\'Cut\')">Mark for removal</button>' +
+        '<button class="verdict-btn verdict-btn--keep" onclick="setVerdict(\'Keep\')">Keep</button>' +
+        '<button class="verdict-btn verdict-btn--improve" onclick="setVerdict(\'Improve\')">Improve</button>' +
+      '</div>' +
+      '<div id="verdictMsg"></div>' +
+    '</div>';
+  }
+
+  document.getElementById('main').insertAdjacentHTML('beforeend', html);
+}
+
+function kitRow(label, items, chipClass) {
+  if (!items || items.length === 0) return '<div class="kit-row"><span class="kit-label">' + label + '</span><span class="kit-empty">None defined</span></div>';
+  var chips = items.map(function(t) { return '<span class="kit-chip ' + chipClass + '">' + esc(t) + '</span>'; }).join('');
+  return '<div class="kit-row"><span class="kit-label">' + label + '</span><div class="kit-chips">' + chips + '</div></div>';
+}
+
+function sourceCard(name, count, footprint, items, statusOverride) {
+  var fp = footprint || {};
+  var hasData = count != null && count > 0;
+  var cardClass = hasData ? 'source-card--found' : 'source-card--empty';
+  var countClass = hasData ? 'source-card__count--found' : 'source-card__count--zero';
+
+  var displayCount = count != null ? count.toLocaleString() : '0';
+  if (statusOverride === 'Unknown') { displayCount = '?'; countClass = ''; cardClass = 'source-card--pending'; }
+
+  var html = '<div class="source-card ' + cardClass + '">' +
+    '<div class="source-card__header">' +
+      '<span class="source-card__title">' + esc(name) + '</span>' +
+      '<span class="source-card__count ' + countClass + '">' + displayCount + '</span>' +
+    '</div>';
+
+  // Search footprint metadata
+  if (fp.corpus || fp.date_range || fp.query_terms) {
+    html += '<div class="source-card__meta">';
+    if (fp.corpus) html += '<div><strong>Corpus:</strong> ' + esc(fp.corpus) + '</div>';
+    if (fp.date_range) html += '<div><strong>Window:</strong> ' + esc(fp.date_range) + '</div>';
+    if (fp.query_terms) html += '<div><strong>Searched:</strong> ' + esc(fp.query_terms.join(', ')) + '</div>';
+    html += '</div>';
+  }
+
+  // Evidence items (links to actual tickets/calls/pages)
+  if (items && items.length > 0) {
+    html += '<div class="source-card__items">';
+    items.forEach(function(item) {
+      html += '<div class="source-item">';
+      if (item.url) {
+        html += '<a href="' + esc(item.url) + '" target="_blank" class="source-item__link">' + esc(item.id || item.title || 'Link') + '</a>';
+      } else {
+        html += '<span style="font-weight:500">' + esc(item.id || item.title || '—') + '</span>';
+      }
+      if (item.desc) html += '<span class="source-item__desc">' + esc(item.desc) + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Negative evidence callout when zero
+  if (!hasData && statusOverride !== 'Unknown') {
+    html += '<div class="neg-evidence">';
+    if (fp.corpus) {
+      html += '<strong>No evidence found</strong> across ' + esc(fp.corpus);
+      if (fp.date_range) html += ' over ' + esc(fp.date_range);
+      html += '.';
+      if (fp.query_terms) html += ' Searched: <em>' + esc(fp.query_terms.slice(0, 5).join(', ')) + '</em>.';
+    } else {
+      html += '<strong>No evidence found.</strong> Search footprint not yet documented.';
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function sourceCardPending(name) {
+  return '<div class="source-card source-card--pending">' +
+    '<div class="source-card__header">' +
+      '<span class="source-card__title">' + esc(name) + '</span>' +
+      '<span class="source-card__count" style="color:var(--text-muted)">—</span>' +
+    '</div>' +
+    '<div class="source-card__meta"><div>Integration coming soon</div></div>' +
+  '</div>';
+}
+
+async function setVerdict(status) {
+  var verdict = document.getElementById('verdictText').value.trim();
+  var msgEl = document.getElementById('verdictMsg');
+  try {
+    var voterId = window.currentUser ? window.currentUser.voter_id : null;
+    var resp = await fetch('/api/sherpa/cut-keep/' + featureId + '/freeze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Voter-Token': voterId || '',
+      },
+      body: JSON.stringify({ status: status, verdict: verdict }),
+    });
+    var data = await resp.json();
+    if (data.ok) {
+      msgEl.innerHTML = '<div class="verdict-msg verdict-msg--ok">Verdict set: <strong>' + esc(status) + '</strong>. Evidence frozen. Reloading...</div>';
+      setTimeout(function() { location.reload(); }, 1200);
+    } else {
+      msgEl.innerHTML = '<div class="verdict-msg verdict-msg--err">' + esc(data.error || 'Failed') + '</div>';
+    }
+  } catch (e) {
+    msgEl.innerHTML = '<div class="verdict-msg verdict-msg--err">Network error: ' + esc(e.message) + '</div>';
+  }
+}
+
+loadFeature();
+</script>
+</body>
+</html>

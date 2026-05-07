@@ -113,13 +113,20 @@ echo ""
 # 3. Ensure data directory exists
 mkdir -p "$BASE/data"
 
-# 4. Clean up stale gunicorn control socket and restart
+# 4. Run DB migrations and seed scripts
+echo "--- database migrations ---"
+SHERPA_DATA_DIR="$BASE/data" "$VENV/bin/python3" -c "from server import init_db; init_db()"
+SHERPA_DATA_DIR="$BASE/data" "$VENV/bin/python3" seed_cut_keep.py
+SHERPA_DATA_DIR="$BASE/data" "$VENV/bin/python3" update_cut_keep_evidence.py
+echo ""
+
+# 6. Clean up stale gunicorn control socket and restart
 rm -f "$CODE/gunicorn.ctl"
 echo "--- restarting $SERVICE ---"
 sudo systemctl restart "$SERVICE"
 sleep 2
 
-# 5. Verify
+# 7. Verify
 if systemctl is-active --quiet "$SERVICE"; then
     echo ""
     echo "OK: $SERVICE is running"
