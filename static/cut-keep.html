@@ -12,18 +12,6 @@
 <link rel="stylesheet" href="/static/components.css">
 <link rel="stylesheet" href="/static/header.css">
 <style>
-/* Status badges */
-.verdict-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px; border-radius: 999px;
-  font-size: 11px; font-weight: 600; font-family: var(--font-mono);
-  white-space: nowrap;
-}
-.verdict--keep { background: rgba(34,197,94,0.12); color: var(--green); }
-.verdict--cut { background: rgba(239,68,68,0.12); color: var(--red); }
-.verdict--improve { background: rgba(59,130,246,0.12); color: var(--info); }
-.verdict--unknown { background: var(--bg-muted); color: var(--text-muted); }
-
 /* Evidence source dots */
 .source-dots {
   display: flex; align-items: center; gap: 6px;
@@ -152,19 +140,19 @@ document.head.appendChild(s);})();
       <svg class="mountain-deco" viewBox="0 0 100 60"><path d="M0 60 L30 15 L50 40 L75 5 L100 60 Z" fill="white"/></svg>
     </div>
     <div class="stat">
-      <span class="stat__label">Unknown</span>
-      <span class="stat__value" id="stat-unknown">&mdash;</span>
-      <span class="stat__delta" style="color:var(--text-muted)">needs evidence</span>
+      <span class="stat__label">Avg evidence score</span>
+      <span class="stat__value" id="stat-avg">&mdash;</span>
+      <span class="stat__delta" style="color:var(--text-muted)">across all features</span>
     </div>
     <div class="stat">
-      <span class="stat__label">Keep</span>
-      <span class="stat__value" id="stat-keep" style="color:var(--green)">&mdash;</span>
-      <span class="stat__delta stat__delta--up">&#8593; justified</span>
+      <span class="stat__label">Verdicts set</span>
+      <span class="stat__value" id="stat-frozen">&mdash;</span>
+      <span class="stat__delta" style="color:var(--text-muted)">frozen</span>
     </div>
     <div class="stat">
-      <span class="stat__label">Cut candidates</span>
-      <span class="stat__value" id="stat-cut" style="color:var(--red)">&mdash;</span>
-      <span class="stat__delta" style="color:var(--text-muted)">low evidence</span>
+      <span class="stat__label">Awaiting review</span>
+      <span class="stat__value" id="stat-pending">&mdash;</span>
+      <span class="stat__delta" style="color:var(--text-muted)">no verdict yet</span>
     </div>
   </div>
 
@@ -173,17 +161,6 @@ document.head.appendChild(s);})();
     <div class="input search" style="width:280px">
       <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5"/><path d="m14 14-3-3"/></svg>
       <input id="search" placeholder="Search features...">
-    </div>
-    <div class="input" style="width:148px">
-      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11l-4 5v4l-3-1V9l-4-5Z"/></svg>
-      <select id="filter-status">
-        <option value="">All statuses</option>
-        <option value="Unknown">Unknown</option>
-        <option value="Keep">Keep</option>
-        <option value="Improve">Improve</option>
-        <option value="Cut">Cut</option>
-      </select>
-      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
     </div>
     <div class="input" style="width:138px">
       <select id="filter-area">
@@ -212,7 +189,6 @@ document.head.appendChild(s);})();
           <tr>
             <th onclick="setSort('name')" style="cursor:pointer">Feature <span class="sort-arrow" data-col="name"></span></th>
             <th style="width:70px">Area</th>
-            <th onclick="setSort('status')" style="width:100px;cursor:pointer">Status <span class="sort-arrow" data-col="status"></span></th>
             <th onclick="setSort('evidence_score')" style="width:140px;cursor:pointer">Evidence <span class="sort-arrow" data-col="evidence_score"></span></th>
             <th style="width:130px">Sources</th>
             <th onclick="setSort('docs')" style="width:100px;cursor:pointer">Docs <span class="sort-arrow" data-col="docs"></span></th>
@@ -232,13 +208,6 @@ document.head.appendChild(s);})();
 var allFeatures = [];
 var currentSort = 'evidence_score';
 var sortDir = 'desc';
-
-var STATUS_CLASSES = {
-  'Keep': 'verdict--keep',
-  'Cut': 'verdict--cut',
-  'Improve': 'verdict--improve',
-  'Unknown': 'verdict--unknown',
-};
 
 function setSort(col) {
   if (currentSort === col) {
@@ -279,12 +248,14 @@ function populateFilters() {
 
 function updateStats() {
   document.getElementById('stat-total').textContent = allFeatures.length;
-  var unknown = allFeatures.filter(function(f) { return f.status === 'Unknown'; }).length;
-  var keep = allFeatures.filter(function(f) { return f.status === 'Keep'; }).length;
-  var cut = allFeatures.filter(function(f) { return f.status === 'Cut'; }).length;
-  document.getElementById('stat-unknown').textContent = unknown;
-  document.getElementById('stat-keep').textContent = keep;
-  document.getElementById('stat-cut').textContent = cut;
+  var frozen = allFeatures.filter(function(f) { return f.frozen_at; }).length;
+  var pending = allFeatures.length - frozen;
+  var avgScore = allFeatures.length > 0
+    ? Math.round(allFeatures.reduce(function(s, f) { return s + (f.evidence_score || 0); }, 0) / allFeatures.length)
+    : 0;
+  document.getElementById('stat-avg').textContent = avgScore;
+  document.getElementById('stat-frozen').textContent = frozen;
+  document.getElementById('stat-pending').textContent = pending;
   // Show tech breakdown
   var techs = {};
   allFeatures.forEach(function(f) { techs[f.tech] = (techs[f.tech] || 0) + 1; });
@@ -293,11 +264,9 @@ function updateStats() {
 }
 
 function getFiltered() {
-  var status = document.getElementById('filter-status').value;
   var area = document.getElementById('filter-area').value;
   var search = document.getElementById('search').value.toLowerCase();
   return allFeatures.filter(function(f) {
-    if (status && f.status !== status) return false;
     if (area && f.area !== area) return false;
     if (search) {
       var haystack = (f.name + ' ' + (f.aliases || []).join(' ') + ' ' + (f.variables || []).join(' ')).toLowerCase();
@@ -316,10 +285,6 @@ function getSorted(list) {
     if (currentSort === 'jira') return ((b.jira_ticket_count || 0) - (a.jira_ticket_count || 0)) * dir;
     if (currentSort === 'clari') return ((b.clari_mention_count || 0) - (a.clari_mention_count || 0)) * dir;
     if (currentSort === 'telemetry') return ((b.telemetry_instances || 0) - (a.telemetry_instances || 0)) * dir;
-    if (currentSort === 'status') {
-      var order = {'Cut':4,'Unknown':3,'Improve':2,'Keep':1};
-      return ((order[b.status]||0) - (order[a.status]||0)) * dir;
-    }
     return 0;
   });
 }
@@ -368,8 +333,6 @@ function renderTable() {
   container.style.display = '';
 
   tbody.innerHTML = filtered.map(function(f) {
-    var statusCls = STATUS_CLASSES[f.status] || 'verdict--unknown';
-
     // Feature name with detail link and aliases
     var nameCell = '<div style="display:flex;flex-direction:column;gap:3px">' +
       '<a href="/cut-keep/' + esc(f.id) + '" style="font-weight:600;color:var(--text-primary);text-decoration:none">' + esc(f.name) +
@@ -382,11 +345,6 @@ function renderTable() {
       nameCell += '<div>' + f.aliases.map(function(a) { return '<span class="alias-chip">' + esc(a) + '</span>'; }).join('') + '</div>';
     }
     nameCell += '</div>';
-
-    // Status badge
-    var statusCell = '<span class="verdict-badge ' + statusCls + '">' +
-      '<span style="width:6px;height:6px;border-radius:999px;background:currentColor"></span>' +
-      esc(f.status) + '</span>';
 
     // Source dots
     var sourcesCell = '<div class="source-dots">' +
@@ -416,7 +374,6 @@ function renderTable() {
     return '<tr>' +
       '<td>' + nameCell + '</td>' +
       '<td><span class="t-mono" style="font-size:11px;color:var(--text-secondary)">' + esc(f.area) + '</span></td>' +
-      '<td>' + statusCell + '</td>' +
       '<td>' + evidenceBarHTML(f.evidence_score || 0) + '</td>' +
       '<td>' + sourcesCell + '</td>' +
       '<td>' + docsCell + '</td>' +
@@ -430,7 +387,7 @@ function renderTable() {
 function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 // Event listeners
-document.querySelectorAll('#filter-status, #filter-area').forEach(function(el) { el.addEventListener('change', renderTable); });
+document.getElementById('filter-area').addEventListener('change', renderTable);
 document.getElementById('search').addEventListener('input', renderTable);
 document.querySelectorAll('.seg__btn[data-sort]').forEach(function(btn) {
   btn.addEventListener('click', function() { setSort(btn.dataset.sort); });
