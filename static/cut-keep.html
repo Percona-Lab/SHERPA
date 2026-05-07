@@ -104,6 +104,9 @@
   font-size: 13px; color: var(--text-secondary); line-height: 1.5;
 }
 .method-callout strong { color: var(--text-primary); }
+
+/* Clickable rows */
+.table tbody tr:hover { background: var(--bg-muted); }
 </style>
 <script>
 (function(){var s=document.createElement('script');s.src='/rybbit/script.js';s.defer=true;
@@ -333,11 +336,11 @@ function renderTable() {
   container.style.display = '';
 
   tbody.innerHTML = filtered.map(function(f) {
-    // Feature name with detail link and aliases
+    // Feature name with aliases (whole row is clickable)
     var nameCell = '<div style="display:flex;flex-direction:column;gap:3px">' +
-      '<a href="/cut-keep/' + esc(f.id) + '" style="font-weight:600;color:var(--text-primary);text-decoration:none">' + esc(f.name) +
+      '<span style="font-weight:600;color:var(--text-primary)">' + esc(f.name) +
       (f.frozen_at ? ' <span style="font-size:10px;opacity:0.5" title="Evidence frozen">&#x1f9ca;</span>' : '') +
-      '</a>';
+      '</span>';
     if (f.aliases && f.aliases.length > 0) {
       nameCell += '<div>' + f.aliases.map(function(a) { return '<span class="alias-chip">' + esc(a) + '</span>'; }).join('') + '</div>';
     }
@@ -368,7 +371,7 @@ function renderTable() {
       ? '<span class="t-mono" style="font-weight:600">' + f.clari_mention_count + '</span>'
       : '<span style="color:var(--text-muted)">0</span>';
 
-    return '<tr>' +
+    return '<tr style="cursor:pointer" onclick="window.location=\'/cut-keep/' + esc(f.id) + '\'">' +
       '<td>' + nameCell + '</td>' +
       '<td><span class="t-mono" style="font-size:11px;color:var(--text-secondary)">' + esc(f.area) + '</span></td>' +
       '<td>' + evidenceBarHTML(f.evidence_score || 0) + '</td>' +
