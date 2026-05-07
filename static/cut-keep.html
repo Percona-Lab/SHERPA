@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cut/Keep Sweep — SHERPA</title>
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg"><link rel="icon" type="image/png" href="/static/favicon.png">
+<link rel="preload" as="image" href="/static/logo-small.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/tokens.css">
+<link rel="stylesheet" href="/static/components.css">
+<link rel="stylesheet" href="/static/header.css">
+<style>
+/* Status badges */
+.verdict-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; font-family: var(--font-mono);
+  white-space: nowrap;
+}
+.verdict--keep { background: rgba(34,197,94,0.12); color: var(--green); }
+.verdict--cut { background: rgba(239,68,68,0.12); color: var(--red); }
+.verdict--improve { background: rgba(59,130,246,0.12); color: var(--info); }
+.verdict--unknown { background: var(--bg-muted); color: var(--text-muted); }
+
+/* Evidence source dots */
+.source-dots {
+  display: flex; align-items: center; gap: 6px;
+}
+.source-dot {
+  width: 8px; height: 8px; border-radius: 999px;
+  position: relative; cursor: help;
+}
+.source-dot--active { background: var(--green); }
+.source-dot--partial { background: var(--amber); }
+.source-dot--none { background: var(--bg-muted); border: 1px solid var(--border); }
+.source-dot::after {
+  content: attr(title);
+  position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-primary); border: 1px solid var(--border);
+  color: var(--text-primary); font-size: 11px; padding: 3px 8px;
+  border-radius: 6px; white-space: nowrap;
+  pointer-events: none; opacity: 0; transition: opacity 0.15s;
+  z-index: 10;
+}
+.source-dot:hover::after { opacity: 1; }
+
+/* Evidence bar */
+.evidence-bar {
+  display: flex; align-items: center; gap: 8px;
+}
+.evidence-bar__track {
+  flex: 1; height: 6px; background: var(--bg-muted);
+  border-radius: 999px; overflow: hidden; min-width: 60px;
+}
+.evidence-bar__fill {
+  height: 100%; border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.evidence-bar__fill--high {
+  background: linear-gradient(90deg, var(--green), #22c55e);
+}
+.evidence-bar__fill--medium {
+  background: linear-gradient(90deg, var(--amber), #f59e0b);
+}
+.evidence-bar__fill--low {
+  background: linear-gradient(90deg, var(--red), #ef4444);
+}
+
+/* Doc link */
+.doc-link {
+  color: var(--brand-purple); text-decoration: none; font-size: 12px;
+}
+.doc-link:hover { text-decoration: underline; }
+
+/* Aliases chips */
+.alias-chip {
+  display: inline-block; padding: 1px 6px; margin: 1px 2px;
+  background: var(--bg-muted); border-radius: 4px;
+  font-size: 10px; font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+/* Stat accent */
+.stat--accent {
+  background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-purple-600) 100%);
+  border-color: transparent; color: white;
+  position: relative; overflow: hidden;
+}
+.stat--accent .stat__label { color: rgba(255,255,255,0.75); }
+.stat--accent .stat__value { color: white; }
+.stat--accent .stat__delta { color: var(--brand-yellow); }
+.stat--accent .mountain-deco {
+  position: absolute; right: -10px; bottom: -10px;
+  width: 110px; height: 70px; opacity: 0.18; pointer-events: none;
+}
+
+/* Loading / empty */
+.loading, .empty {
+  text-align: center; padding: 80px 32px;
+  color: var(--text-muted); font-size: 15px;
+}
+.loading .spinner {
+  width: 32px; height: 32px; border: 3px solid var(--border);
+  border-top-color: var(--brand-purple); border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Methodology callout */
+.method-callout {
+  background: var(--bg-muted); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 20px; margin-bottom: 18px;
+  font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+}
+.method-callout strong { color: var(--text-primary); }
+</style>
+<script>
+(function(){var s=document.createElement('script');s.src='/rybbit/script.js';s.defer=true;
+s.dataset.siteId=location.hostname.includes('staging')?'a0aeed07d55a':'7ecde10714bd';
+document.head.appendChild(s);})();
+</script>
+</head>
+<body>
+<script src="/static/header.js"></script>
+
+<main class="page page--wide">
+  <!-- Page head -->
+  <div class="page-head">
+    <div class="page-head__title">
+      <span class="t-eyebrow" style="color:var(--brand-purple)">Evidence sweep</span>
+      <h1 class="t-display">Cut / Keep</h1>
+      <p class="t-body" style="margin:0; max-width:700px">
+        Evidence-based review of Percona-maintained features. Cross-references telemetry, docs traffic, Jira, Clari Copilot, and Slack over a 24-month window to determine which features earn their maintenance cost. ServiceNow KB data coming soon.
+      </p>
+    </div>
+  </div>
+
+  <!-- Methodology note -->
+  <div class="method-callout">
+    <strong>Methodology:</strong> If a feature is actively used, traces appear across docs traffic, Jira escalations, sales calls, and Slack conversations. Absence of those traces over 24 months is strong evidence the feature is not earning its maintenance cost. Each feature gets an <strong>evidence kit</strong> (aliases, variables, negative terms) to run precise cross-source searches. <span style="color:var(--text-muted)">ServiceNow KB integration coming soon.</span>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="stat-grid" style="margin-bottom:18px" id="statsGrid">
+    <div class="stat stat--accent">
+      <span class="stat__label">Features under review</span>
+      <span class="stat__value" id="stat-total">&mdash;</span>
+      <span class="stat__delta" id="stat-tech-label">MySQL</span>
+      <svg class="mountain-deco" viewBox="0 0 100 60"><path d="M0 60 L30 15 L50 40 L75 5 L100 60 Z" fill="white"/></svg>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Unknown</span>
+      <span class="stat__value" id="stat-unknown">&mdash;</span>
+      <span class="stat__delta" style="color:var(--text-muted)">needs evidence</span>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Keep</span>
+      <span class="stat__value" id="stat-keep" style="color:var(--green)">&mdash;</span>
+      <span class="stat__delta stat__delta--up">&#8593; justified</span>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Cut candidates</span>
+      <span class="stat__value" id="stat-cut" style="color:var(--red)">&mdash;</span>
+      <span class="stat__delta" style="color:var(--text-muted)">low evidence</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="input search" style="width:280px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="5"/><path d="m14 14-3-3"/></svg>
+      <input id="search" placeholder="Search features...">
+    </div>
+    <div class="input" style="width:148px">
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11l-4 5v4l-3-1V9l-4-5Z"/></svg>
+      <select id="filter-status">
+        <option value="">All statuses</option>
+        <option value="Unknown">Unknown</option>
+        <option value="Keep">Keep</option>
+        <option value="Improve">Improve</option>
+        <option value="Cut">Cut</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
+    <div class="input" style="width:138px">
+      <select id="filter-area">
+        <option value="">All areas</option>
+      </select>
+      <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 4 4 4-4"/></svg>
+    </div>
+    <div class="toolbar__sep"></div>
+    <div class="seg">
+      <button class="seg__btn" data-active="true" data-sort="evidence_score">Evidence</button>
+      <button class="seg__btn" data-sort="name">Name</button>
+      <button class="seg__btn" data-sort="docs">Docs views</button>
+      <button class="seg__btn" data-sort="jira">Jira</button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Loading features...
+  </div>
+  <div id="tableContainer" style="display:none">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th onclick="setSort('name')" style="cursor:pointer">Feature <span class="sort-arrow" data-col="name"></span></th>
+            <th style="width:70px">Area</th>
+            <th onclick="setSort('status')" style="width:100px;cursor:pointer">Status <span class="sort-arrow" data-col="status"></span></th>
+            <th onclick="setSort('evidence_score')" style="width:140px;cursor:pointer">Evidence <span class="sort-arrow" data-col="evidence_score"></span></th>
+            <th style="width:130px">Sources</th>
+            <th onclick="setSort('docs')" style="width:100px;cursor:pointer">Docs <span class="sort-arrow" data-col="docs"></span></th>
+            <th onclick="setSort('jira')" style="width:80px;cursor:pointer">Jira <span class="sort-arrow" data-col="jira"></span></th>
+            <th onclick="setSort('clari')" style="width:80px;cursor:pointer">Clari <span class="sort-arrow" data-col="clari"></span></th>
+            <th onclick="setSort('telemetry')" style="width:100px;cursor:pointer">Telemetry <span class="sort-arrow" data-col="telemetry"></span></th>
+          </tr>
+        </thead>
+        <tbody id="features-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="empty" id="empty" style="display:none">No features match your filters.</div>
+</main>
+
+<script>
+var allFeatures = [];
+var currentSort = 'evidence_score';
+var sortDir = 'desc';
+
+var STATUS_CLASSES = {
+  'Keep': 'verdict--keep',
+  'Cut': 'verdict--cut',
+  'Improve': 'verdict--improve',
+  'Unknown': 'verdict--unknown',
+};
+
+function setSort(col) {
+  if (currentSort === col) {
+    sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    currentSort = col;
+    sortDir = col === 'name' ? 'asc' : 'desc';
+  }
+  document.querySelectorAll('.sort-arrow').forEach(function(el) {
+    var isActive = el.dataset.col === col;
+    el.textContent = isActive ? (sortDir === 'desc' ? ' ▼' : ' ▲') : '';
+    el.style.color = isActive ? 'var(--brand-purple)' : '';
+  });
+  document.querySelectorAll('.seg__btn[data-sort]').forEach(function(btn) {
+    btn.setAttribute('data-active', btn.dataset.sort === col);
+  });
+  renderTable();
+}
+
+async function loadData() {
+  try {
+    var resp = await fetch('/api/sherpa/cut-keep');
+    var data = await resp.json();
+    allFeatures = data.features || [];
+    populateFilters();
+    updateStats();
+    renderTable();
+  } catch (e) {
+    document.getElementById('loading').innerHTML = '<p style="color:var(--red)">Failed to load: ' + e.message + '</p>';
+  }
+}
+
+function populateFilters() {
+  var areas = [...new Set(allFeatures.map(function(f) { return f.area; }).filter(Boolean))].sort();
+  var aSel = document.getElementById('filter-area');
+  areas.forEach(function(a) { var o = document.createElement('option'); o.value = a; o.textContent = a; aSel.appendChild(o); });
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = allFeatures.length;
+  var unknown = allFeatures.filter(function(f) { return f.status === 'Unknown'; }).length;
+  var keep = allFeatures.filter(function(f) { return f.status === 'Keep'; }).length;
+  var cut = allFeatures.filter(function(f) { return f.status === 'Cut'; }).length;
+  document.getElementById('stat-unknown').textContent = unknown;
+  document.getElementById('stat-keep').textContent = keep;
+  document.getElementById('stat-cut').textContent = cut;
+  // Show tech breakdown
+  var techs = {};
+  allFeatures.forEach(function(f) { techs[f.tech] = (techs[f.tech] || 0) + 1; });
+  var techLabel = Object.entries(techs).map(function(e) { return e[0] + ' (' + e[1] + ')'; }).join(', ');
+  document.getElementById('stat-tech-label').textContent = techLabel || 'MySQL';
+}
+
+function getFiltered() {
+  var status = document.getElementById('filter-status').value;
+  var area = document.getElementById('filter-area').value;
+  var search = document.getElementById('search').value.toLowerCase();
+  return allFeatures.filter(function(f) {
+    if (status && f.status !== status) return false;
+    if (area && f.area !== area) return false;
+    if (search) {
+      var haystack = (f.name + ' ' + (f.aliases || []).join(' ') + ' ' + (f.variables || []).join(' ')).toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+function getSorted(list) {
+  var dir = sortDir === 'desc' ? 1 : -1;
+  return list.slice().sort(function(a, b) {
+    if (currentSort === 'evidence_score') return ((b.evidence_score || 0) - (a.evidence_score || 0)) * dir;
+    if (currentSort === 'name') return (a.name || '').localeCompare(b.name || '') * dir;
+    if (currentSort === 'docs') return ((b.docs_pageviews_24m || 0) - (a.docs_pageviews_24m || 0)) * dir;
+    if (currentSort === 'jira') return ((b.jira_ticket_count || 0) - (a.jira_ticket_count || 0)) * dir;
+    if (currentSort === 'clari') return ((b.clari_mention_count || 0) - (a.clari_mention_count || 0)) * dir;
+    if (currentSort === 'telemetry') return ((b.telemetry_instances || 0) - (a.telemetry_instances || 0)) * dir;
+    if (currentSort === 'status') {
+      var order = {'Cut':4,'Unknown':3,'Improve':2,'Keep':1};
+      return ((order[b.status]||0) - (order[a.status]||0)) * dir;
+    }
+    return 0;
+  });
+}
+
+function evidenceBarHTML(score) {
+  var pct = Math.min(100, Math.max(0, score));
+  var cls = pct >= 60 ? 'evidence-bar__fill--high' : pct >= 30 ? 'evidence-bar__fill--medium' : 'evidence-bar__fill--low';
+  return '<div class="evidence-bar">' +
+    '<div class="evidence-bar__track"><div class="evidence-bar__fill ' + cls + '" style="width:' + pct + '%"></div></div>' +
+    '<span class="t-mono" style="font-size:12px;min-width:28px;text-align:right">' + Math.round(score) + '</span></div>';
+}
+
+function sourceDotHTML(label, count) {
+  var cls = count > 0 ? 'source-dot--active' : 'source-dot--none';
+  var title = label + ': ' + (count != null ? count : 'N/A');
+  return '<span class="source-dot ' + cls + '" title="' + esc(title) + '"></span>';
+}
+
+function telemetryHTML(status, instances) {
+  if (status === 'Yes' && instances != null) {
+    return '<span class="t-mono" style="font-weight:600;color:var(--green)">' + instances.toLocaleString() + '</span>';
+  }
+  if (status === 'Yes') {
+    return '<span style="color:var(--green);font-size:12px;font-weight:600">Active</span>';
+  }
+  if (status === 'Unknown') {
+    return '<span style="color:var(--text-muted);font-size:12px">Unknown</span>';
+  }
+  return '<span style="color:var(--red);font-size:12px">None</span>';
+}
+
+function renderTable() {
+  var filtered = getSorted(getFiltered());
+  var tbody = document.getElementById('features-body');
+  var loading = document.getElementById('loading');
+  var empty = document.getElementById('empty');
+  var container = document.getElementById('tableContainer');
+
+  loading.style.display = 'none';
+  if (filtered.length === 0) {
+    container.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  container.style.display = '';
+
+  tbody.innerHTML = filtered.map(function(f) {
+    var statusCls = STATUS_CLASSES[f.status] || 'verdict--unknown';
+
+    // Feature name with doc link and aliases
+    var nameCell = '<div style="display:flex;flex-direction:column;gap:3px">' +
+      '<div style="font-weight:600;color:var(--text-primary)">' + esc(f.name) + '</div>';
+    if (f.doc_url) {
+      nameCell += '<a href="' + esc(f.doc_url) + '" target="_blank" class="doc-link">docs &rarr;</a>';
+    }
+    if (f.aliases && f.aliases.length > 0) {
+      nameCell += '<div>' + f.aliases.map(function(a) { return '<span class="alias-chip">' + esc(a) + '</span>'; }).join('') + '</div>';
+    }
+    nameCell += '</div>';
+
+    // Status badge
+    var statusCell = '<span class="verdict-badge ' + statusCls + '">' +
+      '<span style="width:6px;height:6px;border-radius:999px;background:currentColor"></span>' +
+      esc(f.status) + '</span>';
+
+    // Source dots
+    var sourcesCell = '<div class="source-dots">' +
+      sourceDotHTML('Telemetry', f.telemetry_instances) +
+      sourceDotHTML('Docs', f.docs_pageviews_24m) +
+      sourceDotHTML('Jira', f.jira_ticket_count) +
+      sourceDotHTML('Clari', f.clari_mention_count) +
+      sourceDotHTML('Slack', f.slack_mention_count) +
+      '<span class="source-dot source-dot--none" title="ServiceNow: coming soon" style="opacity:0.4"></span>' +
+      '</div>';
+
+    // Docs pageviews
+    var docsCell = f.docs_pageviews_24m != null
+      ? '<span class="t-mono" style="font-weight:600">' + f.docs_pageviews_24m.toLocaleString() + '</span>'
+      : '<span style="color:var(--text-muted);font-size:12px">Pending</span>';
+
+    // Jira count
+    var jiraCell = f.jira_ticket_count > 0
+      ? '<span class="t-mono" style="font-weight:600">' + f.jira_ticket_count + '</span>'
+      : '<span style="color:var(--text-muted)">0</span>';
+
+    // Clari count
+    var clariCell = f.clari_mention_count > 0
+      ? '<span class="t-mono" style="font-weight:600">' + f.clari_mention_count + '</span>'
+      : '<span style="color:var(--text-muted)">0</span>';
+
+    return '<tr>' +
+      '<td>' + nameCell + '</td>' +
+      '<td><span class="t-mono" style="font-size:11px;color:var(--text-secondary)">' + esc(f.area) + '</span></td>' +
+      '<td>' + statusCell + '</td>' +
+      '<td>' + evidenceBarHTML(f.evidence_score || 0) + '</td>' +
+      '<td>' + sourcesCell + '</td>' +
+      '<td>' + docsCell + '</td>' +
+      '<td>' + jiraCell + '</td>' +
+      '<td>' + clariCell + '</td>' +
+      '<td>' + telemetryHTML(f.telemetry_status, f.telemetry_instances) + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Event listeners
+document.querySelectorAll('#filter-status, #filter-area').forEach(function(el) { el.addEventListener('change', renderTable); });
+document.getElementById('search').addEventListener('input', renderTable);
+document.querySelectorAll('.seg__btn[data-sort]').forEach(function(btn) {
+  btn.addEventListener('click', function() { setSort(btn.dataset.sort); });
+});
+
+loadData();
+</script>
+</body>
+</html>
